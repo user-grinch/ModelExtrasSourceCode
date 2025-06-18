@@ -18,7 +18,7 @@ private:
 
 public:
     static void Initialize();
-
+    static void Reload(CVehicle *pVeh);
     static void Add(void *ptr, RwFrame* frame, eModelEntityType type);
     static void Process(void *ptr, eModelEntityType type);
     static void Remove(void *ptr, eModelEntityType type);

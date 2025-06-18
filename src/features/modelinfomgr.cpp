@@ -196,27 +196,27 @@ RpMaterial *ModelInfoMgr::SetEditableMaterialsCB(RpMaterial *material, void *dat
 	}
 	bool isRemapTex = RwTextureGetName(RpMaterialGetTexture(material))[0] == '#';
 	
-	// if (pCurVeh->m_nModelIndex == 416) {
-	// 	gLogger->info("Currently loading tex {}", material->texture->name);
-	// 	std::cout << material->texture->name << std::endl;
-	// }
+	if (pCurVeh->m_nModelIndex == 445) {
+		gLogger->info("Currently loading tex {}", material->texture->name);
+		std::cout << material->texture->name << std::endl;
+	}
 
 	tRestoreEntry **ppEntries = reinterpret_cast<tRestoreEntry **>(data);
 	CRGBA matCol = *reinterpret_cast<CRGBA *>(RpMaterialGetColor(material));
 	matCol.a = 255;
 
-	if (isRemapTex) {
-		if (CVehicleModelInfo::ms_pRemapTexture)
-		{
-			(*ppEntries)->m_pAddress = &material->texture;
-			(*ppEntries)->m_pValue = material->texture;
-			(*ppEntries)++;
-			material->texture = CVehicleModelInfo::ms_pRemapTexture;
-		}
-	} else {
-		DirtFx::ProcessTextures(pCurVeh, material);
-		LicensePlate::ProcessTextures(pCurVeh, material);
-	}
+	// if (isRemapTex) {
+	// 	if (CVehicleModelInfo::ms_pRemapTexture)
+	// 	{
+	// 		(*ppEntries)->m_pAddress = &material->texture;
+	// 		(*ppEntries)->m_pValue = material->texture;
+	// 		(*ppEntries)++;
+	// 		material->texture = CVehicleModelInfo::ms_pRemapTexture;
+	// 	}
+	// } else {
+	// 	DirtFx::ProcessTextures(pCurVeh, material);
+	// 	LicensePlate::ProcessTextures(pCurVeh, material);
+	// }
 
 	eLightType iLightIndex = FetchMaterialType(pCurVeh, material);
 	if (iLightIndex != eLightType::UnknownLight)
@@ -265,15 +265,16 @@ RpMaterial *ModelInfoMgr::SetEditableMaterialsCB(RpMaterial *material, void *dat
 	}
 	else
 	{
-		CRGBA col = IVFCarcols::GetColor(pCurVeh, material, matCol);
-		
-		(*ppEntries)->m_pAddress = RpMaterialGetColor(material);
-		(*ppEntries)->m_pValue = *reinterpret_cast<void **>(RpMaterialGetColor(material));
-		(*ppEntries)++;
+		CRGBA col;
+		if (IVFCarcols::GetColor(pCurVeh, material, col)) {
+			(*ppEntries)->m_pAddress = RpMaterialGetColor(material);
+			(*ppEntries)->m_pValue = *reinterpret_cast<void **>(RpMaterialGetColor(material));
+			(*ppEntries)++;
 
-		RpMaterialGetColor(material)->red = col.r;
-		RpMaterialGetColor(material)->green = col.g;
-		RpMaterialGetColor(material)->blue = col.b;
+			RpMaterialGetColor(material)->red = col.r;
+			RpMaterialGetColor(material)->green = col.g;
+			RpMaterialGetColor(material)->blue = col.b;
+		}
 	}
 
 	return material;

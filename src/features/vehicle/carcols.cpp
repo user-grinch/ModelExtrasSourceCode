@@ -10,44 +10,45 @@ void IVFCarcols::Initialize()
     m_bEnabled = true;
 }
 
-CRGBA IVFCarcols::GetColor(CVehicle *pVeh, RpMaterial *pMat, CRGBA type) {
+bool IVFCarcols::GetColor(CVehicle *pVeh, RpMaterial *pMat, CRGBA &col) {
     CRGBA *colorTable = *reinterpret_cast<CRGBA**>(0x4C8390);
+    CRGBA type =  *reinterpret_cast<CRGBA *>(RpMaterialGetColor(pMat));
 
     int model = pVeh->m_nModelIndex;
     if (m_bEnabled && variations.contains(model)) {
         auto& data = ExData.Get(pVeh);
         int random = rand() % variations[model].size();
-        auto col = variations[model][random];
+        auto storeCol = variations[model][random];
         
         if (type == VEHCOL_PRIMARY) {
             if (!data.m_bPri) {
-                data.m_Colors.primary = col.primary;
+                data.m_Colors.primary = storeCol.primary;
                 data.m_bPri = true;
             }
-            return data.m_Colors.primary;
+            col = data.m_Colors.primary;
         }
         else if (type == VEHCOL_SECONDARY) {
             if (!data.m_bSec) {
-                data.m_Colors.secondary = col.secondary;
+                data.m_Colors.secondary = storeCol.secondary;
                 data.m_bSec = true;
             }
-            return data.m_Colors.secondary;
+            col = data.m_Colors.secondary;
         }
         else if (type == VEHCOL_TERTIARY) {
             if (!data.m_bTer) {
-                data.m_Colors.tert = col.tert;
+                data.m_Colors.tert = storeCol.tert;
                 data.m_bTer = true;
             }
-            return data.m_Colors.tert;
+            col = data.m_Colors.tert;
         }
         else if (type == VEHCOL_QUATARNARY) {
             if (!data.m_bQuat) {
-                data.m_Colors.quart = col.quart;
+                data.m_Colors.quart = storeCol.quart;
                 data.m_bQuat = true;
             }
-            return data.m_Colors.quart;
+            col = data.m_Colors.quart;
         } else {
-            return *reinterpret_cast<CRGBA*>(RpMaterialGetColor(pMat));
+            return false;
         }
     }
     else {
@@ -65,10 +66,12 @@ CRGBA IVFCarcols::GetColor(CVehicle *pVeh, RpMaterial *pMat, CRGBA type) {
             idx = CVehicleModelInfo::ms_currentCol[3];
         }
         else {
-            return *reinterpret_cast<CRGBA*>(RpMaterialGetColor(pMat));
+            return false;
         }
-        return colorTable[idx];
+        col = colorTable[idx];
     }
+
+    return true;
 }
 
 void IVFCarcols::Parse(const nlohmann::json &data, int model)

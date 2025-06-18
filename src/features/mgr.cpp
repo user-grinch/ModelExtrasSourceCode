@@ -48,10 +48,7 @@ void FeatureMgr::Initialize()
             CVehicle *pVeh = FindPlayerVehicle(-1, false);
             if (pVeh && plugin::Command<TEST_CHEAT>("MERELOAD"))
             {
-                Lights::Reload(pVeh);
-                Sirens::Reload(pVeh);
-            	ModelInfoMgr::Reload(pVeh);
-                CHud::SetHelpMessage("Config reloaded", false, false, true);
+                Reload(pVeh);
             }
         };
     }
@@ -337,6 +334,14 @@ void FeatureMgr::Initialize()
     }
 
     LOG_NO_LEVEL("");
+}
+
+void FeatureMgr::Reload(CVehicle *pVeh)
+{
+    Lights::Reload(pVeh);
+    Sirens::Reload(pVeh);
+    ModelInfoMgr::Reload(pVeh);
+    CHud::SetHelpMessage("Config reloaded", false, false, true);
 }
 
 void FeatureMgr::FindNodes(void *ptr, RwFrame *frame, eModelEntityType type)

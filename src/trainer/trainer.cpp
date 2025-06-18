@@ -16,13 +16,15 @@ extern RwSurfaceProperties gLightSurfProps;
 
 #define F_NULL [](void *) {}
 
+extern void LightsTab();
+
 void TrainerInit()
 {
     TAPI_ClearWidgets();
     if (TAPI_InitConnect("ModelExtras", TAPI_VERSION) == TReturn_Success)
     {
         if (PATRON_BUILD) {
-            static const char *tabs[] = {"Features", "NodeExplorer", "Weapons"};
+            static const char *tabs[] = {"Features", "NodeExplorer", "Lights"};
             static size_t selectedTab = 0;
             TAPI_Spacing(0, 10);
             if (TAPI_Tabs(tabs, 3, &selectedTab) == TReturn_Success)
@@ -64,7 +66,7 @@ void TrainerInit()
 
                 if (selectedTab == 2)
                 {
-                    TAPI_Text("Weapons TAB");
+                    LightsTab();
                 }
             }
         } else {
