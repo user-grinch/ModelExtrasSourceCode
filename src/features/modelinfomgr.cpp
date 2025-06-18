@@ -205,18 +205,18 @@ RpMaterial *ModelInfoMgr::SetEditableMaterialsCB(RpMaterial *material, void *dat
 	CRGBA matCol = *reinterpret_cast<CRGBA *>(RpMaterialGetColor(material));
 	matCol.a = 255;
 
-	// if (isRemapTex) {
-	// 	if (CVehicleModelInfo::ms_pRemapTexture)
-	// 	{
-	// 		(*ppEntries)->m_pAddress = &material->texture;
-	// 		(*ppEntries)->m_pValue = material->texture;
-	// 		(*ppEntries)++;
-	// 		material->texture = CVehicleModelInfo::ms_pRemapTexture;
-	// 	}
-	// } else {
-	// 	DirtFx::ProcessTextures(pCurVeh, material);
-	// 	LicensePlate::ProcessTextures(pCurVeh, material);
-	// }
+	if (isRemapTex) {
+		if (CVehicleModelInfo::ms_pRemapTexture)
+		{
+			(*ppEntries)->m_pAddress = &material->texture;
+			(*ppEntries)->m_pValue = material->texture;
+			(*ppEntries)++;
+			material->texture = CVehicleModelInfo::ms_pRemapTexture;
+		}
+	} else {
+		DirtFx::ProcessTextures(pCurVeh, material);
+		LicensePlate::ProcessTextures(pCurVeh, material);
+	}
 
 	eLightType iLightIndex = FetchMaterialType(pCurVeh, material);
 	if (iLightIndex != eLightType::UnknownLight)
