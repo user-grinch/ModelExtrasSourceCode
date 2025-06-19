@@ -65,9 +65,12 @@ BOOL WINAPI DllMain(HINSTANCE hDllHandle, DWORD nReason, LPVOID Reserved)
         }
 
         gVerboseLogging = gConfig.ReadBoolean("CONFIG", "VerboseLogging", false);
-        if (!gVerboseLogging) {
-            gLogger->info("Enable 'VerboseLogging' in ModelExtras.ini to display model-related errors.");
-        }
+        
+        Events::initScriptsEvent.after += []() {
+            if (!gVerboseLogging) {
+                gLogger->info("Enable 'VerboseLogging' in ModelExtras.ini to display model-related errors.");
+            }
+        };
 
         Events::initRwEvent.after += []()
         {
