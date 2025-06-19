@@ -26,7 +26,21 @@ enum eLightType
     SpotLight,
     StrobeLight,
     SirenLight,
-    IndicatorLightLeft,
-    IndicatorLightRight,
+
+    IndicatorLightLeftFront,
+    IndicatorLightLeftMiddle,
+    IndicatorLightLeftRear,
+    IndicatorLightRightFront,
+    IndicatorLightRightMiddle,
+    IndicatorLightRightRear,
     TotalLight,
 };
+
+#define INDICATOR_LIGHTS_TYPE { \
+    IndicatorLightLeftFront, \
+    IndicatorLightLeftMiddle, \
+    IndicatorLightLeftRear, \
+    IndicatorLightRightFront, \
+    IndicatorLightRightMiddle, \
+    IndicatorLightRightRear \
+}

@@ -25,12 +25,12 @@ void LicensePlate::Initialize()
 }
 
 void LicensePlate::ProcessTextures(CVehicle *pVeh, RpMaterial *pMat) {
-    if (!m_bEnabled) {
+    if (!m_bEnabled || !pMat || !pMat->texture) {
         return;
     }
     
     pCurrentVeh = pVeh;
-    if ( !_stricmp("carpback", pMat->texture->name) )
+    if ( !_stricmp("carpback", pMat->texture->name))
     {
         CCustomCarPlateMgr_SetupMaterialPlatebackTexture(pMat, -1);
     }
