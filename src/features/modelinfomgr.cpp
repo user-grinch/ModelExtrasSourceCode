@@ -20,25 +20,10 @@ static CVehicle *pCurVeh = nullptr;
 RwSurfaceProperties gLightSurfPropsOn = {16.0, 0.0, 0.0};
 RwSurfaceProperties gLightSurfProps = {1.0, 0.0, 0.0};
 
-signed int __cdecl hkRwD3D9SetTexture(RwTexture *texture, int stage)
-{
-	if (texture) {
-		gLogger->info("Currnt texture is {}", texture->name);
-		std::cout <<"tex " << texture->name << std::endl;
-	} else {
-		gLogger->info("Texture is null");
-		std::cout <<"null tex" << std::endl;
-	}
-	return RwD3D9SetTexture(texture, stage);
-}
 void ModelInfoMgr::Initialize() {
 	// Nop frame collasping
     plugin::patch::Nop(0x4C8E53, 5);
     plugin::patch::Nop(0x4C8F6E, 5);
-
-	// patch::ReplaceFunctionCall(0x5D996F, hkRwD3D9SetTexture);
-	// patch::ReplaceFunctionCall(0x5D9BE0, hkRwD3D9SetTexture);
-	// patch::ReplaceFunctionCall(0x5D9D69, hkRwD3D9SetTexture);
 
 	patch::ReplaceFunctionCall(0x5532A9, ModelInfoMgr::SetupRender);
     patch::ReplaceFunction(0x4C8220, ModelInfoMgr::SetEditableMaterialsCB);
@@ -165,10 +150,10 @@ struct tRestoreEntry
 	void *m_pValue;
 };
 
-CRGBA ModelInfoMgr::FetchMaterialCol(CVehicle *pVeh, RpMaterial *pMat) {
+CRGBA ModelInfoMgr::FetchMaterialCol(CVehicle *pVeh, RpMaterial *pMat, eLightType type) {
 	CRGBA col = DEFAULT_MAT_COL;
 	for (auto& e : matColProviders) {
-		col = e(pVeh, pMat);
+		col = e(pVeh, pMat, type);
 		if (col != DEFAULT_MAT_COL) {
 			break;
 		}
@@ -194,17 +179,9 @@ RpMaterial *ModelInfoMgr::SetEditableMaterialsCB(RpMaterial *material, void *dat
 	if (!material || !material->texture) {
 		return material;
 	}
-	bool isRemapTex = RwTextureGetName(RpMaterialGetTexture(material))[0] == '#';
-	
-	if (pCurVeh->m_nModelIndex == 445) {
-		gLogger->info("Currently loading tex {}", material->texture->name);
-		std::cout << material->texture->name << std::endl;
-	}
 
 	tRestoreEntry **ppEntries = reinterpret_cast<tRestoreEntry **>(data);
-	CRGBA matCol = *reinterpret_cast<CRGBA *>(RpMaterialGetColor(material));
-	matCol.a = 255;
-
+	bool isRemapTex = RwTextureGetName(RpMaterialGetTexture(material))[0] == '#';
 	if (isRemapTex) {
 		if (CVehicleModelInfo::ms_pRemapTexture)
 		{
@@ -230,7 +207,7 @@ RpMaterial *ModelInfoMgr::SetEditableMaterialsCB(RpMaterial *material, void *dat
 			lightOn = m_LightStatus[pCurVeh][iLightIndex];
 		}
 		
-		CRGBA enabledCol = FetchMaterialCol(pCurVeh, material);
+		CRGBA enabledCol = FetchMaterialCol(pCurVeh, material, iLightIndex);
 		(*ppEntries)->m_pAddress = RpMaterialGetColor(material);
 		(*ppEntries)->m_pValue = *reinterpret_cast<void **>(RpMaterialGetColor(material));
 		(*ppEntries)++;
@@ -265,16 +242,15 @@ RpMaterial *ModelInfoMgr::SetEditableMaterialsCB(RpMaterial *material, void *dat
 	}
 	else
 	{
-		CRGBA col;
+		CRGBA col = {255, 255, 255, 255};
 		if (IVFCarcols::GetColor(pCurVeh, material, col)) {
 			(*ppEntries)->m_pAddress = RpMaterialGetColor(material);
 			(*ppEntries)->m_pValue = *reinterpret_cast<void **>(RpMaterialGetColor(material));
 			(*ppEntries)++;
-
-			RpMaterialGetColor(material)->red = col.r;
-			RpMaterialGetColor(material)->green = col.g;
-			RpMaterialGetColor(material)->blue = col.b;
 		}
+		RpMaterialGetColor(material)->red = col.r;
+		RpMaterialGetColor(material)->green = col.g;
+		RpMaterialGetColor(material)->blue = col.b;
 	}
 
 	return material;

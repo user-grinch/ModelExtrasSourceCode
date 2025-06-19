@@ -13,6 +13,7 @@ void IVFCarcols::Initialize()
 bool IVFCarcols::GetColor(CVehicle *pVeh, RpMaterial *pMat, CRGBA &col) {
     CRGBA *colorTable = *reinterpret_cast<CRGBA**>(0x4C8390);
     CRGBA type =  *reinterpret_cast<CRGBA *>(RpMaterialGetColor(pMat));
+    type.a == 255;
 
     int model = pVeh->m_nModelIndex;
     if (m_bEnabled && variations.contains(model)) {

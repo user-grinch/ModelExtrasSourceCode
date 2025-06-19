@@ -3,8 +3,6 @@
 #include "trainer/vehframeview.hpp"
 #include "defines.h"
 
-#define PATRON_BUILD 1
-
 extern bool gbGlobalIndicatorLights;
 extern bool gbGlobalReverseLights;
 extern float gfGlobalCoronaSize;

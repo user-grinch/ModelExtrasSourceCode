@@ -147,9 +147,10 @@ void Lights::Initialize()
 	{
 		gbGlobalIndicatorLights = gConfig.ReadBoolean("VEHICLE_FEATURES", "StandardLights_GlobalIndicatorLights", false);
 		gbGlobalReverseLights = gConfig.ReadBoolean("VEHICLE_FEATURES", "StandardLights_GlobalReverseLights", false);
-		gfGlobalCoronaSize = gConfig.ReadFloat("VEHICLE_FEATURES", "LightCoronaSize", 0.3f);
-		gGlobalShadowIntensity = gConfig.ReadInteger("VEHICLE_FEATURES", "LightShadowIntensity", 220);
-		gGlobalCoronaIntensity = gConfig.ReadInteger("VEHICLE_FEATURES", "LightCoronaIntensity", 250);
+		
+		gfGlobalCoronaSize = gConfig.ReadFloat("VISUAL", "LightCoronaSize", 0.3f);
+		gGlobalShadowIntensity = gConfig.ReadInteger("VISUAL", "LightShadowIntensity", 220);
+		gGlobalCoronaIntensity = gConfig.ReadInteger("VISUAL", "LightCoronaIntensity", 250);
 	};
 
 	Events::vehicleDtorEvent += [](CVehicle *pVeh)
@@ -237,6 +238,7 @@ void Lights::Initialize()
 		// If no match is found
 		return eLightType::UnknownLight;
 	});
+
 	ModelInfoMgr::RegisterDummy([](CVehicle *pVeh, RwFrame *frame)
 							   {
 		std::string name = GetFrameNodeName(frame);

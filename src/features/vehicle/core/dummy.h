@@ -25,6 +25,8 @@ public:
 
     std::string shdwTex = "";
     bool mirroredX = false;
+    CRGBA matColOn = {255, 255, 255, 255};
+    CRGBA matColOff = {255, 255, 255, 255};
     CRGBA shdwCol = {255, 255, 255, 100};
     CVector2D shdwOffSet = {0.0f, 0.0f};
     CVector2D shdowSize = {1.0f, 1.0f};

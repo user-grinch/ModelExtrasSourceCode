@@ -79,6 +79,34 @@ VehicleDummy::VehicleDummy(CVehicle *pVeh, RwFrame *frame, std::string name, eDu
 
             PartType = eParentTypeFromString(lights.value("parent", ""));
 
+            if (lights.contains("material"))
+            {
+                auto &matSection = lights["material"];
+                if (matSection.contains("on"))
+                {
+                    auto &active = matSection["on"];
+                    if (active.contains("color"))
+                    {
+                        matColOn.r = active["color"].value("red", matColOn.r);
+                        matColOn.g = active["color"].value("green", matColOn.g);
+                        matColOn.b = active["color"].value("blue", matColOn.b);
+                        matColOn.a = active["color"].value("alpha", matColOn.a);
+                    }
+                }
+
+                if (matSection.contains("off"))
+                {
+                    auto &active = matSection["off"];
+                    if (active.contains("color"))
+                    {
+                        matColOff.r = active["color"].value("red", matColOff.r);
+                        matColOff.g = active["color"].value("green", matColOff.g);
+                        matColOff.b = active["color"].value("blue", matColOff.b);
+                        matColOff.a = active["color"].value("alpha", matColOff.a);
+                    }
+                }
+            }
+
             if (lights.contains("shadow"))
             {
                 auto &shadow = lights["shadow"];

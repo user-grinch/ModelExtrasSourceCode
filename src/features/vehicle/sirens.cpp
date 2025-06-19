@@ -543,14 +543,17 @@ void Sirens::Initialize()
 		return eLightType::UnknownLight;
 	 });
 
-	 ModelInfoMgr::RegisterMaterialColProvider([](CVehicle *pVeh, RpMaterial* pMat){
-		int matIdx = GetSirenIndex(pVeh, pMat);
+	 ModelInfoMgr::RegisterMaterialColProvider([](CVehicle *pVeh, RpMaterial* pMat, eLightType type){
 
-		if (matIdx != - 1) {
-			int curState = vehicleData[pVeh]->GetCurrentState();
-			auto& state = modelData[pVeh->m_nModelIndex]->States[curState];
-			if (state->Materials.contains(matIdx)) {
-				return state->Materials[matIdx]->Color;
+		if (type == eLightType::SirenLight) {
+			int matIdx = GetSirenIndex(pVeh, pMat);
+
+			if (matIdx != - 1) {
+				int curState = vehicleData[pVeh]->GetCurrentState();
+				auto& state = modelData[pVeh->m_nModelIndex]->States[curState];
+				if (state->Materials.contains(matIdx)) {
+					return state->Materials[matIdx]->Color;
+				}
 			}
 		}
 		return CRGBA(255, 255, 255, 255);
