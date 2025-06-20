@@ -29,6 +29,13 @@ enum class eParentType {
     LightRightRear,
     LightLeftRear,
     LIGHT_END,
+
+    WHEEL_START,
+    WheelLeftFront,
+    WheelLeftRear,
+    WheelRightFront,
+    WheelRightRear,
+    WHEEL_END,
 };
 
 enum eLightType;

@@ -20,6 +20,10 @@ eParentType eParentTypeFromString(const std::string& str) {
     else if (str == "light-right-front") return eParentType::LightRightFront;
     else if (str == "light-right-rear") return eParentType::LightRightRear;
     else if (str == "light-left-rear") return eParentType::LightLeftRear;
+    else if (str == "wheel-left-front") return eParentType::WheelLeftFront;
+    else if (str == "wheel-right-front") return eParentType::WheelRightFront;
+    else if (str == "wheel-right-rear") return eParentType::WheelRightRear;
+    else if (str == "wheel-left-rear") return eParentType::WheelLeftRear;
     return eParentType::Unknown;
 }
 
@@ -68,6 +72,11 @@ bool IsParentTypeDamaged(CVehicle* pVeh, eParentType type, eLightType lightType)
     if (type >= eParentType::LIGHT_START && type <= eParentType::LIGHT_END) {
         uint32_t lightIndex = static_cast<uint32_t>(type) - static_cast<uint32_t>(eParentType::LIGHT_START) - 1;
         return pAutomobile->m_damageManager.GetLightStatus(static_cast<eLights>(lightIndex));
+    }
+
+    if (type >= eParentType::WHEEL_START && type <= eParentType::WHEEL_END) {
+        uint32_t wheelIndex = static_cast<uint32_t>(type) - static_cast<uint32_t>(eParentType::WHEEL_START) - 1;
+        return pAutomobile->m_damageManager.GetWheelStatus(static_cast<eWheels>(wheelIndex));
     }
 
     return false;
