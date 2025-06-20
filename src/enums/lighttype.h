@@ -11,12 +11,15 @@ enum eLightType
     TailLightRight,
 
     // ModelExtras
-    ReverseLight,
-    BrakeLight,
+    ReverseLightLeft,
+    ReverseLightRight,
+    BrakeLightLeft,
+    BrakeLightRight,
     AllDayLight,
     DayLight,
     NightLight,
-    FogLight,
+    FogLightLeft,
+    FogLightRight,
     SideLightLeft,
     SideLightRight,
     STTLightLeft,

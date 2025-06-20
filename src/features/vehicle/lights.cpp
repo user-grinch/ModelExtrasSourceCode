@@ -37,31 +37,6 @@ bool IsEngineOff(CVehicle *pVeh)
 	return !pVeh->m_nVehicleFlags.bEngineOn || pVeh->m_nVehicleFlags.bEngineBroken;
 }
 
-unsigned char GetShadowAlphaForDayTime()
-{
-
-	if (IsNightTime())
-	{
-		return std::max(0, gGlobalShadowIntensity);
-	}
-	else
-	{
-		return std::max(0, gGlobalShadowIntensity - 15);
-	}
-}
-
-unsigned char GetCoronaAlphaForDayTime()
-{
-	if (IsNightTime())
-	{
-		return std::max(0, gGlobalCoronaIntensity);
-	}
-	else
-	{
-		return std::max(0, gGlobalCoronaIntensity - 15);
-	}
-}
-
 int GetStrobeIndex(CVehicle *pVeh, RpMaterial *pMat) {
 	return pMat->color.blue;
 }
@@ -110,10 +85,10 @@ void DrawGlobalLight(CVehicle *pVeh, bool isRear, bool isLeft, CRGBA col, std::s
 	int dummyId = dummyIdx + (isLeft ? 0 : 2);
 	float dummyAngle = isRear ? 180.0f : 0.0f;
 
-	CRGBA shadowColor = {col.r, col.g, col.b, GetShadowAlphaForDayTime()};
+	CRGBA shadowColor = {col.r, col.g, col.b, static_cast<unsigned char>(gGlobalShadowIntensity)};
 	Util::RegisterShadow(pVeh, posn, shadowColor, dummyAngle, isRear ? eDummyPos::Rear : eDummyPos::Front, texture, shdwSz, shdwOffset);
 
-	CRGBA coronaColor = {col.r, col.g, col.b, GetCoronaAlphaForDayTime()};
+	CRGBA coronaColor = {col.r, col.g, col.b, static_cast<unsigned char>(gGlobalShadowIntensity)};
 	int coronaId = reinterpret_cast<uintptr_t>(pVeh) + 255 * isRear + 128 * isLeft + col.r + col.g + col.b;
 	Util::RegisterCoronaWithAngle(pVeh, coronaId, posn, coronaColor, dummyAngle, 180.0f, gfGlobalCoronaSize);
 }
@@ -124,16 +99,6 @@ inline float GetZAngleForPoint(CVector2D const &point)
 	while (angle < 0.0f)
 		angle += 360.0f;
 	return angle;
-}
-
-inline bool IsBumperOrWingDamaged(CVehicle *pVeh, eParentType part)
-{
-	if (pVeh->m_nVehicleSubClass == VEHICLE_AUTOMOBILE)
-	{
-		CAutomobile *ptr = reinterpret_cast<CAutomobile *>(pVeh);
-		return ptr->m_damageManager.GetPanelStatus((int)part);
-	}
-	return false;
 }
 
 void Lights::Initialize()
@@ -179,12 +144,18 @@ void Lights::Initialize()
 			return eLightType::TailLightRight;
 		}
 		// Reverse Lights
-		else if (matCol == VEHCOL_REVERSELIGHT_LEFT || matCol == VEHCOL_REVERSELIGHT_RIGHT) {
-			return eLightType::ReverseLight;
+		else if (matCol == VEHCOL_REVERSELIGHT_LEFT) {
+			return eLightType::ReverseLightLeft;
+		}
+		else if (matCol == VEHCOL_REVERSELIGHT_RIGHT) {
+			return eLightType::ReverseLightRight;
 		}
 		// Brake Lights
-		else if (matCol == VEHCOL_BRAKELIGHT_LEFT || matCol == VEHCOL_BRAKELIGHT_RIGHT) {
-			return eLightType::BrakeLight;
+		else if (matCol == VEHCOL_BRAKELIGHT_LEFT) {
+			return eLightType::BrakeLightLeft;
+		}
+		else if (matCol == VEHCOL_BRAKELIGHT_RIGHT) {
+			return eLightType::BrakeLightRight;
 		}
 		// All Day Lights
 		else if (matCol == VEHCOL_ALLDAYLIGHT_1 || matCol == VEHCOL_ALLDAYLIGHT_2) {
@@ -199,8 +170,11 @@ void Lights::Initialize()
 			return eLightType::NightLight;
 		}
 		// Fog Lights
-		else if (matCol == VEHCOL_FOGLIGHT_1 || matCol == VEHCOL_FOGLIGHT_2) {
-			return eLightType::FogLight;
+		else if (matCol == VEHCOL_FOGLIGHT_LEFT) {
+			return eLightType::FogLightLeft;
+		}
+		else if (matCol == VEHCOL_FOGLIGHT_RIGHT) {
+			return eLightType::FogLightRight;
 		}
 		// Sidelights
 		else if (matCol == VEHCOL_SIDELIGHT_LEFT) {
@@ -254,27 +228,27 @@ void Lights::Initialize()
 							   {
 		std::string name = GetFrameNodeName(frame);
 		eLightType state = eLightType::UnknownLight;
-		RwRGBA col{255, 255, 255, GetCoronaAlphaForDayTime()};
+		RwRGBA col{255, 255, 255, gGlobalCoronaIntensity};
 		eDummyPos dummyPos = eDummyPos::None;
 		int32_t dummyIdx = 0;
 		bool directioanlByDef = false;
 		if (name.starts_with("fogl") && (STR_FOUND(name, "_l") || STR_FOUND(name, "_r")))
 		{
-			state = eLightType::FogLight;
+			state = STR_FOUND(name, "_l") ? eLightType::FogLightLeft : eLightType::FogLightRight;
 			dummyPos = eDummyPos::Front;
 			directioanlByDef = true;
 		}
 		else if (name.starts_with("rev") && (STR_FOUND(name, "_l") || STR_FOUND(name, "_r")))
 		{
-			state = eLightType::ReverseLight;
+			state = STR_FOUND(name, "_l") ? eLightType::ReverseLightLeft : eLightType::ReverseLightRight;
 			dummyPos = eDummyPos::Rear;
 			directioanlByDef = true;
 		}
 		else if (name.starts_with("breakl") && (STR_FOUND(name, "_l") || STR_FOUND(name, "_r")))
 		{
-			state = eLightType::BrakeLight;
+			state = STR_FOUND(name, "_l") ? eLightType::BrakeLightLeft : eLightType::BrakeLightRight;
 			dummyPos = eDummyPos::Rear;
-			col = {240, 0, 0, GetCoronaAlphaForDayTime()};
+			col = {240, 0, 0, static_cast<unsigned char>(gGlobalCoronaIntensity)};
 			directioanlByDef = true;
 		}
 		else if (name.starts_with("light_day"))
@@ -318,7 +292,7 @@ void Lights::Initialize()
 			}
 			dummyPos = eDummyPos::Rear;
 			directioanlByDef = true;
-			col = {240, 0, 0, GetCoronaAlphaForDayTime()};
+			col = {240, 0, 0, static_cast<unsigned char>(gGlobalCoronaIntensity)};
 		}
 		else if (auto d = Util::GetCharsAfterPrefix(name, "nabrakelight_", 1))
 		{
@@ -332,7 +306,7 @@ void Lights::Initialize()
 			}
 			dummyPos = eDummyPos::Rear;
 			directioanlByDef = true;
-			col = {240, 0, 0, GetCoronaAlphaForDayTime()};
+			col = {240, 0, 0, static_cast<unsigned char>(gGlobalCoronaIntensity)};
 		}
 		else if (name.starts_with("spotlight_light"))
 		{
@@ -345,7 +319,7 @@ void Lights::Initialize()
 		}
 		else if (name.starts_with("taillights"))
 		{
-			col = {250, 0, 0, GetCoronaAlphaForDayTime()};
+			col = {250, 0, 0, static_cast<unsigned char>(gGlobalCoronaIntensity)};
 			state = eLightType::TailLightLeft;
 			dummyPos = eDummyPos::Rear;
 			directioanlByDef = true;
@@ -355,7 +329,7 @@ void Lights::Initialize()
 		}
 		else if (name.starts_with("headlights"))
 		{
-			col = {250, 250, 250, GetCoronaAlphaForDayTime()};
+			col = {250, 250, 250, static_cast<unsigned char>(gGlobalCoronaIntensity)};
 			state = eLightType::HeadLightLeft;
 			dummyPos = eDummyPos::Front;
 			directioanlByDef = true;
@@ -372,7 +346,7 @@ void Lights::Initialize()
 
 			if (d) {
 				bool isLeft = (d.value()[0] == 'L');
-				col = {255, 128, 0, GetCoronaAlphaForDayTime()};
+				col = {255, 128, 0, static_cast<unsigned char>(gGlobalCoronaIntensity)};
 
 				switch (d.value()[1]) {
 					case 'F':
@@ -412,7 +386,7 @@ void Lights::Initialize()
 		{
 			static size_t prev = 0;
 			static uint32_t fogLightKey = gConfig.ReadInteger("KEYS", "FogLightKey", VK_J);
-			if (KeyPressed(fogLightKey) && IsDummyAvail(pVeh, eLightType::FogLight))
+			if (KeyPressed(fogLightKey) && IsDummyAvail(pVeh, {eLightType::FogLightLeft, eLightType::FogLightRight}))
 			{
 				size_t now = CTimer::m_snTimeInMilliseconds;
 				if (now - prev > 500.0f)
@@ -494,37 +468,25 @@ void Lights::Initialize()
 		CVector2D headlightOffset = {0.0f, shdwOffset.y + 0.5f};
 		if (data.m_bFogLightsOn)
 		{
-			RenderLights(pControlVeh, pTowedVeh, eLightType::FogLight, true, "foglight", {3.0f, 7.0f}, shdwOffset);
+			RenderLights(pControlVeh, pTowedVeh, eLightType::FogLightLeft, true, "foglight", {3.0f, 7.0f}, shdwOffset);
+			RenderLights(pControlVeh, pTowedVeh, eLightType::FogLightRight, true, "foglight", {3.0f, 7.0f}, shdwOffset);
 		}
 
 		bool isBike = CModelInfo::IsBikeModel(pControlVeh->m_nModelIndex);
-		bool leftFrontOk = true, rightFrontOk = true, leftRearOk = true, rightRearOk = true;
 		if (pControlVeh->m_nVehicleFlags.bLightsOn)
 		{
-			if (CModelInfo::IsCarModel(pControlVeh->m_nModelIndex))
-			{
-				leftFrontOk = pAutoMobile->m_renderLights.m_bLeftFront && !pAutoMobile->m_damageManager.GetLightStatus(eLights::LIGHT_FRONT_LEFT);
-				rightFrontOk = pAutoMobile->m_renderLights.m_bRightFront && !pAutoMobile->m_damageManager.GetLightStatus(eLights::LIGHT_FRONT_RIGHT);
-				rightRearOk = leftRearOk = pAutoMobile->m_renderLights.m_bLeftRear && !pAutoMobile->m_damageManager.GetDoorStatus(eDoors::BOOT);
-			}
-
-			std::string texName = "headlight_short";
-			CVector2D sz = {4.0f, 8.0f};
-
+			CVector2D headlightSz = {4.0f, 8.0f};
 			bool isFoggy = (CWeather::NewWeatherType == WEATHER_FOGGY_SF || CWeather::NewWeatherType == WEATHER_SANDSTORM_DESERT || CWeather::OldWeatherType == WEATHER_FOGGY_SF || CWeather::OldWeatherType == WEATHER_SANDSTORM_DESERT);
-			if (data.m_bLongLightsOn)
+			std::string texName = data.m_bLongLightsOn ? "headlight_long" : "headlight_short";
+
+			if (pControlVeh->m_renderLights.m_bLeftFront)
 			{
-				texName = "headlight_long";
+				RenderLights(pControlVeh, pTowedVeh, eLightType::HeadLightLeft, true, texName, headlightSz, headlightOffset, isFoggy || data.m_bLongLightsOn);
 			}
 
-			if (leftFrontOk)
+			if (pControlVeh->m_renderLights.m_bRightFront)
 			{
-				RenderLights(pControlVeh, pTowedVeh, eLightType::HeadLightLeft, true, texName, sz, headlightOffset, isFoggy || data.m_bLongLightsOn);
-			}
-
-			if (rightFrontOk)
-			{
-				RenderLights(pControlVeh, pTowedVeh, eLightType::HeadLightRight, true, texName, sz, headlightOffset, isFoggy || data.m_bLongLightsOn);
+				RenderLights(pControlVeh, pTowedVeh, eLightType::HeadLightRight, true, texName, headlightSz, headlightOffset, isFoggy || data.m_bLongLightsOn);
 			}
 		}
 
@@ -535,18 +497,18 @@ void Lights::Initialize()
 
 
 		std::string shdwName = (isBike ? "taillight_bike" : "taillight");
-
 		CVector2D shdwSz = {1.0f, 1.5f};
 		if (isBike || CModelInfo::IsCarModel(pControlVeh->m_nModelIndex))
 		{
-			bool isRevlightSupportedByModel = IsDummyAvail(pTowedVeh, eLightType::ReverseLight);
+			bool isRevlightSupportedByModel = IsDummyAvail(pTowedVeh, {eLightType::ReverseLightLeft, eLightType::ReverseLightRight});
 
 			bool reverseLightsOn = !isBike && (isRevlightSupportedByModel || gbGlobalReverseLights) && pControlVeh->m_nCurrentGear == 0 && (Util::GetVehicleSpeed(pControlVeh) >= 0.001f) && pControlVeh->m_pDriver;
-			if (reverseLightsOn && leftRearOk && rightRearOk)
+			if (reverseLightsOn)
 			{
 				if (isRevlightSupportedByModel)
 				{
-					RenderLights(pControlVeh, pTowedVeh, eLightType::ReverseLight, true, shdwName, shdwSz, shdwOffset);
+					RenderLights(pControlVeh, pTowedVeh, eLightType::ReverseLightLeft, true, shdwName, shdwSz, shdwOffset);
+					RenderLights(pControlVeh, pTowedVeh, eLightType::ReverseLightRight, true, shdwName, shdwSz, shdwOffset);
 				}
 				else
 				{
@@ -555,19 +517,20 @@ void Lights::Initialize()
 				}
 			}
 
-			bool sttInstalled = IsDummyAvail(pTowedVeh, eLightType::STTLightLeft) || IsDummyAvail(pTowedVeh, eLightType::STTLightRight);
+			bool sttInstalled = IsDummyAvail(pTowedVeh, {eLightType::STTLightLeft, eLightType::STTLightRight});
 			// taillights/ brakelights
-			if (pControlVeh->m_fBreakPedal && pControlVeh->m_pDriver && leftRearOk && rightRearOk)
+			if (pControlVeh->m_fBreakPedal && pControlVeh->m_pDriver)
 			{
 				if (sttInstalled) {
 					RenderLights(pControlVeh, pTowedVeh, eLightType::STTLightLeft, true, shdwName, shdwSz, shdwOffset);
 					RenderLights(pControlVeh, pTowedVeh, eLightType::STTLightRight, true, shdwName, shdwSz, shdwOffset);
 				} else {
-					if (IsDummyAvail(pTowedVeh, eLightType::BrakeLight))
+					if (IsDummyAvail(pTowedVeh, {eLightType::BrakeLightLeft, eLightType::BrakeLightRight}))
 					{
-						RenderLights(pControlVeh, pTowedVeh, eLightType::BrakeLight, true, shdwName, shdwSz, shdwOffset);
+						RenderLights(pControlVeh, pTowedVeh, eLightType::BrakeLightLeft, true, shdwName, shdwSz, shdwOffset);
+						RenderLights(pControlVeh, pTowedVeh, eLightType::BrakeLightRight, true, shdwName, shdwSz, shdwOffset);
 					}
-					else if (IsDummyAvail(pTowedVeh, eLightType::TailLightLeft))
+					else if (IsDummyAvail(pTowedVeh, {eLightType::TailLightLeft, eLightType::TailLightRight}))
 					{
 						RenderLights(pControlVeh, pTowedVeh, eLightType::TailLightLeft, true, shdwName, shdwSz, shdwOffset);
 						RenderLights(pControlVeh, pTowedVeh, eLightType::TailLightRight, true, shdwName, shdwSz, shdwOffset);
@@ -595,14 +558,15 @@ void Lights::Initialize()
 					RenderLights(pControlVeh, pTowedVeh, eLightType::STTLightRight, true, shdwName, shdwSz, shdwOffset);
 				}
 				else {
-					if (IsDummyAvail(pTowedVeh, eLightType::TailLightLeft))
+					if (IsDummyAvail(pTowedVeh, {eLightType::TailLightLeft, eLightType::TailLightRight}))
 					{
 						RenderLights(pControlVeh, pTowedVeh, eLightType::TailLightLeft, !sttInstalled, shdwName, shdwSz, shdwOffset);
 						RenderLights(pControlVeh, pTowedVeh, eLightType::TailLightRight, !sttInstalled, shdwName, shdwSz, shdwOffset);
 					}
-					else if (IsDummyAvail(pTowedVeh, eLightType::BrakeLight))
+					else if (IsDummyAvail(pTowedVeh, {eLightType::BrakeLightLeft, eLightType::BrakeLightRight}))
 					{
-						RenderLights(pControlVeh, pTowedVeh, eLightType::BrakeLight, !sttInstalled, shdwName, shdwSz, shdwOffset);
+						RenderLights(pControlVeh, pTowedVeh, eLightType::BrakeLightLeft, !sttInstalled, shdwName, shdwSz, shdwOffset);
+						RenderLights(pControlVeh, pTowedVeh, eLightType::BrakeLightRight, !sttInstalled, shdwName, shdwSz, shdwOffset);
 					}
 				}
 			}
@@ -682,7 +646,7 @@ void Lights::Initialize()
 			}
 
 			// global turn lights
-			if (gbGlobalIndicatorLights && !IsDummyAvail(pControlVeh, INDICATOR_LIGHTS_TYPE) && !IsDummyAvail(pControlVeh, eLightType::STTLightLeft))
+			if (gbGlobalIndicatorLights && !IsDummyAvail(pControlVeh, INDICATOR_LIGHTS_TYPE) && !IsDummyAvail(pControlVeh, {eLightType::STTLightLeft, eLightType::STTLightRight}))
 			{
 				if ((pControlVeh->m_nVehicleSubClass == VEHICLE_AUTOMOBILE || pControlVeh->m_nVehicleSubClass == VEHICLE_BIKE || pControlVeh->m_nVehicleSubClass == VEHICLE_QUAD) &&
 					(pControlVeh->GetVehicleAppearance() == VEHICLE_APPEARANCE_AUTOMOBILE || pControlVeh->GetVehicleAppearance() == VEHICLE_APPEARANCE_BIKE) &&
@@ -707,82 +671,43 @@ void Lights::Initialize()
 			{
 				if (indState == eIndicatorState::BothOn || indState == eIndicatorState::LeftOn)
 				{
-					if (leftFrontOk) {
-						RenderLights(pControlVeh, pTowedVeh, eLightType::IndicatorLightLeftFront, true, "indicator", {1.0f, 1.0f}, shdwOffset);
-					}
-
+					RenderLights(pControlVeh, pTowedVeh, eLightType::IndicatorLightLeftFront, true, "indicator", {1.0f, 1.0f}, shdwOffset);
 					RenderLights(pControlVeh, pTowedVeh, eLightType::IndicatorLightLeftMiddle, true, "indicator", {1.0f, 1.0f}, shdwOffset);
-
-					if (leftRearOk) {
-						RenderLights(pControlVeh, pTowedVeh, eLightType::IndicatorLightLeftRear, true, "indicator", {1.0f, 1.0f}, shdwOffset);
-						RenderLights(pControlVeh, pTowedVeh, eLightType::STTLightLeft, true, shdwName, shdwSz, shdwOffset, true);
-					}
+					RenderLights(pControlVeh, pTowedVeh, eLightType::IndicatorLightLeftRear, true, "indicator", {1.0f, 1.0f}, shdwOffset);
+					RenderLights(pControlVeh, pTowedVeh, eLightType::STTLightLeft, true, shdwName, shdwSz, shdwOffset, true);
 				}
 
 				if (indState == eIndicatorState::BothOn || indState == eIndicatorState::RightOn)
 				{
-					if (rightFrontOk) {
-						RenderLights(pControlVeh, pTowedVeh, eLightType::IndicatorLightRightFront, true, "indicator", {1.0f, 1.0f}, shdwOffset);
-					}
-
+					RenderLights(pControlVeh, pTowedVeh, eLightType::IndicatorLightRightFront, true, "indicator", {1.0f, 1.0f}, shdwOffset);
 					RenderLights(pControlVeh, pTowedVeh, eLightType::IndicatorLightRightMiddle, true, "indicator", {1.0f, 1.0f}, shdwOffset);
-
-					if (rightRearOk) {
-						RenderLights(pControlVeh, pTowedVeh, eLightType::IndicatorLightRightRear, true, "indicator", {1.0f, 1.0f}, shdwOffset);
-						RenderLights(pControlVeh, pTowedVeh, eLightType::STTLightRight, true, shdwName, shdwSz, shdwOffset, true);
-					}
+					RenderLights(pControlVeh, pTowedVeh, eLightType::IndicatorLightRightRear, true, "indicator", {1.0f, 1.0f}, shdwOffset);
+					RenderLights(pControlVeh, pTowedVeh, eLightType::STTLightRight, true, shdwName, shdwSz, shdwOffset, true);
 				}
 			}
 			if (indState == eIndicatorState::BothOn || indState == eIndicatorState::LeftOn)
 			{
-				if (leftRearOk) {
-					RenderLights(pControlVeh, pTowedVeh, eLightType::NABrakeLightLeft, true, "indicator", {1.0f, 1.0f}, shdwOffset);
-				}
+				RenderLights(pControlVeh, pTowedVeh, eLightType::NABrakeLightLeft, true, "indicator", {1.0f, 1.0f}, shdwOffset);
 			}
 
 			if (indState == eIndicatorState::BothOn || indState == eIndicatorState::RightOn)
 			{
-				if (rightRearOk) {
-					RenderLights(pControlVeh, pTowedVeh, eLightType::NABrakeLightRight, true, "indicator", {1.0f, 1.0f}, shdwOffset);
-				}
-			} });
+				RenderLights(pControlVeh, pTowedVeh, eLightType::NABrakeLightRight, true, "indicator", {1.0f, 1.0f}, shdwOffset);
+			} 
+		}
+	);
 };
 
 void Lights::RenderLight(CVehicle *pVeh, eLightType state, bool shadows, std::string texture, CVector2D sz, CVector2D offset, bool highlight)
 {
-	bool FrontDisabled = false;
-	bool RearDisabled = false;
-	bool MidDisabled = false;
 	int id = static_cast<int>(state) * 1000;
-
 	if (IsDummyAvail(pVeh, state))
 	{
 		for (auto e : m_Dummies[pVeh][state])
 		{
-			if (e->PartType != eParentType::Unknown && IsBumperOrWingDamaged(pVeh, e->PartType))
+			if (IsParentTypeDamaged(pVeh, e->PartType, state) || (e->DummyType == eDummyPos::Rear && pVeh->m_pTrailer))
 			{
-				if (e->DummyType == eDummyPos::Front)
-				{
-					FrontDisabled = true;
-				}
-				if ((e->DummyType == eDummyPos::Left || e->DummyType == eDummyPos::Right))
-				{
-					MidDisabled = true;
-				}
-				if (e->DummyType == eDummyPos::Rear)
-				{
-					RearDisabled = true;
-				}
 				continue;
-			}
-
-			if (e->DummyType == eDummyPos::Rear)
-			{
-				if (pVeh->m_pTrailer)
-				{
-					RearDisabled = true;
-					continue;
-				}
 			}
 
 			if (state == eLightType::StrobeLight)
