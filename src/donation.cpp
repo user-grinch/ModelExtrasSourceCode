@@ -7,7 +7,7 @@
 LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 void CreateControls(HWND hWnd);
 
-#ifdef PATRON_BUILD
+#if PATRON_BUILD
 const char* const LONG_MESSAGE =
     "You're using a donator build, thanks for supporting the project. "
     "Your contribution helps make continued updates, new features, and maintenance possible. "
