@@ -125,7 +125,6 @@ void Lights::Initialize()
 
 
 	ModelInfoMgr::RegisterMaterial([](CVehicle *pVeh, RpMaterial *pMat){
-
 		if (!m_bEnabled) {
 			return eLightType::UnknownLight;
 		}
@@ -701,13 +700,15 @@ void Lights::Initialize()
 void Lights::RenderLight(CVehicle *pVeh, eLightType state, bool shadows, std::string texture, CVector2D sz, CVector2D offset, bool highlight)
 {
 	int id = static_cast<int>(state) * 1000;
+	bool litMats = true;
 	if (IsDummyAvail(pVeh, state))
 	{
 		for (auto e : m_Dummies[pVeh][state])
 		{
 			if (IsParentTypeDamaged(pVeh, e->PartType, state) || (e->DummyType == eDummyPos::Rear && pVeh->m_pTrailer))
 			{
-				continue;
+				litMats = false;
+				break;
 			}
 
 			if (state == eLightType::StrobeLight)
@@ -738,7 +739,9 @@ void Lights::RenderLight(CVehicle *pVeh, eLightType state, bool shadows, std::st
 		}
 	}
 
-	ModelInfoMgr::EnableLightMaterial(pVeh, state);
+	if (litMats) {
+		ModelInfoMgr::EnableLightMaterial(pVeh, state);
+	}
 }
 
 void Lights::RenderLights(CVehicle *pControlVeh, CVehicle *pTowedVeh, eLightType state, bool shadows, std::string texture, CVector2D sz, CVector2D offset, bool highlight)

@@ -25,7 +25,7 @@ eParentType eParentTypeFromString(const std::string& str) {
 
 // Ugly piece of code but someone's gonna do it right?
 // Probably should've gone with a OOP model lol
-bool IsParentTypeDamaged(CVehicle* pVeh, eParentType& type, eLightType lightType) {
+bool IsParentTypeDamaged(CVehicle* pVeh, eParentType type, eLightType lightType) {
     if (type == eParentType::Unknown) {
         if (lightType == eLightType::HeadLightLeft || lightType == eLightType::FogLightLeft 
             || lightType == eLightType::IndicatorLightLeftFront) {
@@ -37,20 +37,20 @@ bool IsParentTypeDamaged(CVehicle* pVeh, eParentType& type, eLightType lightType
         }
         else if (lightType == eLightType::BrakeLightLeft || lightType == eLightType::ReverseLightLeft 
             || lightType == eLightType::STTLightLeft || lightType == eLightType::NABrakeLightLeft 
-            || lightType == eLightType::IndicatorLightLeftRear) {
-            type = eParentType::Boonet;
+            || lightType == eLightType::IndicatorLightLeftRear || lightType == eLightType::TailLightLeft) {
+            type = eParentType::Boot;
         }
         else if (lightType == eLightType::BrakeLightRight || lightType == eLightType::ReverseLightRight
             || lightType == eLightType::STTLightRight || lightType == eLightType::NABrakeLightRight
-            || lightType == eLightType::IndicatorLightRightRear) {
-            type = eParentType::Boonet;
+            || lightType == eLightType::IndicatorLightRightRear || lightType == eLightType::TailLightRight) {
+            type = eParentType::Boot;
         } else {
-            return true; 
+            return false; 
         }
     }
 
     if (pVeh->m_nVehicleSubClass != VEHICLE_AUTOMOBILE) {
-        return true; // no damage states for them
+        return false; // no damage states for them
     }
 
     CAutomobile* pAutomobile = reinterpret_cast<CAutomobile*>(pVeh);
@@ -62,7 +62,7 @@ bool IsParentTypeDamaged(CVehicle* pVeh, eParentType& type, eLightType lightType
 
     if (type >= eParentType::DOOR_START && type <= eParentType::DOOR_END) {
         uint32_t doorIndex = static_cast<uint32_t>(type) - static_cast<uint32_t>(eParentType::DOOR_START) - 1;
-        return pAutomobile->m_damageManager.GetDoorStatus(doorIndex);
+        return pAutomobile->m_damageManager.GetDoorStatus(static_cast<eDoors>(doorIndex));
     }
 
     if (type >= eParentType::LIGHT_START && type <= eParentType::LIGHT_END) {

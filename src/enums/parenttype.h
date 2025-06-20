@@ -34,4 +34,4 @@ enum class eParentType {
 enum eLightType;
 
 eParentType eParentTypeFromString(const std::string& str);
-bool IsParentTypeDamaged(CVehicle* pVeh, eParentType& type, eLightType lightType);
+bool IsParentTypeDamaged(CVehicle* pVeh, eParentType type, eLightType lightType);
