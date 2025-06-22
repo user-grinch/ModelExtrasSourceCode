@@ -4,6 +4,10 @@
 #include "datamgr.h"
 #include "enums/dummypos.h"
 
+extern float gfGlobalCoronaSize;
+extern int gGlobalCoronaIntensity;
+extern int gGlobalShadowIntensity;
+
 int ReadHex(char a, char b)
 {
     a = (a <= '9') ? a - '0' : (a & 0x7) + 9;
@@ -71,41 +75,13 @@ VehicleDummy::VehicleDummy(CVehicle *pVeh, RwFrame *frame, std::string name, eDu
                     coronaCol.r = coronaSec["color"].value("red", coronaCol.r);
                     coronaCol.g = coronaSec["color"].value("green", coronaCol.g);
                     coronaCol.b = coronaSec["color"].value("blue", coronaCol.b);
-                    coronaCol.a = coronaSec["color"].value("alpha", coronaCol.a);
+                    coronaCol.a = coronaSec["color"].value("alpha", gGlobalCoronaIntensity);
                 }
-                coronaSize = coronaSec.value("size", coronaSize);
+                coronaSize = coronaSec.value("size", gfGlobalCoronaSize);
                 LightType = GetLightingMode(coronaSec.value("type", "directional"));
             }
 
             PartType = eParentTypeFromString(lights.value("parent", ""));
-
-            if (lights.contains("material"))
-            {
-                auto &matSection = lights["material"];
-                if (matSection.contains("on"))
-                {
-                    auto &active = matSection["on"];
-                    if (active.contains("color"))
-                    {
-                        matColOn.r = active["color"].value("red", matColOn.r);
-                        matColOn.g = active["color"].value("green", matColOn.g);
-                        matColOn.b = active["color"].value("blue", matColOn.b);
-                        matColOn.a = active["color"].value("alpha", matColOn.a);
-                    }
-                }
-
-                if (matSection.contains("off"))
-                {
-                    auto &active = matSection["off"];
-                    if (active.contains("color"))
-                    {
-                        matColOff.r = active["color"].value("red", matColOff.r);
-                        matColOff.g = active["color"].value("green", matColOff.g);
-                        matColOff.b = active["color"].value("blue", matColOff.b);
-                        matColOff.a = active["color"].value("alpha", matColOff.a);
-                    }
-                }
-            }
 
             if (lights.contains("shadow"))
             {
@@ -115,7 +91,7 @@ VehicleDummy::VehicleDummy(CVehicle *pVeh, RwFrame *frame, std::string name, eDu
                     shdwCol.r = shadow["color"].value("red", shdwCol.r);
                     shdwCol.g = shadow["color"].value("green", shdwCol.g);
                     shdwCol.b = shadow["color"].value("blue", shdwCol.b);
-                    shdwCol.a = shadow["color"].value("alpha", shdwCol.a);
+                    shdwCol.a = shadow["color"].value("alpha", gGlobalShadowIntensity);
                 }
                 shdwOffSet = {shadow.value("offsetx", 0.0f), shadow.value("offsety", 0.0f)};
 

@@ -104,9 +104,26 @@ inline float GetZAngleForPoint(CVector2D const &point)
 void Lights::Initialize()
 {
 	m_bEnabled = true;
-
 	patch::Nop(0x6E2722, 19);	  // CVehicle::DoHeadLightReflection
 	patch::SetUChar(0x6E1A22, 0); // CVehicle::DoTailLightEffect
+
+	// Brake pointlight switch to boonet dmg check
+	patch::SetUChar(0x6E1D7C, 0); 
+	patch::SetUChar(0x6E1D4F, 0); 
+	
+	injector::MakeInline<0x6E2870, 0x6E2870+6>([](injector::reg_pack &regs) {
+		CVehicle *pVeh = reinterpret_cast<CVehicle*>(regs.esi);
+		if (pVeh && pVeh->m_nVehicleSubClass == VEHICLE_AUTOMOBILE)
+		{
+			CAutomobile *pAutomobile = reinterpret_cast<CAutomobile *>(pVeh);
+			if (pAutomobile->m_damageManager.GetDoorStatus(eDoors::BOOT))
+			{
+				regs.eax = 0;
+			}
+		} else {
+			regs.eax = 1;
+		}
+	});
 
 	plugin::Events::initGameEvent += []()
 	{

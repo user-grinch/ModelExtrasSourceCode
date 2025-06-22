@@ -21,7 +21,7 @@ bool IVFCarcols::GetColor(CVehicle *pVeh, RpMaterial *pMat, CRGBA &col) {
         int random = rand() % variations[model].size();
         auto storeCol = variations[model][random];
         
-        if (type == VEHCOL_PRIMARY) {
+        if (type.r == VEHCOL_PRIMARY.r && type.g == VEHCOL_PRIMARY.g) {  // blue can be anything
             if (!data.m_bPri) {
                 data.m_Colors.primary = storeCol.primary;
                 data.m_bPri = true;
@@ -54,7 +54,7 @@ bool IVFCarcols::GetColor(CVehicle *pVeh, RpMaterial *pMat, CRGBA &col) {
     }
     else {
         int idx = 0;
-        if (type == VEHCOL_PRIMARY) {
+        if (type.r == VEHCOL_PRIMARY.r && type.g == VEHCOL_PRIMARY.g) { // blue can be anything
             idx = CVehicleModelInfo::ms_currentCol[0];
         }
         else if (type == VEHCOL_SECONDARY) {

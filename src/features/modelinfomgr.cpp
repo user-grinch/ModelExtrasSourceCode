@@ -248,6 +248,7 @@ RpMaterial *ModelInfoMgr::SetEditableMaterialsCB(RpMaterial *material, void *dat
 			(*ppEntries)->m_pValue = *reinterpret_cast<void **>(RpMaterialGetColor(material));
 			(*ppEntries)++;
 		}
+		
 		RpMaterialGetColor(material)->red = col.r;
 		RpMaterialGetColor(material)->green = col.g;
 		RpMaterialGetColor(material)->blue = col.b;
