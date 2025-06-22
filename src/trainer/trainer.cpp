@@ -9,8 +9,7 @@ extern float gfGlobalCoronaSize;
 extern int gGlobalCoronaIntensity;
 extern int gGlobalShadowIntensity;
 
-extern RwSurfaceProperties gLightSurfPropsOn;
-extern RwSurfaceProperties gLightSurfProps;
+extern RwSurfaceProperties& gLightSurfProps;
 
 #define F_NULL [](void *) {}
 
@@ -43,9 +42,7 @@ void TrainerInit()
                     TAPI_InputInt("Shadow Intensity", &gGlobalShadowIntensity, F_NULL, 0, 255);
 
                     TAPI_Spacing(0, 10);
-                    TAPI_Text("Material (Ambient, Diffuse, Specular)");
-                    TAPI_InputFloat3("On##Material", &gLightSurfPropsOn.ambient, F_NULL, 0.0f, 20.0f);
-                    TAPI_InputFloat3("Off##Material", &gLightSurfProps.ambient, F_NULL, 0.0f, 20.0f);
+                    TAPI_InputFloat3("Material ambient on", &gLightSurfProps.ambient, F_NULL, 0.0f, 20.0f);
                 }
 
                 if (selectedTab == 1)

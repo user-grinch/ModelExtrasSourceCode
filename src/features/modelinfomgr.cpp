@@ -17,8 +17,7 @@ extern int GetSirenIndex(CVehicle *pVeh, RpMaterial *pMat);
 extern int GetStrobeIndex(CVehicle *pVeh, RpMaterial *pMat);
 
 static CVehicle *pCurVeh = nullptr;
-RwSurfaceProperties gLightSurfPropsOn = {16.0, 0.0, 0.0};
-RwSurfaceProperties gLightSurfProps = {1.0, 0.0, 0.0};
+RwSurfaceProperties& gLightSurfProps = *(RwSurfaceProperties*)0x8A645C;
 
 void ModelInfoMgr::Initialize() {
 	// Nop frame collasping
@@ -30,13 +29,7 @@ void ModelInfoMgr::Initialize() {
 
 	Events::initScriptsEvent += []()
 	{
-		gLightSurfProps.ambient = gConfig.ReadFloat("VISUAL", "MaterialAmbientOff", gLightSurfProps.ambient);
-		gLightSurfProps.diffuse = gConfig.ReadFloat("VISUAL", "MaterialDiffuseOff", gLightSurfProps.diffuse);
-		gLightSurfProps.specular = gConfig.ReadFloat("VISUAL", "MaterialSpecularOff", gLightSurfProps.specular);
-
-		gLightSurfPropsOn.ambient = gConfig.ReadFloat("VISUAL", "MaterialAmbientOn", gLightSurfPropsOn.ambient);
-		gLightSurfPropsOn.diffuse = gConfig.ReadFloat("VISUAL", "MaterialDiffuseOn", gLightSurfPropsOn.diffuse);
-		gLightSurfPropsOn.specular = gConfig.ReadFloat("VISUAL", "MaterialSpecularOn", gLightSurfPropsOn.specular);
+		gLightSurfProps.ambient = gConfig.ReadFloat("VISUAL", "MaterialAmbientOn", gLightSurfProps.ambient);
 	};
 
 	MEEvents::vehRenderEvent.before += [](CVehicle *pVeh)
@@ -232,12 +225,14 @@ RpMaterial *ModelInfoMgr::SetEditableMaterialsCB(RpMaterial *material, void *dat
 					LOG_VERBOSE("Expected an 'on' texture for {} but none found", material->texture->name);
 				}
 			}
-			RpMaterialSetSurfaceProperties(material, &gLightSurfPropsOn);
+			(*ppEntries)->m_pAddress = RpMaterialGetSurfaceProperties(material);
+            (*ppEntries)->m_pValue = *(void**)RpMaterialGetSurfaceProperties(material);
+            (*ppEntries)++;
+			RpMaterialSetSurfaceProperties(material, &gLightSurfProps);
 		} else {
 			RpMaterialGetColor(material)->red = DEFAULT_MAT_COL.r;
 			RpMaterialGetColor(material)->green = DEFAULT_MAT_COL.g;
 			RpMaterialGetColor(material)->blue = DEFAULT_MAT_COL.b;
-			RpMaterialSetSurfaceProperties(material, &gLightSurfProps);
 		}
 	}
 	else
