@@ -18,6 +18,7 @@ extern int GetStrobeIndex(CVehicle *pVeh, RpMaterial *pMat);
 
 static CVehicle *pCurVeh = nullptr;
 RwSurfaceProperties& gLightSurfProps = *(RwSurfaceProperties*)0x8A645C;
+RwSurfaceProperties gLightSurfPropsOff = {0.45, 0.0, 0.0};
 
 void ModelInfoMgr::Initialize() {
 	// Nop frame collasping
@@ -30,6 +31,7 @@ void ModelInfoMgr::Initialize() {
 	Events::initScriptsEvent += []()
 	{
 		gLightSurfProps.ambient = gConfig.ReadFloat("VISUAL", "MaterialAmbientOn", gLightSurfProps.ambient);
+		gLightSurfPropsOff.ambient = gConfig.ReadFloat("VISUAL", "MaterialAmbientOff", gLightSurfPropsOff.ambient);
 	};
 
 	MEEvents::vehRenderEvent.before += [](CVehicle *pVeh)
@@ -225,14 +227,12 @@ RpMaterial *ModelInfoMgr::SetEditableMaterialsCB(RpMaterial *material, void *dat
 					LOG_VERBOSE("Expected an 'on' texture for {} but none found", material->texture->name);
 				}
 			}
-			(*ppEntries)->m_pAddress = RpMaterialGetSurfaceProperties(material);
-            (*ppEntries)->m_pValue = *(void**)RpMaterialGetSurfaceProperties(material);
-            (*ppEntries)++;
-			RpMaterialSetSurfaceProperties(material, &gLightSurfProps);
+			material->surfaceProps.ambient = gLightSurfProps.ambient;
 		} else {
 			RpMaterialGetColor(material)->red = DEFAULT_MAT_COL.r;
 			RpMaterialGetColor(material)->green = DEFAULT_MAT_COL.g;
 			RpMaterialGetColor(material)->blue = DEFAULT_MAT_COL.b;
+			material->surfaceProps.ambient = gLightSurfPropsOff.ambient;
 		}
 	}
 	else
@@ -242,11 +242,11 @@ RpMaterial *ModelInfoMgr::SetEditableMaterialsCB(RpMaterial *material, void *dat
 			(*ppEntries)->m_pAddress = RpMaterialGetColor(material);
 			(*ppEntries)->m_pValue = *reinterpret_cast<void **>(RpMaterialGetColor(material));
 			(*ppEntries)++;
+
+			RpMaterialGetColor(material)->red = col.r;
+			RpMaterialGetColor(material)->green = col.g;
+			RpMaterialGetColor(material)->blue = col.b;
 		}
-		
-		RpMaterialGetColor(material)->red = col.r;
-		RpMaterialGetColor(material)->green = col.g;
-		RpMaterialGetColor(material)->blue = col.b;
 	}
 
 	return material;

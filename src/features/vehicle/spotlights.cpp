@@ -10,6 +10,7 @@
 #include "modelinfomgr.h"
 
 #define VK_RMB 0x02
+extern int gGlobalShadowIntensity;
 
 void SpotLights::Initialize()
 {
@@ -35,7 +36,7 @@ void SpotLights::Initialize()
 	};
 	Events::initGameEvent += []()
 	{
-		pSpotlightTex = TextureMgr::Get("spotlight", 30);
+		pSpotlightTex = TextureMgr::Get("spotlight", gGlobalShadowIntensity);
 	};
 }
 
