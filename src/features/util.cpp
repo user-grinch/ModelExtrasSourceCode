@@ -63,6 +63,7 @@ void Util::RegisterCoronaWithAngle(CVehicle *pVeh, int coronaID, CVector posn, C
     RegisterCorona(pVeh, coronaID, posn, col, size);
 }
 
+extern int gGlobalShadowIntensity;
 void Util::RegisterShadow(CVehicle *pVeh, CVector position, CRGBA col, float angle, eDummyPos dummyPos, const std::string &shadwTexName, CVector2D shdwSz, CVector2D shdwOffset, RwTexture *pTexture)
 {
     if (shdwSz.x == 0.0f || shdwSz.y == 0.0f || !gConfig.ReadBoolean("VEHICLE_FEATURES", "LightShadows", false))
@@ -118,7 +119,7 @@ void Util::RegisterShadow(CVehicle *pVeh, CVector position, CRGBA col, float ang
     {
         return;
     }
-    RwTexture *pTex = (pTexture != NULL ? pTexture : TextureMgr::Get(shadwTexName, col.a));
+    RwTexture *pTex = (pTexture != NULL ? pTexture : TextureMgr::Get(shadwTexName, gGlobalShadowIntensity));
     if (pTex) {
         CShadows::StoreShadowToBeRendered(2, pTex, &center,
                                         up.x, up.y,

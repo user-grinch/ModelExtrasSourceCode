@@ -171,23 +171,25 @@ eLightType ModelInfoMgr::FetchMaterialType(CVehicle *pVeh, RpMaterial *pMat) {
 
 RpMaterial *ModelInfoMgr::SetEditableMaterialsCB(RpMaterial *material, void *data)
 {
-	if (!material || !material->texture) {
+	if (!material) {
 		return material;
 	}
 
 	tRestoreEntry **ppEntries = reinterpret_cast<tRestoreEntry **>(data);
-	bool isRemapTex = RwTextureGetName(RpMaterialGetTexture(material))[0] == '#';
-	if (isRemapTex) {
-		if (CVehicleModelInfo::ms_pRemapTexture)
-		{
-			(*ppEntries)->m_pAddress = &material->texture;
-			(*ppEntries)->m_pValue = material->texture;
-			(*ppEntries)++;
-			material->texture = CVehicleModelInfo::ms_pRemapTexture;
+	if (material->texture) {
+		bool isRemapTex = RwTextureGetName(RpMaterialGetTexture(material))[0] == '#';
+		if (isRemapTex) {
+			if (CVehicleModelInfo::ms_pRemapTexture)
+			{
+				(*ppEntries)->m_pAddress = &material->texture;
+				(*ppEntries)->m_pValue = material->texture;
+				(*ppEntries)++;
+				material->texture = CVehicleModelInfo::ms_pRemapTexture;
+			}
+		} else {
+			DirtFx::ProcessTextures(pCurVeh, material);
+			LicensePlate::ProcessTextures(pCurVeh, material);
 		}
-	} else {
-		DirtFx::ProcessTextures(pCurVeh, material);
-		LicensePlate::ProcessTextures(pCurVeh, material);
 	}
 
 	eLightType iLightIndex = FetchMaterialType(pCurVeh, material);
@@ -217,14 +219,16 @@ RpMaterial *ModelInfoMgr::SetEditableMaterialsCB(RpMaterial *material, void *dat
 			(*ppEntries)->m_pValue = material->texture;
 			(*ppEntries)++;
 
-			if (material->texture == CVehicleModelInfo::ms_pLightsTexture) {
-				material->texture = CVehicleModelInfo::ms_pLightsOnTexture;
-			} else {
-				RwTexture *pTex = TextureMgr::FindOnTextureInDict(material, material->texture->dict);
-				if (pTex) {
-					material->texture = pTex;
-				} else{
-					LOG_VERBOSE("Expected an 'on' texture for {} but none found", material->texture->name);
+			if (material->texture) {
+				if (material->texture == CVehicleModelInfo::ms_pLightsTexture) {
+					material->texture = CVehicleModelInfo::ms_pLightsOnTexture;
+				} else {
+					RwTexture *pTex = TextureMgr::FindOnTextureInDict(material, material->texture->dict);
+					if (pTex) {
+						material->texture = pTex;
+					} else{
+						LOG_VERBOSE("Expected an 'on' texture for {} but none found", material->texture->name);
+					}
 				}
 			}
 			material->surfaceProps.ambient = gLightSurfProps.ambient;
