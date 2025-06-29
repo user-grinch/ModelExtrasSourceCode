@@ -3,7 +3,8 @@
 
 enum class eParentType {
     Unknown,
-
+    NonBreakable,
+    
     PANEL_START,
     WingLeftFront,
     WingRightFront,

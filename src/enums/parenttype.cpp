@@ -24,12 +24,17 @@ eParentType eParentTypeFromString(const std::string& str) {
     else if (str == "wheel-right-front") return eParentType::WheelRightFront;
     else if (str == "wheel-right-rear") return eParentType::WheelRightRear;
     else if (str == "wheel-left-rear") return eParentType::WheelLeftRear;
+    else if (str == "non-breakable") return eParentType::NonBreakable;
     return eParentType::Unknown;
 }
 
 // Ugly piece of code but someone's gonna do it right?
 // Probably should've gone with a OOP model lol
 bool IsParentTypeDamaged(CVehicle* pVeh, eParentType type, eLightType lightType) {
+    if (type == eParentType::NonBreakable) {
+        return false;
+    }
+
     if (type == eParentType::Unknown) {
         if (lightType == eLightType::HeadLightLeft || lightType == eLightType::FogLightLeft 
             || lightType == eLightType::IndicatorLightLeftFront) {
