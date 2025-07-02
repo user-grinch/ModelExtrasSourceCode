@@ -16,7 +16,7 @@ int ReadHex(char a, char b)
     return (a << 4) + b;
 }
 
-VehicleDummy::VehicleDummy(CVehicle *pVeh, RwFrame *frame, std::string name, eDummyPos type, CRGBA color, size_t dummyIdx, bool directionalByDef, bool mirroredX)
+VehicleDummy::VehicleDummy(CVehicle *pVeh, RwFrame *frame, std::string name, eDummyPos type, CRGBA color, size_t dummyIdx, bool directionalByDef, bool mirroredX, bool shdwFlag)
 {
     Frame = frame;
     CVector pos = pVeh->GetPosition();
@@ -30,6 +30,7 @@ VehicleDummy::VehicleDummy(CVehicle *pVeh, RwFrame *frame, std::string name, eDu
     shdwCol = coronaCol = color;
     DummyType = type;
     DummyIdx = dummyIdx;
+    renderShadows = shdwFlag;
     float angleVal = 0.0f;
 
     if (directionalByDef)

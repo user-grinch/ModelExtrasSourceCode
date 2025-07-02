@@ -6,6 +6,10 @@
 #include "enums/dummypos.h"
 #include "enums/lightingmode.h"
 
+/*
+* TODO: Refactor this properly
+* The materials & dummy should be connected (somehow?)
+*/
 class VehicleDummy
 {
 public:
@@ -23,6 +27,7 @@ public:
     eLightingMode LightType = eLightingMode::NonDirectional;
     eParentType PartType = eParentType::Unknown;
 
+    bool renderShadows = true;
     std::string shdwTex = "";
     bool mirroredX = false;
     CRGBA matColOn = {255, 255, 255, 255};
@@ -35,7 +40,7 @@ public:
     size_t strobeLightTimer = 0;
     size_t strobeDelay = 1000;
 
-    VehicleDummy(CVehicle *pVeh, RwFrame *frame, std::string name, eDummyPos type = eDummyPos::None, CRGBA color = {255, 255, 255, 128}, size_t dummyIdx = 0, bool directionalByDef = false, bool mirroredX = false);
+    VehicleDummy(CVehicle *pVeh, RwFrame *frame, std::string name, eDummyPos type = eDummyPos::None, CRGBA color = {255, 255, 255, 128}, size_t dummyIdx = 0, bool directionalByDef = false, bool mirroredX = false, bool shadows = true);
 
     // Rotators
     void ResetAngle()

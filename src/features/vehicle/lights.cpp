@@ -243,6 +243,7 @@ void Lights::Initialize()
 		RwRGBA col{255, 255, 255, gGlobalCoronaIntensity};
 		eDummyPos dummyPos = eDummyPos::None;
 		int32_t dummyIdx = 0;
+		bool shadows = true;
 		bool directioanlByDef = false;
 		if (name.starts_with("fogl") && (STR_FOUND(name, "_l") || STR_FOUND(name, "_r")))
 		{
@@ -341,11 +342,12 @@ void Lights::Initialize()
 		}
 		else if (name.starts_with("headlights"))
 		{
+			shadows = name != "headlights2"; // Skip headlight2 shadows
 			col = {250, 250, 250, static_cast<unsigned char>(gGlobalCoronaIntensity)};
 			state = eLightType::HeadLightLeft;
 			dummyPos = eDummyPos::Front;
 			directioanlByDef = true;
-			VehicleDummy *pDummy = new VehicleDummy(pVeh, frame, name, dummyPos, col, dummyIdx, directioanlByDef, true);
+			VehicleDummy *pDummy = new VehicleDummy(pVeh, frame, name, dummyPos, col, dummyIdx, directioanlByDef, true, shadows);
 			m_Dummies[pVeh][state].push_back(pDummy);
 			state = eLightType::HeadLightRight;
 		}
@@ -382,7 +384,7 @@ void Lights::Initialize()
 			return;
 		}
 
-		m_Dummies[pVeh][state].push_back(new VehicleDummy(pVeh, frame, name, dummyPos, col, dummyIdx, directioanlByDef)); });
+		m_Dummies[pVeh][state].push_back(new VehicleDummy(pVeh, frame, name, dummyPos, col, dummyIdx, directioanlByDef, false, shadows)); });
 
 	Events::processScriptsEvent += []()
 	{
@@ -743,7 +745,7 @@ void Lights::RenderLight(CVehicle *pVeh, eLightType state, bool shadows, std::st
 
 			EnableDummy((int)pVeh + 42 + id++, e, pVeh, highlight ? 1.5f : 1.0f);
 
-			if (shadows)
+			if (shadows && e->renderShadows)
 			{
 				texture = (e->shdwTex == "") ? texture : e->shdwTex;
 				e->Update(pVeh);
