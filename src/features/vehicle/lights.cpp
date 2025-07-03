@@ -14,6 +14,7 @@
 #include "../../enums/vehdummy.h"
 #include "datamgr.h"
 #include "core/colors.h"
+#include <CPointLights.h>
 
 // flags
 bool gbGlobalIndicatorLights = false;
@@ -480,6 +481,7 @@ void Lights::Initialize()
 		
 		CVector2D shdwOffset = {0.0f, 0.7f};
 		CVector2D headlightOffset = {0.0f, shdwOffset.y + 0.5f};
+		
 		if (data.m_bFogLightsOn)
 		{
 			RenderLights(pControlVeh, pTowedVeh, eLightType::FogLightLeft, true, "foglight", {3.0f, 7.0f}, shdwOffset);
@@ -492,15 +494,18 @@ void Lights::Initialize()
 			CVector2D headlightSz = {4.0f, 8.0f};
 			bool isFoggy = (CWeather::NewWeatherType == WEATHER_FOGGY_SF || CWeather::NewWeatherType == WEATHER_SANDSTORM_DESERT || CWeather::OldWeatherType == WEATHER_FOGGY_SF || CWeather::OldWeatherType == WEATHER_SANDSTORM_DESERT);
 			std::string texName = data.m_bLongLightsOn ? "headlight_long" : "headlight_short";
+			
+			if (pControlVeh->m_renderLights.m_bLeftFront || pControlVeh->m_renderLights.m_bRightFront) {
+				CPointLights::AddLight(PLTYPE_SPOTLIGHT, pControlVeh->m_matrix->pos, pControlVeh->m_matrix->up, 20.0f, 1.0, 1.0, 1.0, 1, 0, 0);
+				if (pControlVeh->m_renderLights.m_bLeftFront)
+				{
+					RenderLights(pControlVeh, pTowedVeh, eLightType::HeadLightLeft, !data.m_bFogLightsOn, texName, headlightSz, headlightOffset, isFoggy || data.m_bLongLightsOn);
+				}
 
-			if (pControlVeh->m_renderLights.m_bLeftFront)
-			{
-				RenderLights(pControlVeh, pTowedVeh, eLightType::HeadLightLeft, true, texName, headlightSz, headlightOffset, isFoggy || data.m_bLongLightsOn);
-			}
-
-			if (pControlVeh->m_renderLights.m_bRightFront)
-			{
-				RenderLights(pControlVeh, pTowedVeh, eLightType::HeadLightRight, true, texName, headlightSz, headlightOffset, isFoggy || data.m_bLongLightsOn);
+				if (pControlVeh->m_renderLights.m_bRightFront)
+				{
+					RenderLights(pControlVeh, pTowedVeh, eLightType::HeadLightRight, !data.m_bFogLightsOn, texName, headlightSz, headlightOffset, isFoggy || data.m_bLongLightsOn);
+				}
 			}
 		}
 
