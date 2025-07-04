@@ -333,6 +333,7 @@ void Lights::Initialize()
 		}
 		else if (name.starts_with("taillights"))
 		{
+			shadows = name != "taillights2"; // Skip taillights2 shadows
 			col = {250, 0, 0, static_cast<unsigned char>(gGlobalCoronaIntensity)};
 			state = eLightType::TailLightLeft;
 			dummyPos = eDummyPos::Rear;
@@ -484,8 +485,8 @@ void Lights::Initialize()
 		
 		if (data.m_bFogLightsOn)
 		{
-			RenderLights(pControlVeh, pTowedVeh, eLightType::FogLightLeft, true, "foglight", {3.0f, 7.0f}, shdwOffset);
-			RenderLights(pControlVeh, pTowedVeh, eLightType::FogLightRight, true, "foglight", {3.0f, 7.0f}, shdwOffset);
+			RenderLights(pControlVeh, pTowedVeh, eLightType::FogLightLeft, true, "foglight", {3.0f, 7.0f}, headlightOffset);
+			RenderLights(pControlVeh, pTowedVeh, eLightType::FogLightRight, true, "foglight", {3.0f, 7.0f}, headlightOffset);
 		}
 
 		bool isBike = CModelInfo::IsBikeModel(pControlVeh->m_nModelIndex);
@@ -496,7 +497,7 @@ void Lights::Initialize()
 			std::string texName = data.m_bLongLightsOn ? "headlight_long" : "headlight_short";
 			
 			if (pControlVeh->m_renderLights.m_bLeftFront || pControlVeh->m_renderLights.m_bRightFront) {
-				CPointLights::AddLight(PLTYPE_SPOTLIGHT, pControlVeh->m_matrix->pos, pControlVeh->m_matrix->up, 20.0f, 1.0, 1.0, 1.0, 1, 0, 0);
+				CPointLights::AddLight(PLTYPE_SPOTLIGHT, pControlVeh->m_matrix->pos, pControlVeh->m_matrix->up, 20.0f, 1.0, 1.0, 1.0, 0, 0, 0);
 				if (pControlVeh->m_renderLights.m_bLeftFront)
 				{
 					RenderLights(pControlVeh, pTowedVeh, eLightType::HeadLightLeft, !data.m_bFogLightsOn, texName, headlightSz, headlightOffset, isFoggy || data.m_bLongLightsOn);

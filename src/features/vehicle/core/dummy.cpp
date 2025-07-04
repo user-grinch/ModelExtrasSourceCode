@@ -100,6 +100,9 @@ VehicleDummy::VehicleDummy(CVehicle *pVeh, RwFrame *frame, std::string name, eDu
                 shdowSize = {shadow.value("width", 1.0f), shadow.value("length", 1.0f)};
                 angleVal = shadow.value("angleoffset", 0.0f);
                 shdwTex = shadow.value("texture", "");
+
+                // shadows will be force enabled if there is JSON data for it.
+                renderShadows = true;
             }
 
             // Only for StrobeLights
