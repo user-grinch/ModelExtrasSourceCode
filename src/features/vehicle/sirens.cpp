@@ -575,7 +575,11 @@ void Sirens::Initialize()
 		id = Util::GetDigitsAfter(name, "light_em").value_or(id);
 
 		if (id != -1) {
-			vehicleData[vehicle]->Dummies[id].push_back(new VehicleDummy(vehicle, frame, name, eDummyPos::None));
+			VehicleDummyConfig config {
+				.pVeh = vehicle,
+				.frame = frame
+			};
+			vehicleData[vehicle]->Dummies[id].push_back(new VehicleDummy(config));
 		} });
 
 	plugin::Events::vehicleCtorEvent += [](CVehicle *pVeh)
@@ -895,9 +899,10 @@ void Sirens::EnableDummy(int id, VehicleDummy *dummy, CVehicle *vehicle, Vehicle
 		alpha = static_cast<char>(std::abs(alpha) * material->InertiaMultiplier);
 	}
 
+	const VehicleDummyConfig& dummyConfig = dummy->GetRef();
 	if (material->Type != eLightingMode::NonDirectional)
 	{
-		float dummyAngle = dummy->Angle;
+		float dummyAngle = dummyConfig.rotation.angle;
 
 		if (material->Type == eLightingMode::Rotator)
 		{
@@ -930,17 +935,17 @@ void Sirens::EnableDummy(int id, VehicleDummy *dummy, CVehicle *vehicle, Vehicle
 			dummyAngle -= 180.0f;
 		}
 
-		Util::RegisterCoronaWithAngle(vehicle, (reinterpret_cast<unsigned int>(vehicle) * 255) + 255 + id, dummy->Position,
+		Util::RegisterCoronaWithAngle(vehicle, (reinterpret_cast<unsigned int>(vehicle) * 255) + 255 + id, dummyConfig.position,
 									  material->Color,
 									  dummyAngle, material->Radius, material->Size);
 	}
 	else
 	{
-		Util::RegisterCorona(vehicle, (reinterpret_cast<unsigned int>(vehicle) * 255) + 255 + id, dummy->Position, material->Color, material->Size);
+		Util::RegisterCorona(vehicle, (reinterpret_cast<unsigned int>(vehicle) * 255) + 255 + id, dummyConfig.position, material->Color, material->Size);
 	}
 
 	// FIX ME
-	CVector dummyPos = dummy->Position;
+	CVector dummyPos = dummyConfig.position;
 	if (modelData[vehicle->m_nModelIndex]->isImVehFtSiren)
 	{
 		dummyPos.x *= 1.5f;
@@ -950,8 +955,8 @@ void Sirens::EnableDummy(int id, VehicleDummy *dummy, CVehicle *vehicle, Vehicle
 		dummyPos.x = dummyPos.x * 1.5f;
 		dummyPos.y = dummyPos.y * 1.2f;
 	}
-	dummy->Update(vehicle);
-	Util::RegisterShadow(vehicle, dummyPos, *(CRGBA *)&material->Color, dummy->Angle + dummy->CurrentAngle, dummy->DummyType, material->Shadow.Type, {material->Shadow.Size, material->Shadow.Size}, {material->Shadow.Offset, material->Shadow.Offset}, nullptr);
+	dummy->Update();
+	Util::RegisterShadow(vehicle, dummyPos, *(CRGBA *)&material->Color, dummyConfig.rotation.angle + dummyConfig.rotation.currentAngle, dummyConfig.dummyType, material->Shadow.Type, {material->Shadow.Size, material->Shadow.Size}, {material->Shadow.Offset, material->Shadow.Offset}, nullptr);
 };
 
 VehicleSiren::VehicleSiren(CVehicle *_vehicle)
