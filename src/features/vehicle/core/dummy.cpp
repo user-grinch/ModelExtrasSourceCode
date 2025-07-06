@@ -21,8 +21,23 @@ VehicleDummy::VehicleDummy(const VehicleDummyConfig& config)
     data = config;
     float angleVal = 0.0f;
 
+        // Calculate the angle based on the frame's orientation
+    float modelAngle = Util::NormalizeAngle(
+        CGeneral::GetATanOfXY(data.frame->modelling.right.x, data.frame->modelling.right.y) * 57.295776f
+    );
+
+    switch (static_cast<int>(modelAngle)) {
+        // Keep this disabled
+        // case 0:   data.dummyType = eDummyPos::Front; break;
+        case 90:  data.dummyType = eDummyPos::Left;  break;
+        case 180: data.dummyType = eDummyPos::Rear;  break;
+        case 270: data.dummyType = eDummyPos::Right; break;
+        default: break;
+    }
+
     auto &jsonData = DataMgr::Get(data.pVeh->m_nModelIndex);
     std::string name = GetFrameNodeName(data.frame);
+  
     if (jsonData.contains("lights"))
     {
         std::string newName = name.substr(0, name.find("_prm"));
@@ -127,19 +142,6 @@ VehicleDummy::VehicleDummy(const VehicleDummyConfig& config)
                 LOG_VERBOSE("Model {} has issue with node `{}`: invalid shadow size", data.pVeh->m_nModelIndex, name);
             }
         }
-    }
-
-    // Calculate the angle based on the frame's orientation
-    float modelAngle = Util::NormalizeAngle(
-        CGeneral::GetATanOfXY(data.frame->modelling.right.x, data.frame->modelling.right.y) * 57.295776f
-    );
-
-    switch (static_cast<int>(modelAngle)) {
-        case 0:   data.dummyType = eDummyPos::Front; break;
-        case 90:  data.dummyType = eDummyPos::Left;  break;
-        case 180: data.dummyType = eDummyPos::Rear;  break;
-        case 270: data.dummyType = eDummyPos::Right; break;
-        default: break;
     }
 
     switch (data.dummyType) {

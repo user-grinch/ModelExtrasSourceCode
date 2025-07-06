@@ -239,9 +239,9 @@ void Lights::Initialize()
 
 	ModelInfoMgr::RegisterDummy([](CVehicle *pVeh, RwFrame *frame) {
 		std::string name = GetFrameNodeName(frame);
-		CVector dummyPos = frame->ltm.pos;
-
 		VehicleDummyConfig c = {
+			.pVeh = pVeh,
+			.frame = frame,
 			.corona = {
 				.color = {255, 255, 255, static_cast<unsigned char>(gGlobalCoronaIntensity)}
 			}
@@ -249,40 +249,23 @@ void Lights::Initialize()
 
 		auto &dummies = m_Dummies[pVeh];
 
-		auto push_dummy = [&](bool mirrored = false) {
-			c.mirroredX = mirrored;
-			dummies[c.lightType].push_back(new VehicleDummy(c));
-		};
-
 		if (name.starts_with("fogl") && (STR_FOUND(name, "_l") || STR_FOUND(name, "_r"))) {
-			c = {
-				.dummyType = eDummyPos::Front,
-				.lightType = STR_FOUND(name, "_l") ? eLightType::FogLightLeft : eLightType::FogLightRight,
-				.corona = {
-					.color = {255, 255, 255, static_cast<unsigned char>(gGlobalCoronaIntensity)},
-					.lightingType = eLightingMode::Directional
-				}
-			};
+			c.dummyType = eDummyPos::Front;
+			c.lightType = STR_FOUND(name, "_l") ? eLightType::FogLightLeft : eLightType::FogLightRight;
+			c.corona.color = c.shadow.color = {255, 255, 255, static_cast<unsigned char>(gGlobalCoronaIntensity)};
+			c.corona.lightingType = eLightingMode::Directional;
 		}
 		else if (name.starts_with("rev") && (STR_FOUND(name, "_l") || STR_FOUND(name, "_r"))) {
-			c = {
-				.dummyType = eDummyPos::Rear,
-				.lightType = STR_FOUND(name, "_l") ? eLightType::ReverseLightLeft : eLightType::ReverseLightRight,
-				.corona = {
-					.color = {255, 255, 255, static_cast<unsigned char>(gGlobalCoronaIntensity)},
-					.lightingType = eLightingMode::Directional
-				}
-			};
+			c.dummyType = eDummyPos::Rear;
+			c.lightType = STR_FOUND(name, "_l") ? eLightType::ReverseLightLeft : eLightType::ReverseLightRight;
+			c.corona.color = c.shadow.color = {255, 255, 255, static_cast<unsigned char>(gGlobalCoronaIntensity)};
+			c.corona.lightingType = eLightingMode::Directional;
 		}
 		else if (name.starts_with("breakl") && (STR_FOUND(name, "_l") || STR_FOUND(name, "_r"))) {
-			c = {
-				.dummyType = eDummyPos::Rear,
-				.lightType = STR_FOUND(name, "_l") ? eLightType::BrakeLightLeft : eLightType::BrakeLightRight,
-				.corona = {
-					.color = {240, 0, 0, static_cast<unsigned char>(gGlobalCoronaIntensity)},
-					.lightingType = eLightingMode::Directional
-				}
-			};
+			c.dummyType = eDummyPos::Rear;
+			c.lightType = STR_FOUND(name, "_l") ? eLightType::BrakeLightLeft : eLightType::BrakeLightRight;
+			c.corona.color = c.shadow.color = {240, 0, 0, static_cast<unsigned char>(gGlobalCoronaIntensity)};
+			c.corona.lightingType = eLightingMode::Directional;
 		}
 		else if (name.starts_with("light_day")) {
 			c.lightType = eLightType::DayLight;
@@ -309,18 +292,14 @@ void Lights::Initialize()
 		else if (auto d = Util::GetCharsAfterPrefix(name, "sttlight_", 1)) {
 			c.lightType = (d == "L") ? eLightType::STTLightLeft : eLightType::STTLightRight;
 			c.dummyType = eDummyPos::Rear;
-			c.corona = {
-				.color = {240, 0, 0, static_cast<unsigned char>(gGlobalCoronaIntensity)},
-				.lightingType = eLightingMode::Directional
-			};
+			c.corona.color = c.shadow.color = {240, 0, 0, static_cast<unsigned char>(gGlobalCoronaIntensity)};
+			c.corona.lightingType = eLightingMode::Directional;
 		}
 		else if (auto d = Util::GetCharsAfterPrefix(name, "nabrakelight_", 1)) {
 			c.lightType = (d == "L") ? eLightType::NABrakeLightLeft : eLightType::NABrakeLightRight;
 			c.dummyType = eDummyPos::Rear;
-			c.corona = {
-				.color = {240, 0, 0, static_cast<unsigned char>(gGlobalCoronaIntensity)},
-				.lightingType = eLightingMode::Directional
-			};
+			c.corona.color = c.shadow.color = {240, 0, 0, static_cast<unsigned char>(gGlobalCoronaIntensity)};
+			c.corona.lightingType = eLightingMode::Directional;
 		}
 		else if (name.starts_with("spotlight_light")) {
 			c.lightType = eLightType::SpotLight;
@@ -330,31 +309,25 @@ void Lights::Initialize()
 			c.dummyType = eDummyPos::Front;
 		}
 		else if (name.starts_with("taillights")) {
-			c = {
-				.dummyType = eDummyPos::Rear,
-				.lightType = eLightType::TailLightLeft,
-				.mirroredX = true,
-				.corona = {
-					.color = {250, 0, 0, static_cast<unsigned char>(gGlobalCoronaIntensity)},
-					.lightingType = eLightingMode::Directional
-				},
-				.shadow = { .render = name != "taillights2" },
-			};
-			push_dummy(true);
+			c.dummyType = eDummyPos::Rear;
+			c.lightType = eLightType::TailLightLeft;
+			c.corona.color = c.shadow.color = {250, 0, 0, static_cast<unsigned char>(gGlobalCoronaIntensity)};
+			c.corona.lightingType = eLightingMode::Directional; 				
+			c.shadow.render = name != "taillights2";
+			c.mirroredX = true;
+			dummies[c.lightType].push_back(new VehicleDummy(c));
+			c.mirroredX = false;
 			c.lightType = eLightType::TailLightRight;
 		}
 		else if (name.starts_with("headlights")) {
-			c = {
-				.dummyType = eDummyPos::Front,
-				.lightType = eLightType::HeadLightLeft,
-				.mirroredX = true,
-				.corona = {
-					.color = {250, 250, 250, static_cast<unsigned char>(gGlobalCoronaIntensity)},
-					.lightingType = eLightingMode::Directional
-				},
-				.shadow = { .render = name != "headlights2" },
-			};
-			push_dummy(true);
+			c.dummyType = eDummyPos::Front;
+			c.lightType = eLightType::HeadLightLeft;
+			c.corona.color = c.shadow.color = {250, 250, 250, static_cast<unsigned char>(gGlobalCoronaIntensity)};
+			c.corona.lightingType = eLightingMode::Directional;
+			c.shadow.render = name != "headlights2";
+			c.mirroredX = true;
+			dummies[c.lightType].push_back(new VehicleDummy(c));
+			c.mirroredX = false;
 			c.lightType = eLightType::HeadLightRight;
 		}
 		else if (name.starts_with("turnl_") || name.starts_with("indicator_")) {
@@ -362,10 +335,8 @@ void Lights::Initialize()
 			if (!d) d = Util::GetCharsAfterPrefix(name, "indicator_", 2);
 			if (d) {
 				bool isLeft = (d.value()[0] == 'L');
-				c.corona = {
-					.color = {255, 128, 0, static_cast<unsigned char>(gGlobalCoronaIntensity)},
-					.lightingType = eLightingMode::Directional
-				};
+				c.corona.color = c.shadow.color = {255, 128, 0, static_cast<unsigned char>(gGlobalCoronaIntensity)};
+				c.corona.lightingType = eLightingMode::Directional;
 
 				switch (d.value()[1]) {
 					case 'F':
@@ -387,7 +358,7 @@ void Lights::Initialize()
 			return;
 		}
 
-		push_dummy(false);
+		dummies[c.lightType].push_back(new VehicleDummy(c));
 	});
 
 

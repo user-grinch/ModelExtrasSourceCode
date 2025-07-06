@@ -577,7 +577,7 @@ void Sirens::Initialize()
 		if (id != -1) {
 			VehicleDummyConfig config {
 				.pVeh = vehicle,
-				.frame = frame
+				.frame = frame,
 			};
 			vehicleData[vehicle]->Dummies[id].push_back(new VehicleDummy(config));
 		} });
