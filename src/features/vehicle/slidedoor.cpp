@@ -22,8 +22,8 @@ void SlideDoor::Initialize()
         auto& jsonData = DataMgr::Get(pVeh->m_nModelIndex);
         VehData& data = xData.Get(pVeh);
 
-        bool reverse = jsonData["door"].contains(name)
-                        ? jsonData["door"][name].value("reverse", false)
+        bool reverse = jsonData["doors"].contains(name)
+                        ? jsonData["doors"][name].value("reverse", false)
                         : false;
 
         if (name == "dvan_l" || name == "x_sd_lf") {
