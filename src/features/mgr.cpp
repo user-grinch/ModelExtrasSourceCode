@@ -28,6 +28,8 @@
 #include <extensions/ScriptCommands.h>
 #include <CHud.h>
 #include <CMessages.h>
+#include "slidedoor.h"
+#include "rotatedoor.h"
 
 void InitLogFile();
 
@@ -210,6 +212,13 @@ void FeatureMgr::Initialize()
     {
         ChainFeature::Initialize();
         LOG_NO_LEVEL("  AnimatedChain");
+    }
+
+    if (gConfig.ReadBoolean("VEHICLE_FEATURES", "AnimatedDoor", false))
+    {
+        SlideDoor::Initialize();
+        RotateDoor::Initialize();
+        LOG_NO_LEVEL("  AnimatedDoor");
     }
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "AnimatedGasMeter", false))
