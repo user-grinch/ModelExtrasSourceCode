@@ -214,7 +214,7 @@ void FeatureMgr::Initialize()
         LOG_NO_LEVEL("  AnimatedChain");
     }
 
-    if (gConfig.ReadBoolean("VEHICLE_FEATURES", "AnimatedDoor", false))
+    if (gConfig.ReadBoolean("VEHICLE_FEATURES", "AnimatedDoors", false))
     {
         SlideDoor::Initialize();
         RotateDoor::Initialize();
