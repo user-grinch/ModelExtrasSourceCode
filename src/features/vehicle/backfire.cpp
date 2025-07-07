@@ -77,13 +77,16 @@ void BackFireEffect::Initialize(RwFrame *frame, CEntity *pVeh)
         onlySelected = gConfig.ReadBoolean("VEHICLE_FEATURES", "BackfireEffect_OnlySelectedModels", true);
         Util::GetModelsFromIni(line, ValidModels);
     };
+
+    plugin::Events::vehicleRenderEvent.before += [](CVehicle *vehicle)
+    {
+        BackFireEffect::Process(vehicle);
+    };
 }
 
 // Inspired by Junior's https://www.mixmods.com.br/2016/06/backfire-als-v2-5-mod-estalar-escapamento/
-void BackFireEffect::Process(void *ptr, RwFrame *frame, eModelEntityType type)
+void BackFireEffect::Process(CVehicle *pVeh)
 {
-    CVehicle *pVeh = static_cast<CVehicle *>(ptr);
-
     if (!pVeh->GetIsOnScreen() || pVeh->m_nVehicleFlags.bEngineBroken || !pVeh->m_nVehicleFlags.bEngineOn || pVeh->m_nVehicleFlags.bIsBig || pVeh->m_nVehicleFlags.bIsVan || pVeh->m_nVehicleFlags.bIsBus || pVeh->m_nVehicleFlags.bIsRCVehicle)
     {
         return;

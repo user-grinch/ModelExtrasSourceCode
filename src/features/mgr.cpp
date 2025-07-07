@@ -182,20 +182,20 @@ void FeatureMgr::Initialize()
     LOG_NO_LEVEL("\nBike Features->");
     if (gConfig.ReadBoolean("BIKE_FEATURES", "AnimatedBrakes", false))
     {
-        m_FunctionTable["x_fbrake"] = m_FunctionTable["fc_fbrake"] = FrontBrake::Process;
-        m_FunctionTable["x_rbrake"] = m_FunctionTable["fc_rbrake"] = RearBrake::Process;
+        FrontBrake::Initialize();
+        RearBrake::Initialize();
         LOG_NO_LEVEL("  AnimatedBrakes");
     }
 
     if (gConfig.ReadBoolean("BIKE_FEATURES", "AnimatedClutch", false))
     {
-        m_FunctionTable["x_clutch"] = m_FunctionTable["fc_cl"] = Clutch::Process;
+        Clutch::Initialize();
         LOG_NO_LEVEL("  AnimatedClutch");
     }
 
     if (gConfig.ReadBoolean("BIKE_FEATURES", "AnimatedGearLever", false))
     {
-        m_FunctionTable["x_gearlever"] = m_FunctionTable["fc_gl"] = GearLever::Process;
+        GearLever::Initialize();
         LOG_NO_LEVEL("  AnimatedClutch");
     }
 
@@ -223,31 +223,31 @@ void FeatureMgr::Initialize()
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "AnimatedGasMeter", false))
     {
-        m_FunctionTable["x_gm"] = m_FunctionTable["petrolok"] = GasMeter::Process;
+        GasMeter::Initialize();
         LOG_NO_LEVEL("  AnimatedGasMeter");
     }
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "AnimatedGearMeter", false))
     {
-        m_FunctionTable["x_gearmeter"] = m_FunctionTable["fc_gm"] = GearMeter::Process;
+        GearMeter::Initialize();
         LOG_NO_LEVEL("  AnimatedGearMeter");
     }
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "AnimatedOdoMeter", false))
     {
-        m_FunctionTable["x_ometer"] = m_FunctionTable["fc_om"] = OdoMeter::Process;
+        OdoMeter::Initialize();
         LOG_NO_LEVEL("  AnimatedOdoMeter");
     }
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "AnimatedRpmMeter", false))
     {
-        m_FunctionTable["x_rpm"] = m_FunctionTable["fc_rpm"] = m_FunctionTable["tahook"] = RpmMeter::Process;
+        RpmMeter::Initialize();
         LOG_NO_LEVEL("  AnimatedRpmMeter");
     }
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "AnimatedSpeedMeter", false))
     {
-        m_FunctionTable["x_sm"] = m_FunctionTable["fc_sm"] = m_FunctionTable["speedook"] = SpeedMeter::Process;
+        SpeedMeter::Initialize();
         LOG_NO_LEVEL("  AnimatedSpeedMeter");
     }
 
@@ -257,13 +257,15 @@ void FeatureMgr::Initialize()
         LOG_NO_LEVEL("  AnimatedSpoiler");
     }
 
+    if (gConfig.ReadBoolean("VEHICLE_FEATURES", "AnimatedTurboMeter", false))
+    {
+        TurboMeter::Initialize();
+        LOG_NO_LEVEL("  AnimatedTurboMeter");
+    }
+
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "BackfireEffect", false))
     {
         BackFireEffect::Initialize(NULL, NULL);
-        plugin::Events::vehicleRenderEvent.before += [](CVehicle *vehicle)
-        {
-            BackFireEffect::Process(vehicle, nullptr, eModelEntityType::Vehicle);
-        };
         LOG_NO_LEVEL("  BackfireEffect");
     }
 

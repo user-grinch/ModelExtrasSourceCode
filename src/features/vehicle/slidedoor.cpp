@@ -17,7 +17,7 @@ void SlideDoor::Initialize()
     ModelInfoMgr::RegisterDummy([](CVehicle* pVeh, RwFrame* pFrame)
     {
         std::string name = GetFrameNodeName(pFrame);
-        if (!name.starts_with("dvan_") && !name.starts_with("x_sd_")) return;
+        if (!name.starts_with("dvan_") && !name.starts_with("dmbus_") && !name.starts_with("x_sd_")) return;
 
         auto& jsonData = DataMgr::Get(pVeh->m_nModelIndex);
         VehData& data = xData.Get(pVeh);
@@ -26,9 +26,9 @@ void SlideDoor::Initialize()
                         ? jsonData["doors"][name].value("reverse", false)
                         : false;
 
-        if (name == "dvan_l" || name == "x_sd_lf") {
+        if (name == "dvan_l" || name == "dmbus_l" || name == "x_sd_lf") {
             data.leftFront = { pFrame, reverse };
-        } else if (name == "dvan_r" || name == "x_sd_rf") {
+        } else if (name == "dvan_r" || name == "dmbus_r" || name == "x_sd_rf") {
             data.rightFront = { pFrame, reverse };
         } else if (name == "x_sd_lr") {
             data.leftRear = { pFrame, reverse };
