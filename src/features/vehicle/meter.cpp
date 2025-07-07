@@ -32,7 +32,7 @@ void GearMeter::Initialize() {
 void OdoMeter::Initialize() {
     ModelInfoMgr::RegisterDummy([](CVehicle* pVeh, RwFrame* pFrame) {
         std::string name = GetFrameNodeName(pFrame);
-        if (name.starts_with("x_ometer") || name.starts_with("fc_om")) {
+        if (name.starts_with("x_odometer") || name.starts_with("fc_om")) {
             VehData &data = vehData.Get(pVeh);
             Util::StoreChilds(pFrame, data.m_FrameList);
             data.m_nPrevRot = 1234 + rand() % (57842 - 1234);
