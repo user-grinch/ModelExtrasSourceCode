@@ -3,6 +3,7 @@
 #include "defines.h"
 #include "datamgr.h"
 #include "enums/dummypos.h"
+#include <CWorld.h>
 
 extern float gfGlobalCoronaSize;
 extern int gGlobalCoronaIntensity;
@@ -193,6 +194,7 @@ void VehicleDummy::Update()
     data.shadow.position.x = vehicleRight.x * offset.x + vehicleRight.y * offset.y;
     data.shadow.position.y = vehMatrix.up.x * offset.x + vehMatrix.up.y * offset.y + vehMatrix.up.z * offset.z;
     data.shadow.position.z = vehicleAt.x * offset.x + vehicleAt.y * offset.y;
+    data.shadow.position.z = CWorld::FindGroundZFor3DCoord(data.shadow.position.x, data.shadow.position.y, data.shadow.position.z + 100.0f, NULL, NULL);
 
     if (data.mirroredX)
     {

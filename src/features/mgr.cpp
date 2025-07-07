@@ -64,28 +64,6 @@ void FeatureMgr::Initialize()
             CMessages::AddMessageWithString((char *)text.c_str(), 5000, false, NULL, true);
             gLogger->warn(text);
         }
-
-        Process(static_cast<void *>(pVeh), eModelEntityType::Vehicle);
-    };
-
-    MEEvents::heliRenderEvent.after += [](CVehicle *pVeh)
-    {
-        if (!CModelInfo::IsHeliModel(pVeh->m_nModelIndex))
-        {
-            return;
-        }
-
-        Process(static_cast<void *>(pVeh), eModelEntityType::Vehicle);
-    };
-
-    Events::vehicleSetModelEvent.after += [](CVehicle *pVeh, int model)
-    {
-        Add(static_cast<void *>(pVeh), (RwFrame *)pVeh->m_pRwClump->object.parent, eModelEntityType::Vehicle);
-    };
-
-    Events::vehicleDtorEvent += [](CVehicle *pVeh)
-    {
-        Remove(static_cast<void *>(pVeh), eModelEntityType::Vehicle);
     };
 
     Events::pedRenderEvent.before += [](CPed *pPed)

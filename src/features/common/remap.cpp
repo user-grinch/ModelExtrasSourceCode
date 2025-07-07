@@ -4,6 +4,8 @@
 #include <CTxdStore.h>
 #include "meevents.h"
 #include "texmgr.h"
+#include <rw/rwcore.h>
+#include <rw/rpworld.h>
 
 void Remap::LoadRemaps(CBaseModelInfo *pModelInfo, int model, eModelEntityType type)
 {
@@ -225,9 +227,11 @@ void Remap::BeforeRender(void *ptr, eModelEntityType type)
                 } else {
                     mat->texture = pData->m_pTextures[name][m_pRandom[pData->curPtr]].m_pNormal;
                 }
+                mat->texture->refCount++;
 
                 return mat;
             }, data);
         }
-        return atomic; }, &data);
+        return atomic; 
+    }, &data);
 }
