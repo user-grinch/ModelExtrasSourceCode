@@ -45,7 +45,7 @@ void FrontBrake::Initialize()
                     temp = 1;
                 }
 
-                Util::SetFrameRotationZ(data.pFrame, temp);
+                FrameUtil::SetRotationZ(data.pFrame, temp);
                 data.m_nLastFrameMS = timer;
             }
             else
@@ -63,7 +63,7 @@ void FrontBrake::Initialize()
                         temp = 1;
                     }
 
-                    Util::SetFrameRotationZ(data.pFrame, temp);
+                    FrameUtil::SetRotationZ(data.pFrame, temp);
                     data.m_nLastFrameMS = timer;
                 }
             }
@@ -113,7 +113,7 @@ void RearBrake::Initialize() {
                     temp = 1;
                 }
 
-                Util::SetFrameRotationX(data.pFrame, temp);
+                FrameUtil::SetRotationX(data.pFrame, temp);
                 data.m_nLastFrameMS = timer;
             }
             else
@@ -131,7 +131,7 @@ void RearBrake::Initialize() {
                         temp = 1;
                     }
 
-                    Util::SetFrameRotationX(data.pFrame, temp);
+                    FrameUtil::SetRotationX(data.pFrame, temp);
                     data.m_nLastFrameMS = timer;
                 }
             }

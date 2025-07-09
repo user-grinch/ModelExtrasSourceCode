@@ -9,7 +9,6 @@ void Clutch::Initialize() {
         std::string name = GetFrameNodeName(pFrame);
         if (name.starts_with("x_clutch") || name.starts_with("fc_cl")) {
             VehData &data = vehData.Get(pVeh);
-            data.m_nCurOffset = std::stoi(Util::GetRegexVal(name, ".*_z=(-?[0-9]+).*", "20"));
             auto &jsonData = DataMgr::Get(pVeh->m_nModelIndex);
             if (jsonData.contains("clutch") && jsonData["clutch"].contains("offset"))
             {
@@ -48,7 +47,7 @@ void Clutch::Initialize() {
                     data.m_eState = eFrameState::AtOffset;
                 }
                 data.m_fCalVal = 1.0f;
-                Util::SetFrameRotationZ(data.pFrame, data.m_fCalVal);
+                FrameUtil::SetRotationZ(data.pFrame, data.m_fCalVal);
                 data.m_nLastFrameMS = now;
                 break;
 
@@ -59,7 +58,7 @@ void Clutch::Initialize() {
                     data.m_eState = eFrameState::AtOrigin;
                 }
                 data.m_fCalVal = -1.0f;
-                Util::SetFrameRotationZ(data.pFrame, data.m_fCalVal);
+                FrameUtil::SetRotationZ(data.pFrame, data.m_fCalVal);
                 data.m_nLastFrameMS = now;
                 break;
         }
@@ -117,7 +116,7 @@ void GearLever::Initialize() {
                                 data.m_fCurRotation += 1;
                                 data.m_fCalVal = 1;
                             }
-                            Util::SetFrameRotationX(data.pFrame, data.m_fCalVal);
+                            FrameUtil::SetRotationX(data.pFrame, data.m_fCalVal);
                         }
                         else
                         {
@@ -129,7 +128,7 @@ void GearLever::Initialize() {
                         if (data.m_nCurOffset != abs(data.m_fCurRotation))
                         {
                             data.m_fCurRotation += data.m_fCalVal;
-                            Util::SetFrameRotationX(data.pFrame, data.m_fCalVal);
+                            FrameUtil::SetRotationX(data.pFrame, data.m_fCalVal);
                         }
                         else
                         {

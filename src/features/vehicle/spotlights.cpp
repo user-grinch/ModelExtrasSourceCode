@@ -75,7 +75,7 @@ void SpotLights::OnHudRender()
 
 	data.pFrame->modelling = *(RwMatrix *)&TheCamera.m_mCameraMatrix;
 	float heading = pVeh->GetHeading() * 180.0f / 3.14f;
-	Util::SetFrameRotationZ(data.pFrame, heading);
+	FrameUtil::SetRotationZ(data.pFrame, heading);
 };
 
 void SpotLights::OnVehicleRender(CVehicle *pVeh)

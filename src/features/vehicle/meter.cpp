@@ -10,7 +10,7 @@ void GearMeter::Initialize() {
         if (name.starts_with("x_gearmeter") || name.starts_with("fc_gm")) {
             VehData &data = vehData.Get(pVeh);
             data.pRoot = pFrame;
-            Util::StoreChilds(pFrame, data.m_FrameList);
+            FrameUtil::StoreChilds(pFrame, data.m_FrameList);
         }
     });
 
@@ -19,10 +19,10 @@ void GearMeter::Initialize() {
 
         VehData &data = vehData.Get(pVeh);
         if (!data.m_FrameList.empty() &&  pVeh->m_nCurrentGear != data.m_nCurrent) {
-            Util::HideAllChilds(data.pRoot);
+            FrameUtil::HideAllChilds(data.pRoot);
             if (data.m_FrameList.size() > static_cast<size_t>(data.m_nCurrent))
             {
-                Util::ShowAllAtomics(data.m_FrameList[data.m_nCurrent]);
+                FrameUtil::ShowAllAtomics(data.m_FrameList[data.m_nCurrent]);
             }
             data.m_nCurrent = pVeh->m_nCurrentGear;
         }
@@ -34,7 +34,7 @@ void OdoMeter::Initialize() {
         std::string name = GetFrameNodeName(pFrame);
         if (name.starts_with("x_odometer") || name.starts_with("fc_om")) {
             VehData &data = vehData.Get(pVeh);
-            Util::StoreChilds(pFrame, data.m_FrameList);
+            FrameUtil::StoreChilds(pFrame, data.m_FrameList);
             data.m_nPrevRot = 1234 + rand() % (57842 - 1234);
 
             auto &jsonData = DataMgr::Get(pVeh->m_nModelIndex);
@@ -82,7 +82,7 @@ void OdoMeter::Initialize() {
                     if (updatedText[i] != data.m_ScreenText[i])
                     {
                         float angle = (updatedText[i] - data.m_ScreenText[i]) * 36.0f;
-                        Util::SetFrameRotationX(data.m_FrameList[i], angle);
+                        FrameUtil::SetRotationX(data.m_FrameList[i], angle);
                     }
                 }
                 data.m_ScreenText = std::move(updatedText);
@@ -136,7 +136,7 @@ void RpmMeter::Initialize() {
             newRot = plugin::Clamp(newRot, 0, data.m_fMaxRotation);
 
             float change = (newRot - data.m_fCurRotation) * 0.25f * delta;
-            Util::SetFrameRotationY(data.pFrame, change);
+            FrameUtil::SetRotationY(data.pFrame, change);
             data.m_fCurRotation += change;
         }
     });
@@ -180,7 +180,7 @@ void SpeedMeter::Initialize() {
             newRot = plugin::Clamp(newRot, 0, data.m_fMaxRotation);
 
             float change = (newRot - data.m_fCurRotation) * 0.5f * delta;
-            Util::SetFrameRotationY(data.pFrame, change);
+            FrameUtil::SetRotationY(data.pFrame, change);
             data.m_fCurRotation += change;
         }
     });
@@ -227,7 +227,7 @@ void TurboMeter::Initialize() {
             newRot = plugin::Clamp(newRot, 0, data.m_fMaxRotation);
 
             float change = (newRot - data.m_fCurRotation) * 0.25f * delta;
-            Util::SetFrameRotationY(data.pFrame, change);
+            FrameUtil::SetRotationY(data.pFrame, change);
             data.m_fCurRotation += change;
         }
     });
@@ -238,7 +238,7 @@ void GasMeter::Initialize()
     ModelInfoMgr::RegisterDummy([](CVehicle* pVeh, RwFrame* pFrame) {
         std::string name = GetFrameNodeName(pFrame);
         if (name == "x_gm" || name == "petrolok") {
-            Util::SetFrameRotationY(pFrame, RandomNumberInRange(20.0f, 70.0f));
+            FrameUtil::SetRotationY(pFrame, RandomNumberInRange(20.0f, 70.0f));
         }
     });
 }

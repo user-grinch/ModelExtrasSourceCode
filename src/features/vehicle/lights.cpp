@@ -15,6 +15,7 @@
 #include "datamgr.h"
 #include "core/colors.h"
 #include <CPointLights.h>
+#include <CVisibilityPlugins.h>
 
 // flags
 bool gbGlobalIndicatorLights = false;
@@ -692,6 +693,13 @@ void Lights::Initialize()
 	);
 };
 
+bool IsFrameFirstAtomicVisible(RwFrame * frame)
+{
+	RpAtomic * atomic = (RpAtomic*)GetFirstObject(frame);
+	if (atomic) if (atomic->object.object.flags & 0x4) return true;
+	return false;
+}
+
 void Lights::RenderLight(CVehicle *pVeh, eLightType state, bool shadows, std::string texture, CVector2D sz, CVector2D offset, bool highlight)
 {
 	int id = static_cast<int>(state) * 1000;
@@ -701,7 +709,20 @@ void Lights::RenderLight(CVehicle *pVeh, eLightType state, bool shadows, std::st
 		for (auto e : m_Dummies[pVeh][state])
 		{
 			const VehicleDummyConfig& c = e->GetRef();
-			if (IsParentTypeDamaged(pVeh, c.parentType, state) || (c.dummyType == eDummyPos::Rear && pVeh->m_pTrailer))
+			bool foundDamAtomicVisible = false;
+			RwFrame* current = e->Get().frame;
+			while (current) {
+				std::string curName = GetFrameNodeName(current);
+
+				if (curName.ends_with("_dam")) {
+					foundDamAtomicVisible = IsFrameFirstAtomicVisible(current);
+					break;
+				}
+
+				current = current->next;
+			}
+
+			if (foundDamAtomicVisible || (c.dummyType == eDummyPos::Rear && pVeh->m_pTrailer))
 			{
 				litMats = false;
 				break;

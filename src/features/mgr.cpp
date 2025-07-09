@@ -55,6 +55,10 @@ void FeatureMgr::Initialize()
         };
     }
 
+    Events::attachRwPluginsEvent += []() {
+        FramePluginOffset = RwFrameRegisterPlugin(sizeof(RwFrameExtension), PLUGIN_ID_STR, (RwPluginObjectConstructor)RwFrameExtension::Initialize, (RwPluginObjectDestructor)RwFrameExtension::Shutdown, (RwPluginObjectCopy)RwFrameExtension::Clone);
+    };
+
     MEEvents::vehRenderEvent.before += [](CVehicle *pVeh)
     {
         static bool spInstalled = GetModuleHandle("SilentPatchSA.asi");

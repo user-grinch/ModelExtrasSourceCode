@@ -10,9 +10,9 @@ void RotateDoor::UpdateRotatingDoor(CVehicle* pVeh, DoorConfig& config, eDoors d
     float ratio = pVeh->GetDooorAngleOpenRatio(doorID);
     float targetRot = ratio * (config.reverse ? 1.0f : -1.0f) * 90.0f - config.originalRot;
 
-    float currentRot = Util::GetMatrixRotationZ(&config.frame->modelling) - config.originalRot;
-    Util::SetMatrixRotationZ(&config.frame->modelling, -currentRot);
-    Util::SetMatrixRotationZ(&config.frame->modelling, targetRot);
+    float currentRot = MatrixUtil::GetRotationZ(&config.frame->modelling) - config.originalRot;
+    MatrixUtil::SetRotationZ(&config.frame->modelling, -currentRot);
+    MatrixUtil::SetRotationZ(&config.frame->modelling, targetRot);
     RwMatrixUpdate(&config.frame->modelling);
 }
 
@@ -30,7 +30,7 @@ void RotateDoor::Initialize()
                         ? jsonData["doors"][name].value("reverse", false)
                         : false;
 
-        float orgRot = Util::GetMatrixRotationZ(&pFrame->modelling);
+        float orgRot = MatrixUtil::GetRotationZ(&pFrame->modelling);
         if (name == "x_rd_lf") {
             data.leftFront = { pFrame, orgRot, reverse };
         } else if (name == "x_rd_rf") {

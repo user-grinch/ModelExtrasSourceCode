@@ -7,8 +7,8 @@ void UpdateRotation(CVehicle *pVeh, RwFrame *ori, RwFrame *tar)
 {
     if (ori && tar)
     {
-        float oriRot = Util::GetMatrixRotationZ(&ori->modelling);
-        Util::SetMatrixRotationZ(&tar->modelling, oriRot);
+        float oriRot = MatrixUtil::GetRotationZ(&ori->modelling);
+        MatrixUtil::SetRotationZ(&tar->modelling, oriRot);
         pVeh->UpdateRwFrame();
     }
 }
