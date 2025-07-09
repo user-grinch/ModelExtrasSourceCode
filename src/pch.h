@@ -46,10 +46,12 @@ extern unsigned int FramePluginOffset;
 #define FRAME_EXTENSION(frame) ((RwFrameExtension *)((unsigned int)frame + FramePluginOffset))
 
 struct RwFrameExtension {   
-	CVehicle *pOwner = nullptr;
-  RwMatrix *pOrigMatrix = nullptr;
+	CVehicle *pOwner;
+  RwMatrix *pOrigMatrix;
 
 	static RwFrame *Initialize(RwFrame *pFrame) {
+    FRAME_EXTENSION(pFrame)->pOwner = nullptr;
+    FRAME_EXTENSION(pFrame)->pOrigMatrix = nullptr;
 		return pFrame;
 	}
 

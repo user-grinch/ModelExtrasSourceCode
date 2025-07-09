@@ -43,6 +43,31 @@ int GetStrobeIndex(CVehicle *pVeh, RpMaterial *pMat) {
 	return pMat->color.blue;
 }
 
+bool IsOkAtomicVisible(RwFrame* frame)
+{
+	if (!rwLinkListEmpty(&frame->objectList))
+    {
+        RwObjectHasFrame *atomic;
+
+        RwLLLink *current = rwLinkListGetFirstLLLink(&frame->objectList);
+        RwLLLink *end = rwLinkListGetTerminator(&frame->objectList);
+
+        do
+        {
+            atomic = rwLLLinkGetData(current, RwObjectHasFrame, lFrame);
+            bool isOkAtomic = (CVisibilityPlugins::GetAtomicId((RpAtomic*)atomic) & 3) == 1; // 1 = Ok, 2 = Damaged, 3 = None
+
+			if (isOkAtomic) {
+				return atomic->object.flags & rpATOMICRENDER;
+			}
+
+            current = rwLLLinkGetNext(current);
+        } while (current != end);
+    }
+
+    return false;
+}
+
 // Indicator lights
 static uint64_t delay;
 
@@ -693,13 +718,6 @@ void Lights::Initialize()
 	);
 };
 
-bool IsFrameFirstAtomicVisible(RwFrame * frame)
-{
-	RpAtomic * atomic = (RpAtomic*)GetFirstObject(frame);
-	if (atomic) if (atomic->object.object.flags & 0x4) return true;
-	return false;
-}
-
 void Lights::RenderLight(CVehicle *pVeh, eLightType state, bool shadows, std::string texture, CVector2D sz, CVector2D offset, bool highlight)
 {
 	int id = static_cast<int>(state) * 1000;
@@ -709,20 +727,12 @@ void Lights::RenderLight(CVehicle *pVeh, eLightType state, bool shadows, std::st
 		for (auto e : m_Dummies[pVeh][state])
 		{
 			const VehicleDummyConfig& c = e->GetRef();
-			bool foundDamAtomicVisible = false;
-			RwFrame* current = e->Get().frame;
-			while (current) {
-				std::string curName = GetFrameNodeName(current);
+			RwFrame *parent = RwFrameGetParent(e->Get().frame);
+			bool atomicCheck = e->GetRef().lightType != eLightType::HeadLightLeft 
+								&& e->GetRef().lightType != eLightType::HeadLightRight 
+								&& !IsOkAtomicVisible(parent);
 
-				if (curName.ends_with("_dam")) {
-					foundDamAtomicVisible = IsFrameFirstAtomicVisible(current);
-					break;
-				}
-
-				current = current->next;
-			}
-
-			if (foundDamAtomicVisible || (c.dummyType == eDummyPos::Rear && pVeh->m_pTrailer))
+			if (atomicCheck || (c.dummyType == eDummyPos::Rear && pVeh->m_pTrailer))
 			{
 				litMats = false;
 				break;
