@@ -445,7 +445,7 @@ void Lights::Initialize()
 			pTowedVeh = pControlVeh->m_pTrailer;
 		}
 
-		if (pControlVeh->m_nOverrideLights == eLightOverride::ForceLightsOff || pControlVeh->ms_forceVehicleLightsOff || (!pControlVeh->GetIsOnScreen() && !pTowedVeh->GetIsOnScreen()))
+		if (pControlVeh->m_nOverrideLights == eLightOverride::ForceLightsOff || pControlVeh->ms_forceVehicleLightsOff )
 		{
 			return;
 		}

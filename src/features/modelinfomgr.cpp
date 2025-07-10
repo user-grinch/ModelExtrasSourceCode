@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "modelinfomgr.h"
 #include <CTxdStore.h>
+#include <CCamera.h>
 #include <RenderWare.h>
 #include <rwcore.h>
 #include <rwplcore.h>
@@ -28,24 +29,23 @@ void ModelInfoMgr::Initialize() {
 	patch::ReplaceFunctionCall(0x5532A9, ModelInfoMgr::SetupRender);
     patch::ReplaceFunction(0x4C8220, ModelInfoMgr::SetEditableMaterialsCB);
 
-	Events::initScriptsEvent += []()
-	{
+	Events::initScriptsEvent += []() {
 		gLightSurfProps.ambient = gConfig.ReadFloat("VISUAL", "MaterialAmbientOn", gLightSurfProps.ambient);
 		gLightSurfPropsOff.ambient = gConfig.ReadFloat("VISUAL", "MaterialAmbientOff", gLightSurfPropsOff.ambient);
 	};
 
-	MEEvents::vehRenderEvent.before += [](CVehicle *pVeh)
-    {
-        ModelInfoMgr::OnRender(pVeh);
-    };
+	Events::processScriptsEvent += []() {
+		auto pool = CPools::ms_pVehiclePool;
 
-    MEEvents::heliRenderEvent.after += [](CVehicle *pVeh)
-    {
-		if (CModelInfo::IsHeliModel(pVeh->m_nModelIndex))
-        {
-            ModelInfoMgr::OnRender(pVeh);
-        }
-    };
+		for (CVehicle *pVeh : pool) {
+			CVector vehPos = pVeh->GetPosition();
+			CVector camPos = TheCamera.GetPosition();
+
+			if (DistanceBetweenPoints(vehPos, camPos) < 10.0f || pVeh->GetIsOnScreen()) {
+				ModelInfoMgr::OnRender(pVeh);
+			}
+		}
+	};
 
     Events::vehicleSetModelEvent.after += [](CVehicle *pVeh, int model)
     {
