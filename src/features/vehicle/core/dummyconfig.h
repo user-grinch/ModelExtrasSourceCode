@@ -7,7 +7,6 @@
 #include "enums/dummypos.h"
 #include "enums/lightingmode.h"
 #include "enums/lighttype.h"
-#include "enums/parenttype.h"
 
 class CVehicle;
 class RwFrame;
@@ -18,7 +17,6 @@ struct VehicleDummyConfig {
     CVector position;
     size_t dummyIdx = 0;
     eDummyPos dummyType = eDummyPos::None;
-    eParentType parentType = eParentType::Unknown;
     eLightType lightType = eLightType::UnknownLight;
     bool mirroredX = false;
 

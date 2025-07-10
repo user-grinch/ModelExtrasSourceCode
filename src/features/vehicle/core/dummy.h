@@ -2,7 +2,6 @@
 #include "modelinfomgr.h"
 #include "game_sa/CGeneral.h"
 #include "RenderWare.h"
-#include "enums/parenttype.h"
 #include "enums/dummypos.h"
 #include "enums/lightingmode.h"
 #include "dummyconfig.h"

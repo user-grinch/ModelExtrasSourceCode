@@ -65,7 +65,7 @@ bool IsOkAtomicVisible(RwFrame* frame)
         } while (current != end);
     }
 
-    return false;
+    return true;
 }
 
 // Indicator lights
@@ -113,11 +113,11 @@ void DrawGlobalLight(CVehicle *pVeh, bool isRear, bool isLeft, CRGBA col, std::s
 	float dummyAngle = isRear ? 180.0f : 0.0f;
 
 	CRGBA shadowColor = {col.r, col.g, col.b, static_cast<unsigned char>(gGlobalShadowIntensity)};
-	Util::RegisterShadow(pVeh, posn, shadowColor, dummyAngle, isRear ? eDummyPos::Rear : eDummyPos::Front, texture, shdwSz, shdwOffset);
+	RenderUtil::RegisterShadow(pVeh, posn, shadowColor, dummyAngle, isRear ? eDummyPos::Rear : eDummyPos::Front, texture, shdwSz, shdwOffset);
 
 	CRGBA coronaColor = {col.r, col.g, col.b, static_cast<unsigned char>(gGlobalShadowIntensity)};
 	int coronaId = reinterpret_cast<uintptr_t>(pVeh) + 255 * isRear + 128 * isLeft + col.r + col.g + col.b;
-	Util::RegisterCoronaWithAngle(pVeh, coronaId, posn, coronaColor, dummyAngle, 180.0f, gfGlobalCoronaSize);
+	RenderUtil::RegisterCoronaWithAngle(pVeh, coronaId, posn, coronaColor, dummyAngle, 180.0f, gfGlobalCoronaSize);
 }
 
 inline float GetZAngleForPoint(CVector2D const &point)
@@ -761,7 +761,7 @@ void Lights::RenderLight(CVehicle *pVeh, eLightType state, bool shadows, std::st
 			{
 				texture = (c.shadow.texture == "") ? texture : c.shadow.texture;
 				e->Update();
-				Util::RegisterShadow(pVeh, c.shadow.position, c.shadow.color, c.rotation.angle, c.dummyType, texture, {sz.x * c.shadow.size.x, sz.y * c.shadow.size.y}, {offset.x + c.shadow.offset.x, offset.y + c.shadow.offset.y});
+				RenderUtil::RegisterShadow(pVeh, c.shadow.position, c.shadow.color, c.rotation.angle, c.dummyType, texture, {sz.x * c.shadow.size.x, sz.y * c.shadow.size.y}, {offset.x + c.shadow.offset.x, offset.y + c.shadow.offset.y});
 			}
 		}
 	}
@@ -795,11 +795,11 @@ void Lights::EnableDummy(int id, VehicleDummy *dummy, CVehicle *pVeh, float szMu
 		const VehicleDummyConfig& c = dummy->GetRef();
 		if (c.corona.lightingType == eLightingMode::NonDirectional)
 		{
-			Util::RegisterCorona(pVeh, (reinterpret_cast<unsigned int>(pVeh) * 255) + 255 + id, c.position, c.corona.color, c.corona.size * szMul);
+			RenderUtil::RegisterCorona(pVeh, (reinterpret_cast<unsigned int>(pVeh) * 255) + 255 + id, c.position, c.corona.color, c.corona.size * szMul);
 		}
 		else
 		{
-			Util::RegisterCoronaWithAngle(pVeh, (reinterpret_cast<unsigned int>(pVeh) * 255) + 255 + id, c.position, c.corona.color, c.rotation.angle + (c.corona.lightingType == eLightingMode::Inversed ? 180.0f : 0.0f), 180.0f, c.corona.size * szMul);
+			RenderUtil::RegisterCoronaWithAngle(pVeh, (reinterpret_cast<unsigned int>(pVeh) * 255) + 255 + id, c.position, c.corona.color, c.rotation.angle + (c.corona.lightingType == eLightingMode::Inversed ? 180.0f : 0.0f), 180.0f, c.corona.size * szMul);
 		}
 	}
 }

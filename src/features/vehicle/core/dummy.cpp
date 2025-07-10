@@ -60,8 +60,6 @@ VehicleDummy::VehicleDummy(const VehicleDummyConfig& config)
                 data.corona.lightingType = GetLightingMode(coronaSec.value("type", "directional"));
             }
 
-            data.parentType = eParentTypeFromString(lights.value("parent", ""));
-
             if (lights.contains("shadow"))
             {
                 auto &shadow = lights["shadow"];

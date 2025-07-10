@@ -935,13 +935,13 @@ void Sirens::EnableDummy(int id, VehicleDummy *dummy, CVehicle *vehicle, Vehicle
 			dummyAngle -= 180.0f;
 		}
 
-		Util::RegisterCoronaWithAngle(vehicle, (reinterpret_cast<unsigned int>(vehicle) * 255) + 255 + id, dummyConfig.position,
+		RenderUtil::RegisterCoronaWithAngle(vehicle, (reinterpret_cast<unsigned int>(vehicle) * 255) + 255 + id, dummyConfig.position,
 									  material->Color,
 									  dummyAngle, material->Radius, material->Size);
 	}
 	else
 	{
-		Util::RegisterCorona(vehicle, (reinterpret_cast<unsigned int>(vehicle) * 255) + 255 + id, dummyConfig.position, material->Color, material->Size);
+		RenderUtil::RegisterCorona(vehicle, (reinterpret_cast<unsigned int>(vehicle) * 255) + 255 + id, dummyConfig.position, material->Color, material->Size);
 	}
 
 	// FIX ME
@@ -956,7 +956,7 @@ void Sirens::EnableDummy(int id, VehicleDummy *dummy, CVehicle *vehicle, Vehicle
 		dummyPos.y = dummyPos.y * 1.2f;
 	}
 	dummy->Update();
-	Util::RegisterShadow(vehicle, dummyPos, *(CRGBA *)&material->Color, dummyConfig.rotation.angle + dummyConfig.rotation.currentAngle, dummyConfig.dummyType, material->Shadow.Type, {material->Shadow.Size, material->Shadow.Size}, {material->Shadow.Offset, material->Shadow.Offset}, nullptr);
+	RenderUtil::RegisterShadow(vehicle, dummyPos, *(CRGBA *)&material->Color, dummyConfig.rotation.angle + dummyConfig.rotation.currentAngle, dummyConfig.dummyType, material->Shadow.Type, {material->Shadow.Size, material->Shadow.Size}, {material->Shadow.Offset, material->Shadow.Offset}, nullptr);
 };
 
 VehicleSiren::VehicleSiren(CVehicle *_vehicle)
