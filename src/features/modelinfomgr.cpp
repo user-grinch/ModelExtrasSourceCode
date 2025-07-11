@@ -34,18 +34,18 @@ void ModelInfoMgr::Initialize() {
 		gLightSurfPropsOff.ambient = gConfig.ReadFloat("VISUAL", "MaterialAmbientOff", gLightSurfPropsOff.ambient);
 	};
 
-	Events::processScriptsEvent += []() {
-		auto pool = CPools::ms_pVehiclePool;
+	MEEvents::vehRenderEvent.before += [](CVehicle *pVeh)
+    {
+        ModelInfoMgr::OnRender(pVeh);
+    };
 
-		for (CVehicle *pVeh : pool) {
-			CVector vehPos = pVeh->GetPosition();
-			CVector camPos = TheCamera.GetPosition();
-
-			if (DistanceBetweenPoints(vehPos, camPos) < 50.0f || pVeh->GetIsOnScreen()) {
-				ModelInfoMgr::OnRender(pVeh);
-			}
-		}
-	};
+    MEEvents::heliRenderEvent.after += [](CVehicle *pVeh)
+    {
+		if (CModelInfo::IsHeliModel(pVeh->m_nModelIndex))
+        {
+            ModelInfoMgr::OnRender(pVeh);
+        }
+    };
 
     Events::vehicleSetModelEvent.after += [](CVehicle *pVeh, int model)
     {

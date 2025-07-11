@@ -29,6 +29,7 @@ private:
 	static void EnableDummy(int id, VehicleDummy *dummy, CVehicle *vehicle, float szMul = 1.0f);
 	static void RenderLight(CVehicle *pVeh, eLightType state, bool shadows, std::string texture, CVector2D sz, CVector2D offset, bool highlight);
 	static void RenderLights(CVehicle *pControlVeh, CVehicle *pTowedVeh, eLightType state, bool shadows = true, std::string texture = "indicator", CVector2D sz = {1.0f, 1.0f}, CVector2D offset = {0.0f, 0.0f}, bool highlight = false);
+	static void RenderHeadlights(CVehicle *pControlVeh, bool realTime = true);
 	static void __cdecl hkTailLightCCoronas_RegisterCorona(uint32_t id, CVehicle *pVeh, uint8_t r, uint8_t g, uint8_t b, uint8_t a, CVector *pos, float size, float range, int coronaType, uint8_t flareType, uint8_t reflectionType, bool checkObstacles, int bUsesTrails, float fNormalAngle, bool bNeonFade, float fPullTowardsCam, bool bFullBrightAtStart, float fadeSpeed, bool bOnlyFromBelow, bool bWhiteCore);
 
 	// Helper functions

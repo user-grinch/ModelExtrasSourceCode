@@ -23,6 +23,9 @@ bool gbGlobalReverseLights = false;
 float gfGlobalCoronaSize = 0.3f;
 int gGlobalCoronaIntensity = 80;
 int gGlobalShadowIntensity = 80;
+CVector2D shdwOffset = {0.0f, 0.9f};
+CVector2D headlightOffset = {0.0f, shdwOffset.y + 0.5f};
+CVector2D headlightSz = {4.0f, 8.0f};
 
 bool IsNightTime()
 {
@@ -433,7 +436,22 @@ void Lights::Initialize()
 		if (pVeh->m_nVehicleFlags.bLightsOn && !CModelInfo::IsTrailerModel(pVeh->m_nModelIndex))
 		{
 			if (pVeh->m_renderLights.m_bLeftFront || pVeh->m_renderLights.m_bRightFront) {
-				CPointLights::AddLight(PLTYPE_SPOTLIGHT, pVeh->m_matrix->pos, pVeh->m_matrix->up, 20.0f, 1.0, 1.0, 1.0, 0, 0, 0);
+			}
+		}
+	};
+
+	Events::processScriptsEvent += []() {
+		auto pool = CPools::ms_pVehiclePool;
+
+		for (CVehicle *pVeh : pool) {
+			if (pVeh->m_pDriver == FindPlayerPed()) {
+				continue;
+			}
+			CVector vehPos = pVeh->GetPosition();
+			CVector camPos = TheCamera.GetPosition();
+
+			if (DistanceBetweenPoints(vehPos, camPos) < 50.0f) {
+				RenderHeadlights(pVeh, false);
 			}
 		}
 	};
@@ -494,9 +512,6 @@ void Lights::Initialize()
 			RenderLights(pControlVeh, pTowedVeh, eLightType::DayLight);
 		}
 		
-		CVector2D shdwOffset = {0.0f, 0.7f};
-		CVector2D headlightOffset = {0.0f, shdwOffset.y + 0.5f};
-		
 		if (data.m_bFogLightsOn)
 		{
 			RenderLights(pControlVeh, pTowedVeh, eLightType::FogLightLeft, true, "foglight", {3.0f, 7.0f}, headlightOffset);
@@ -504,23 +519,9 @@ void Lights::Initialize()
 		}
 
 		bool isBike = CModelInfo::IsBikeModel(pControlVeh->m_nModelIndex);
-		if (pControlVeh->m_nVehicleFlags.bLightsOn)
-		{
-			CVector2D headlightSz = {4.0f, 8.0f};
-			bool isFoggy = (CWeather::NewWeatherType == WEATHER_FOGGY_SF || CWeather::NewWeatherType == WEATHER_SANDSTORM_DESERT || CWeather::OldWeatherType == WEATHER_FOGGY_SF || CWeather::OldWeatherType == WEATHER_SANDSTORM_DESERT);
-			std::string texName = data.m_bLongLightsOn ? "headlight_long" : "headlight_short";
-			
-			if (pControlVeh->m_renderLights.m_bLeftFront || pControlVeh->m_renderLights.m_bRightFront) {
-				if (pControlVeh->m_renderLights.m_bLeftFront)
-				{
-					RenderLights(pControlVeh, pTowedVeh, eLightType::HeadLightLeft, true, texName, headlightSz, headlightOffset, isFoggy || data.m_bLongLightsOn);
-				}
 
-				if (pControlVeh->m_renderLights.m_bRightFront)
-				{
-					RenderLights(pControlVeh, pTowedVeh, eLightType::HeadLightRight, true, texName, headlightSz, headlightOffset, isFoggy || data.m_bLongLightsOn);
-				}
-			}
+		if (pControlVeh->m_pDriver == FindPlayerPed()) {
+			RenderHeadlights(pControlVeh);
 		}
 
 		if (SpotLights::IsEnabled(pControlVeh))
@@ -798,6 +799,35 @@ void Lights::RenderLights(CVehicle *pControlVeh, CVehicle *pTowedVeh, eLightType
 	if (pControlVeh != pTowedVeh)
 	{
 		RenderLight(pTowedVeh, state, shadows, texture, sz, offset, highlight);
+	}
+}
+
+void Lights::RenderHeadlights(CVehicle *pControlVeh, bool realTime) {
+	CVehicle *pTowedVeh = pControlVeh;
+	VehData &data = m_VehData.Get(pControlVeh);
+
+	if (pControlVeh->m_pTrailer) {
+		pTowedVeh = pControlVeh->m_pTrailer;
+	}
+
+	if (pControlVeh->m_nVehicleFlags.bLightsOn) {
+		bool isFoggy = (CWeather::NewWeatherType == WEATHER_FOGGY_SF || CWeather::NewWeatherType == WEATHER_SANDSTORM_DESERT || CWeather::OldWeatherType == WEATHER_FOGGY_SF || CWeather::OldWeatherType == WEATHER_SANDSTORM_DESERT);
+		std::string texName = data.m_bLongLightsOn ? "headlight_long" : "headlight_short";
+		
+		if (pControlVeh->m_renderLights.m_bLeftFront || pControlVeh->m_renderLights.m_bRightFront) {
+			if (realTime) {
+				CPointLights::AddLight(PLTYPE_SPOTLIGHT, pControlVeh->m_matrix->pos, pControlVeh->m_matrix->up, 20.0f, 1.0, 1.0, 1.0, 0, 0, 0);
+			}
+			if (pControlVeh->m_renderLights.m_bLeftFront)
+			{
+				RenderLights(pControlVeh, pTowedVeh, eLightType::HeadLightLeft, true, texName, headlightSz, headlightOffset, isFoggy || data.m_bLongLightsOn);
+			}
+
+			if (pControlVeh->m_renderLights.m_bRightFront)
+			{
+				RenderLights(pControlVeh, pTowedVeh, eLightType::HeadLightRight, true, texName, headlightSz, headlightOffset, isFoggy || data.m_bLongLightsOn);
+			}
+		}
 	}
 }
 
