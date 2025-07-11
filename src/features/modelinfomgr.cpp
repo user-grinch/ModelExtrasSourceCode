@@ -41,7 +41,7 @@ void ModelInfoMgr::Initialize() {
 			CVector vehPos = pVeh->GetPosition();
 			CVector camPos = TheCamera.GetPosition();
 
-			if (DistanceBetweenPoints(vehPos, camPos) < 10.0f || pVeh->GetIsOnScreen()) {
+			if (DistanceBetweenPoints(vehPos, camPos) < 50.0f || pVeh->GetIsOnScreen()) {
 				ModelInfoMgr::OnRender(pVeh);
 			}
 		}

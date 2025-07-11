@@ -429,6 +429,15 @@ void Lights::Initialize()
 		}
 	};
 
+	Events::vehicleRenderEvent += [](CVehicle *pVeh) {
+		if (pVeh->m_nVehicleFlags.bLightsOn && !CModelInfo::IsTrailerModel(pVeh->m_nModelIndex))
+		{
+			if (pVeh->m_renderLights.m_bLeftFront || pVeh->m_renderLights.m_bRightFront) {
+				CPointLights::AddLight(PLTYPE_SPOTLIGHT, pVeh->m_matrix->pos, pVeh->m_matrix->up, 20.0f, 1.0, 1.0, 1.0, 0, 0, 0);
+			}
+		}
+	};
+
 	ModelInfoMgr::RegisterRender([](CVehicle *pControlVeh)
 								{
 		int model = pControlVeh->m_nModelIndex;
@@ -449,18 +458,23 @@ void Lights::Initialize()
 		{
 			return;
 		}
-
+		
 		if (pControlVeh->m_nOverrideLights == eLightOverride::ForceLightsOn) {
 			pControlVeh->m_nVehicleFlags.bLightsOn = true;
-			if (pControlVeh->m_pTrailer) {
-				pControlVeh->m_pTrailer->m_nVehicleFlags.bLightsOn = true;
+			pControlVeh->m_renderLights.m_bLeftFront = true;
+			pControlVeh->m_renderLights.m_bRightFront = true;
+			if (pTowedVeh) {
+				pTowedVeh->m_nVehicleFlags.bLightsOn = true;
+				pTowedVeh->m_renderLights.m_bLeftRear = true;
+				pTowedVeh->m_renderLights.m_bRightRear = true;
 			}
 		}
 
 		VehData &data = m_VehData.Get(pControlVeh);
 		eIndicatorState indState = data.m_nIndicatorState;
 
-		if (pControlVeh->m_fHealth == 0 || IsEngineOff(pControlVeh))
+		// Fix for park car alarm lights
+		if (pControlVeh->m_fHealth == 0 || (IsEngineOff(pControlVeh) && pControlVeh->m_nOverrideLights != eLightOverride::ForceLightsOn))
 		{
 			return;
 		}
@@ -497,7 +511,6 @@ void Lights::Initialize()
 			std::string texName = data.m_bLongLightsOn ? "headlight_long" : "headlight_short";
 			
 			if (pControlVeh->m_renderLights.m_bLeftFront || pControlVeh->m_renderLights.m_bRightFront) {
-				CPointLights::AddLight(PLTYPE_SPOTLIGHT, pControlVeh->m_matrix->pos, pControlVeh->m_matrix->up, 20.0f, 1.0, 1.0, 1.0, 0, 0, 0);
 				if (pControlVeh->m_renderLights.m_bLeftFront)
 				{
 					RenderLights(pControlVeh, pTowedVeh, eLightType::HeadLightLeft, true, texName, headlightSz, headlightOffset, isFoggy || data.m_bLongLightsOn);
