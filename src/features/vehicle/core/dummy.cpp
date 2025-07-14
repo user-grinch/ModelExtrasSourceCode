@@ -163,6 +163,9 @@ VehicleDummy::VehicleDummy(const VehicleDummyConfig& config)
     }
 }
 
+float CLAMP_OFFSET_X = 0.25f;
+float CLAMP_OFFSET_Y = 0.25f;
+
 void VehicleDummy::Update()
 {
     CMatrix &vehMatrix = *(CMatrix *)data.pVeh->GetMatrix();
@@ -170,29 +173,26 @@ void VehicleDummy::Update()
     CVector dummyPos = data.frame->ltm.pos;
     CVector offset = dummyPos - pos;
 
-    // Coronas
     // Transform to local space using  transpose of the rotation matrix
-    data.position.x = vehMatrix.right.x * offset.x + vehMatrix.right.y * offset.y + vehMatrix.right.z * offset.z;
-    data.position.y = vehMatrix.up.x * offset.x + vehMatrix.up.y * offset.y + vehMatrix.up.z * offset.z;
-    data.position.z = vehMatrix.at.x * offset.x + vehMatrix.at.y * offset.y + vehMatrix.at.z * offset.z;
+    data.shadow.position.x = data.position.x = vehMatrix.right.x * offset.x + vehMatrix.right.y * offset.y + vehMatrix.right.z * offset.z;
+    data.shadow.position.y = data.position.y = vehMatrix.up.x * offset.x + vehMatrix.up.y * offset.y + vehMatrix.up.z * offset.z;
+    data.shadow.position.z = data.position.z = vehMatrix.at.x * offset.x + vehMatrix.at.y * offset.y + vehMatrix.at.z * offset.z;
 
+    CVehicleModelInfo* pInfo = (CVehicleModelInfo*)CModelInfo::GetModelInfo(data.pVeh->m_nModelIndex);
+    CVector min = pInfo->m_pColModel->m_boundBox.m_vecMin;
+    CVector max = pInfo->m_pColModel->m_boundBox.m_vecMax;
 
-    // Shadows
-    CVector vehicleRight = vehMatrix.right;
-    CVector vehicleAt = vehMatrix.at;
-
-    // 🪄 Flatten them by zeroing out Z to eliminate pitch influence
-    vehicleRight.z = 0.0f;
-    vehicleAt.z = 0.0f;
-
-    vehicleRight.Normalise();
-    vehicleAt.Normalise();
-
-    // Apply flattened transformation (preserve Y for elevation context)
-    data.shadow.position.x = vehicleRight.x * offset.x + vehicleRight.y * offset.y;
-    data.shadow.position.y = vehMatrix.up.x * offset.x + vehMatrix.up.y * offset.y + vehMatrix.up.z * offset.z;
-    data.shadow.position.z = vehicleAt.x * offset.x + vehicleAt.y * offset.y;
-    data.shadow.position.z = CWorld::FindGroundZFor3DCoord(data.shadow.position.x, data.shadow.position.y, data.shadow.position.z + 100.0f, NULL, NULL);
+    if (data.dummyType == eDummyPos::Front) {
+        data.shadow.position.y = std::max(data.shadow.position.y, max.y + CLAMP_OFFSET_Y);
+    }
+    else if (data.dummyType == eDummyPos::Rear) {
+        data.shadow.position.y = std::min(data.shadow.position.y, min.y - CLAMP_OFFSET_Y);
+    } else if (data.dummyType == eDummyPos::Left) {
+        data.shadow.position.x = std::min(data.shadow.position.x, min.x - CLAMP_OFFSET_X);
+    }
+    else if (data.dummyType == eDummyPos::Right) {
+        data.shadow.position.x = std::max(data.shadow.position.x, max.x + CLAMP_OFFSET_X);
+    }
 
     if (data.mirroredX)
     {

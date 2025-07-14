@@ -23,8 +23,8 @@ bool gbGlobalReverseLights = false;
 float gfGlobalCoronaSize = 0.3f;
 int gGlobalCoronaIntensity = 80;
 int gGlobalShadowIntensity = 80;
-CVector2D shdwOffset = {0.0f, 0.9f};
-CVector2D headlightOffset = {0.0f, shdwOffset.y + 0.5f};
+CVector2D shdwOffset = {0.0f, 0.0f};
+CVector2D headlightOffset = {0.0f, shdwOffset.y + 0.2f};
 CVector2D headlightSz = {4.0f, 8.0f};
 
 bool IsNightTime()

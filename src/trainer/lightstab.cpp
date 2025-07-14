@@ -3,6 +3,8 @@
 #include "mgr.h"
 #include "datamgr.h"
 
+extern float CLAMP_OFFSET_X;
+extern float CLAMP_OFFSET_Y;
 void LightsTab() {
     CVehicle *pVeh = FindPlayerVehicle(0, true);
 
@@ -12,6 +14,8 @@ void LightsTab() {
             FeatureMgr::Reload(FindPlayerVehicle(0, true));
         });
         TAPI_Spacing(0, 10);
+        TAPI_InputFloat("Clamp offset X",  &CLAMP_OFFSET_X, NULL, -10.0f, 10.0f);
+        TAPI_InputFloat("Clamp offset Y",  &CLAMP_OFFSET_Y, NULL, -10.0f, 10.0f);
 
         // auto& data = DataMgr::Get(pVeh->m_nModelIndex);
         // if (data.contains("lights")) {
