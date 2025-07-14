@@ -7,6 +7,8 @@ typedef enum class eModelEntityType eModelEntityType;
 
 class FrameUtil {
 public:
+    static bool IsOkAtomicVisible(RwFrame* frame);
+
     // Returns the number of childs a parent contains
     static unsigned int GetChildCount(RwFrame *pParent);
 

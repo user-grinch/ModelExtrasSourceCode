@@ -7,9 +7,11 @@
 #include <CShadows.h>
 #include <CBike.h>
 #include <CWorld.h>
+#include <CClock.h>
 #include "texmgr.h"
 #include "defines.h"
 #include "vehicle/core/dummy.h"
+#include "enums/lightoverride.h"
 
 float Util::NormalizeAngle(float angle)
 {
@@ -116,4 +118,40 @@ std::optional<std::string> Util::GetCharsAfterPrefix(const std::string &str, con
         return suffix;
     }
     return std::nullopt;
+}
+
+bool Util::IsNightTime()
+{
+	return CClock::GetIsTimeInRange(20, 6);
+}
+
+bool Util::IsTailLightOn(CVehicle *pVeh)
+{
+	return IsNightTime() || pVeh->m_nOverrideLights == eLightOverride::ForceLightsOn || pVeh->m_nVehicleFlags.bLightsOn;
+}
+
+bool Util::IsEngineOff(CVehicle *pVeh)
+{
+	return !pVeh->m_nVehicleFlags.bEngineOn || pVeh->m_nVehicleFlags.bEngineBroken;
+}
+
+float CLAMP_OFFSET_X = 0.25f;
+float CLAMP_OFFSET_Y = 0.25f;
+
+void Util::UpdateRelativeToBoundingBox(CVehicle *pVeh, eDummyPos dummyPos, CVector &pos) {
+    CVehicleModelInfo* pInfo = (CVehicleModelInfo*)CModelInfo::GetModelInfo(pVeh->m_nModelIndex);
+    CVector min = pInfo->m_pColModel->m_boundBox.m_vecMin;
+    CVector max = pInfo->m_pColModel->m_boundBox.m_vecMax;
+
+    if (dummyPos == eDummyPos::Front) {
+        pos.y = std::max(pos.y, max.y + CLAMP_OFFSET_Y);
+    }
+    else if (dummyPos == eDummyPos::Rear) {
+        pos.y = std::min(pos.y, min.y - CLAMP_OFFSET_Y);
+    } else if (dummyPos == eDummyPos::Left) {
+        pos.x = std::min(pos.x, min.x - CLAMP_OFFSET_X);
+    }
+    else if (dummyPos == eDummyPos::Right) {
+        pos.x = std::max(pos.x, max.x + CLAMP_OFFSET_X);
+    }
 }

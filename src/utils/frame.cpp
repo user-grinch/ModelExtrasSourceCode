@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "frame.h"
 #include <rw/rpworld.h>
+#include <CVisibilityPlugins.h>
 
 void FrameUtil::SetRotationX(RwFrame *frame, float angle)
 {
@@ -133,4 +134,26 @@ void FrameUtil::ShowAllChilds(RwFrame *parent_frame)
         child = child->next;
     }
     FrameUtil::ShowAllAtomics(parent_frame);
+}
+
+bool FrameUtil::IsOkAtomicVisible(RwFrame* frame) {
+	if (!rwLinkListEmpty(&frame->objectList)) {
+        RwObjectHasFrame *atomic;
+
+        RwLLLink *current = rwLinkListGetFirstLLLink(&frame->objectList);
+        RwLLLink *end = rwLinkListGetTerminator(&frame->objectList);
+
+        do {
+            atomic = rwLLLinkGetData(current, RwObjectHasFrame, lFrame);
+            bool isOkAtomic = (CVisibilityPlugins::GetAtomicId((RpAtomic*)atomic) & 3) == 1; // 1 = Ok, 2 = Damaged, 3 = None
+
+			if (isOkAtomic) {
+				return atomic->object.flags & rpATOMICRENDER;
+			}
+
+            current = rwLLLinkGetNext(current);
+        } while (current != end);
+    }
+
+    return true;
 }

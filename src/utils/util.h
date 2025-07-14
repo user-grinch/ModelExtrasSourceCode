@@ -8,6 +8,11 @@ typedef enum class eModelEntityType eModelEntityType;
 class Util
 {
 public:
+  static bool IsNightTime();
+  static bool IsTailLightOn(CVehicle *pVeh);
+  static bool IsEngineOff(CVehicle *pVeh);
+  static void UpdateRelativeToBoundingBox(CVehicle *pVeh, eDummyPos dummyPos, CVector &pos);
+
   static float NormalizeAngle(float angle);
  
   // Returns the speed of the vehicle handler

@@ -15,7 +15,6 @@
 #include "datamgr.h"
 #include "core/colors.h"
 #include <CPointLights.h>
-#include <CVisibilityPlugins.h>
 
 // flags
 bool gbGlobalIndicatorLights = false;
@@ -27,104 +26,57 @@ CVector2D shdwOffset = {0.0f, 0.0f};
 CVector2D headlightOffset = {0.0f, shdwOffset.y + 0.2f};
 CVector2D headlightSz = {4.0f, 8.0f};
 
-bool IsNightTime()
-{
-	return CClock::GetIsTimeInRange(20, 6);
-}
-
-bool IsTailLightOn(CVehicle *pVeh)
-{
-	return IsNightTime() || pVeh->m_nOverrideLights == eLightOverride::ForceLightsOn || pVeh->m_nVehicleFlags.bLightsOn;
-}
-
-bool IsEngineOff(CVehicle *pVeh)
-{
-	return !pVeh->m_nVehicleFlags.bEngineOn || pVeh->m_nVehicleFlags.bEngineBroken;
-}
-
 int GetStrobeIndex(CVehicle *pVeh, RpMaterial *pMat) {
 	return pMat->color.blue;
-}
-
-bool IsOkAtomicVisible(RwFrame* frame)
-{
-	if (!rwLinkListEmpty(&frame->objectList))
-    {
-        RwObjectHasFrame *atomic;
-
-        RwLLLink *current = rwLinkListGetFirstLLLink(&frame->objectList);
-        RwLLLink *end = rwLinkListGetTerminator(&frame->objectList);
-
-        do
-        {
-            atomic = rwLLLinkGetData(current, RwObjectHasFrame, lFrame);
-            bool isOkAtomic = (CVisibilityPlugins::GetAtomicId((RpAtomic*)atomic) & 3) == 1; // 1 = Ok, 2 = Damaged, 3 = None
-
-			if (isOkAtomic) {
-				return atomic->object.flags & rpATOMICRENDER;
-			}
-
-            current = rwLLLinkGetNext(current);
-        } while (current != end);
-    }
-
-    return true;
 }
 
 // Indicator lights
 static uint64_t delay;
 
-CVector2D GetCarPathLinkPosition(CCarPathLinkAddress &address)
-{
-	if (address.m_nAreaId != -1 && address.m_nCarPathLinkId != -1 && ThePaths.m_pPathNodes[address.m_nAreaId])
-	{
+CVector2D GetCarPathLinkPosition(CCarPathLinkAddress &address) {
+	if (address.m_nAreaId != -1 && address.m_nCarPathLinkId != -1 && ThePaths.m_pPathNodes[address.m_nAreaId]) {
 		return CVector2D(static_cast<float>(ThePaths.m_pNaviNodes[address.m_nAreaId][address.m_nCarPathLinkId].m_vecPosn.x) / 8.0f,
 						 static_cast<float>(ThePaths.m_pNaviNodes[address.m_nAreaId][address.m_nCarPathLinkId].m_vecPosn.y) / 8.0f);
 	}
 	return CVector2D(0.0f, 0.0f);
 }
 
-void DrawGlobalLight(CVehicle *pVeh, bool isRear, bool isLeft, CRGBA col, std::string texture = "indicator",
-					 CVector2D shdwSz = {1.0F, 1.0F}, CVector2D shdwOffset = {0.0F, 0.0F})
-{
-	if (pVeh->m_nVehicleSubClass == VEHICLE_AUTOMOBILE)
-	{
-		CAutomobile *car = reinterpret_cast<CAutomobile *>(pVeh);
-		bool broken = (isLeft && car->m_damageManager.GetLightStatus(eLights::LIGHT_FRONT_LEFT)) || (!isLeft && car->m_damageManager.GetLightStatus(eLights::LIGHT_FRONT_RIGHT));
-		if (broken)
-		{
-			return;
-		}
-	}
+void DrawGlobalLight(CVehicle* pVeh, bool isRear, bool isLeft, CRGBA col,
+                     std::string texture = "indicator",
+                     CVector2D shdwSz = {1.0F, 1.0F},
+                     CVector2D shdwOffset = {0.0F, 0.0F}) {
 
-	int dummyIdx = (isRear) ? 1 : 0;
+    if (pVeh->m_nVehicleSubClass == VEHICLE_AUTOMOBILE) {
+        CAutomobile* pAutomobile = reinterpret_cast<CAutomobile*>(pVeh);
+        eLights lightSide = isLeft ? eLights::LIGHT_FRONT_LEFT : eLights::LIGHT_FRONT_RIGHT;
+        if (pAutomobile->m_damageManager.GetLightStatus(lightSide)) return;
+    }
 
-	CVehicleModelInfo *pInfo = reinterpret_cast<CVehicleModelInfo *>(CModelInfo__ms_modelInfoPtrs[pVeh->m_nModelIndex]);
-	CVector posn = pInfo->m_pVehicleStruct->m_avDummyPos[dummyIdx];
+    int dummyIdx = isRear ? 1 : 0;
+    auto* pInfo = reinterpret_cast<CVehicleModelInfo*>(CModelInfo__ms_modelInfoPtrs[pVeh->m_nModelIndex]);
+    CVector coronaPos = pInfo->m_pVehicleStruct->m_avDummyPos[dummyIdx];
 
-	if (posn.x == 0.0f)
-	{
-		posn.x = 0.15f;
-	}
+    if (coronaPos.x == 0.0f) coronaPos.x = 0.15f;
+    if (isLeft) coronaPos.x *= -1.0f;
 
-	if (isLeft)
-	{
-		posn.x *= -1.0f;
-	}
+	CVector shdwPos = coronaPos;
+	Util::UpdateRelativeToBoundingBox(pVeh, isRear ? eDummyPos::Rear : eDummyPos::Front, shdwPos);
 
-	int dummyId = dummyIdx + (isLeft ? 0 : 2);
-	float dummyAngle = isRear ? 180.0f : 0.0f;
+    float dummyAngle = isRear ? 180.0f : 0.0f;
 
-	CRGBA shadowColor = {col.r, col.g, col.b, static_cast<unsigned char>(gGlobalShadowIntensity)};
-	RenderUtil::RegisterShadow(pVeh, posn, shadowColor, dummyAngle, isRear ? eDummyPos::Rear : eDummyPos::Front, texture, shdwSz, shdwOffset);
+    col.a = static_cast<unsigned char>(gGlobalShadowIntensity);
+    RenderUtil::RegisterShadow(pVeh, shdwPos, col, dummyAngle,
+                                isRear ? eDummyPos::Rear : eDummyPos::Front,
+                                texture, shdwSz, shdwOffset);
 
-	CRGBA coronaColor = {col.r, col.g, col.b, static_cast<unsigned char>(gGlobalShadowIntensity)};
-	int coronaId = reinterpret_cast<uintptr_t>(pVeh) + 255 * isRear + 128 * isLeft + col.r + col.g + col.b;
-	RenderUtil::RegisterCoronaWithAngle(pVeh, coronaId, posn, coronaColor, dummyAngle, 180.0f, gfGlobalCoronaSize);
+    int coronaId = reinterpret_cast<uintptr_t>(pVeh)
+                 + 255 * isRear + 128 * isLeft + col.r + col.g + col.b;
+    RenderUtil::RegisterCoronaWithAngle(pVeh, coronaId, coronaPos,
+                                        col, dummyAngle,
+                                        180.0f, gfGlobalCoronaSize);
 }
 
-inline float GetZAngleForPoint(CVector2D const &point)
-{
+inline float GetZAngleForPoint(CVector2D const &point) {
 	float angle = CGeneral::GetATanOfXY(point.x, point.y) * 57.295776f - 90.0f;
 	while (angle < 0.0f)
 		angle += 360.0f;
@@ -346,6 +298,7 @@ void Lights::Initialize()
 			c.mirroredX = true;
 			dummies[c.lightType].push_back(new VehicleDummy(c));
 			c.mirroredX = false;
+			c.shadow.render = false;
 			c.lightType = eLightType::TailLightRight;
 		}
 		else if (name.starts_with("headlights")) {
@@ -401,7 +354,7 @@ void Lights::Initialize()
 		}
 
 		CVehicle *pVeh = FindPlayerVehicle(-1, false);
-		if (pVeh && pVeh->m_nOverrideLights != eLightOverride::ForceLightsOff && !IsEngineOff(pVeh))
+		if (pVeh && pVeh->m_nOverrideLights != eLightOverride::ForceLightsOff && !Util::IsEngineOff(pVeh))
 		{
 			static size_t prev = 0;
 			static uint32_t fogLightKey = gConfig.ReadInteger("KEYS", "FogLightKey", VK_J);
@@ -492,7 +445,7 @@ void Lights::Initialize()
 		eIndicatorState indState = data.m_nIndicatorState;
 
 		// Fix for park car alarm lights
-		if (pControlVeh->m_fHealth == 0 || (IsEngineOff(pControlVeh) && pControlVeh->m_nOverrideLights != eLightOverride::ForceLightsOn))
+		if (pControlVeh->m_fHealth == 0 || (Util::IsEngineOff(pControlVeh) && pControlVeh->m_nOverrideLights != eLightOverride::ForceLightsOn))
 		{
 			return;
 		}
@@ -503,7 +456,7 @@ void Lights::Initialize()
 		RenderLights(pControlVeh, pTowedVeh, eLightType::SideLightLeft);
 		RenderLights(pControlVeh, pTowedVeh, eLightType::SideLightRight);
 		
-		if (IsNightTime())
+		if (Util::IsNightTime())
 		{
 			RenderLights(pControlVeh, pTowedVeh, eLightType::NightLight);
 		}
@@ -585,7 +538,7 @@ void Lights::Initialize()
 				}
 			}
 
-			if (IsTailLightOn(pControlVeh))
+			if (Util::IsTailLightOn(pControlVeh))
 			{
 				if (sttInstalled) {
 					RenderLights(pControlVeh, pTowedVeh, eLightType::STTLightLeft, true, shdwName, shdwSz, shdwOffset);
@@ -646,31 +599,29 @@ void Lights::Initialize()
 				{
 					data.m_nIndicatorState = eIndicatorState::BothOn;
 				}
-			}
-			else if (pControlVeh->m_pDriver)
-			{
+			} else if (pControlVeh->m_pDriver) {
 				data.m_nIndicatorState = eIndicatorState::Off;
 				CVector2D prevPoint = GetCarPathLinkPosition(pControlVeh->m_autoPilot.m_nPreviousPathNodeInfo);
 				CVector2D currPoint = GetCarPathLinkPosition(pControlVeh->m_autoPilot.m_nCurrentPathNodeInfo);
 				CVector2D nextPoint = GetCarPathLinkPosition(pControlVeh->m_autoPilot.m_nNextPathNodeInfo);
 
 				float angle = GetZAngleForPoint(nextPoint - currPoint) - GetZAngleForPoint(currPoint - prevPoint);
-				while (angle < 0.0f)
-					angle += 360.0f;
-				while (angle > 360.0f)
-					angle -= 360.0f;
+				angle = Util::NormalizeAngle(angle);
 
-				if (angle >= 30.0f && angle < 180.0f)
+				if (angle >= 30.0f && angle < 180.0f) {
 					data.m_nIndicatorState = eIndicatorState::LeftOn;
-				else if (angle <= 330.0f && angle > 180.0f)
+				}
+				else if (angle <= 330.0f && angle > 180.0f) {
 					data.m_nIndicatorState = eIndicatorState::RightOn;
+				}
 
-				if (data.m_nIndicatorState == eIndicatorState::Off)
-				{
-					if (pControlVeh->m_autoPilot.m_nCurrentLane == 0 && pControlVeh->m_autoPilot.m_nNextLane == 1)
+				if (data.m_nIndicatorState == eIndicatorState::Off) {
+					if (pControlVeh->m_autoPilot.m_nCurrentLane == 0 && pControlVeh->m_autoPilot.m_nNextLane == 1) {
 						data.m_nIndicatorState = eIndicatorState::RightOn;
-					else if (pControlVeh->m_autoPilot.m_nCurrentLane == 1 && pControlVeh->m_autoPilot.m_nNextLane == 0)
+					}
+					else if (pControlVeh->m_autoPilot.m_nCurrentLane == 1 && pControlVeh->m_autoPilot.m_nNextLane == 0) {
 						data.m_nIndicatorState = eIndicatorState::LeftOn;
+					}
 				}
 			}
 
@@ -744,7 +695,7 @@ void Lights::RenderLight(CVehicle *pVeh, eLightType state, bool shadows, std::st
 			RwFrame *parent = RwFrameGetParent(e->Get().frame);
 			bool atomicCheck = e->GetRef().lightType != eLightType::HeadLightLeft 
 								&& e->GetRef().lightType != eLightType::HeadLightRight 
-								&& !IsOkAtomicVisible(parent);
+								&& !FrameUtil::IsOkAtomicVisible(parent);
 
 			if (atomicCheck || (c.dummyType == eDummyPos::Rear && pVeh->m_pTrailer))
 			{

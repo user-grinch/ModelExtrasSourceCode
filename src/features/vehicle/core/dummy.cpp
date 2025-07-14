@@ -163,9 +163,6 @@ VehicleDummy::VehicleDummy(const VehicleDummyConfig& config)
     }
 }
 
-float CLAMP_OFFSET_X = 0.25f;
-float CLAMP_OFFSET_Y = 0.25f;
-
 void VehicleDummy::Update()
 {
     CMatrix &vehMatrix = *(CMatrix *)data.pVeh->GetMatrix();
@@ -178,21 +175,7 @@ void VehicleDummy::Update()
     data.shadow.position.y = data.position.y = vehMatrix.up.x * offset.x + vehMatrix.up.y * offset.y + vehMatrix.up.z * offset.z;
     data.shadow.position.z = data.position.z = vehMatrix.at.x * offset.x + vehMatrix.at.y * offset.y + vehMatrix.at.z * offset.z;
 
-    CVehicleModelInfo* pInfo = (CVehicleModelInfo*)CModelInfo::GetModelInfo(data.pVeh->m_nModelIndex);
-    CVector min = pInfo->m_pColModel->m_boundBox.m_vecMin;
-    CVector max = pInfo->m_pColModel->m_boundBox.m_vecMax;
-
-    if (data.dummyType == eDummyPos::Front) {
-        data.shadow.position.y = std::max(data.shadow.position.y, max.y + CLAMP_OFFSET_Y);
-    }
-    else if (data.dummyType == eDummyPos::Rear) {
-        data.shadow.position.y = std::min(data.shadow.position.y, min.y - CLAMP_OFFSET_Y);
-    } else if (data.dummyType == eDummyPos::Left) {
-        data.shadow.position.x = std::min(data.shadow.position.x, min.x - CLAMP_OFFSET_X);
-    }
-    else if (data.dummyType == eDummyPos::Right) {
-        data.shadow.position.x = std::max(data.shadow.position.x, max.x + CLAMP_OFFSET_X);
-    }
+    Util::UpdateRelativeToBoundingBox(data.pVeh, data.dummyType, data.shadow.position);
 
     if (data.mirroredX)
     {

@@ -17,8 +17,6 @@ bool VehicleSiren::GetSirenState()
 	return (Mute == false) ? (vehicle->m_nVehicleFlags.bSirenOrAlarm) : (true);
 };
 
-bool IsEngineOff(CVehicle *pVeh);
-
 char __fastcall Sirens::hkUsesSiren(CVehicle *ptr)
 {
 	if (Sirens::modelData.contains(ptr->m_nModelIndex))
@@ -717,7 +715,7 @@ void Sirens::Initialize()
 			return;
 		}
 
-		if (IsEngineOff(vehicle)) {
+		if (Util::IsEngineOff(vehicle)) {
 			vehicle->m_nVehicleFlags.bSirenOrAlarm = false;
 			return;
 		}

@@ -11,8 +11,6 @@
 #include "texmgr.h"
 
 static CVehicle *pCurrentVeh = nullptr;
-extern bool IsNightTime();
-extern bool IsEngineOff(CVehicle *pVeh);
 
 void LicensePlate::Initialize()
 {
@@ -107,7 +105,7 @@ RpMaterial *__cdecl LicensePlate::CCustomCarPlateMgr_SetupMaterialPlatebackTextu
         }
     }
 
-    if (IsNightTime() && !IsEngineOff(pCurrentVeh) && pCurrentVeh->m_nOverrideLights != eLightOverride::ForceLightsOff || pCurrentVeh->m_nOverrideLights == eLightOverride::ForceLightsOn)
+    if (Util::IsNightTime() && !Util::IsEngineOff(pCurrentVeh) && pCurrentVeh->m_nOverrideLights != eLightOverride::ForceLightsOff || pCurrentVeh->m_nOverrideLights == eLightOverride::ForceLightsOn)
     {
         material->surfaceProps.ambient = AMBIENT_ON_VAL;
         RpMaterialSetTexture(material, m_Plates[plateType + 4]);
