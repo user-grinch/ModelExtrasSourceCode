@@ -898,10 +898,10 @@ void Sirens::EnableDummy(int id, VehicleDummy *dummy, CVehicle *vehicle, Vehicle
 	}
 
 	const VehicleDummyConfig& dummyConfig = dummy->GetRef();
+	float dummyAngle = dummyConfig.rotation.angle;
+
 	if (material->Type != eLightingMode::NonDirectional)
 	{
-		float dummyAngle = dummyConfig.rotation.angle;
-
 		if (material->Type == eLightingMode::Rotator)
 		{
 			uint64_t elapsed = time - material->Rotator->TimeElapse;
@@ -928,10 +928,10 @@ void Sirens::EnableDummy(int id, VehicleDummy *dummy, CVehicle *vehicle, Vehicle
 			dummy->SetAngle(angle);
 			dummyAngle = Util::NormalizeAngle(dummyAngle);
 		}
-		else if (material->Type == eLightingMode::Inversed)
-		{
-			dummyAngle -= 180.0f;
-		}
+		// else if (material->Type == eLightingMode::Inversed)
+		// {
+		// 	dummyAngle -= 180.0f;
+		// }
 
 		RenderUtil::RegisterCoronaWithAngle(vehicle, (reinterpret_cast<unsigned int>(vehicle) * 255) + 255 + id, dummyConfig.position,
 									  material->Color,
@@ -954,7 +954,8 @@ void Sirens::EnableDummy(int id, VehicleDummy *dummy, CVehicle *vehicle, Vehicle
 		dummyPos.y = dummyPos.y * 1.2f;
 	}
 	dummy->Update();
-	RenderUtil::RegisterShadow(vehicle, dummyPos, *(CRGBA *)&material->Color, dummyConfig.rotation.angle + dummyConfig.rotation.currentAngle, dummyConfig.dummyType, material->Shadow.Type, {material->Shadow.Size, material->Shadow.Size}, {material->Shadow.Offset, material->Shadow.Offset}, nullptr);
+
+	RenderUtil::RegisterShadow(vehicle, dummyPos, *(CRGBA *)&material->Color, dummyAngle + dummyConfig.rotation.currentAngle, dummyConfig.dummyType, material->Shadow.Type, {material->Shadow.Size, material->Shadow.Size}, {material->Shadow.Offset, material->Shadow.Offset}, nullptr);
 };
 
 VehicleSiren::VehicleSiren(CVehicle *_vehicle)

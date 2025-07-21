@@ -89,6 +89,7 @@
         "numbers": "cpp",
         "random": "cpp",
         "*.def": "cpp",
-        "queue": "cpp"
+        "queue": "cpp",
+        "source_location": "cpp"
     },
 }

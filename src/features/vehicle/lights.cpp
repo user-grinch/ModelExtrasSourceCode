@@ -298,7 +298,6 @@ void Lights::Initialize()
 			c.mirroredX = true;
 			dummies[c.lightType].push_back(new VehicleDummy(c));
 			c.mirroredX = false;
-			c.shadow.render = false;
 			c.lightType = eLightType::TailLightRight;
 		}
 		else if (name.starts_with("headlights")) {
