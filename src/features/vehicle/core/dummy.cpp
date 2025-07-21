@@ -27,14 +27,7 @@ VehicleDummy::VehicleDummy(const VehicleDummyConfig& config)
         CGeneral::GetATanOfXY(data.frame->modelling.right.x, data.frame->modelling.right.y) * 57.295776f
     );
 
-    switch (static_cast<int>(modelAngle)) {
-        // Keep this disabled
-        // case 0:   data.dummyType = eDummyPos::Front; break;
-        case 90:  data.dummyType = eDummyPos::Left;  break;
-        case 180: data.dummyType = eDummyPos::Rear;  break;
-        case 270: data.dummyType = eDummyPos::Right; break;
-        default: break;
-    }
+    UpdateDummyType(modelAngle);
 
     auto &jsonData = DataMgr::Get(data.pVeh->m_nModelIndex);
     std::string name = GetFrameNodeName(data.frame);
@@ -160,6 +153,17 @@ VehicleDummy::VehicleDummy(const VehicleDummyConfig& config)
         default:
             data.rotation.angle = modelAngle;
             break;
+    }
+}
+
+void VehicleDummy::UpdateDummyType(float angle) {
+    switch (static_cast<int>(angle)) {
+        // Keep this disabled
+        // case 0:   data.dummyType = eDummyPos::Front; break;
+        case 90:  data.dummyType = eDummyPos::Left;  break;
+        case 180: data.dummyType = eDummyPos::Rear;  break;
+        case 270: data.dummyType = eDummyPos::Right; break;
+        default: break;
     }
 }
 

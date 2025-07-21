@@ -57,4 +57,5 @@ public:
     }
 
     void Update();
+    void UpdateDummyType(float angle);
 };

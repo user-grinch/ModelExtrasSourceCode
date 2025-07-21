@@ -318,6 +318,18 @@ VehicleSirenMaterial::VehicleSirenMaterial(std::string state, int material, nloh
 	{
 		if (json["shadow"].is_object())
 		{
+			if (json["shadow"].contains("angleoffset"))
+			{
+				if (json["shadow"]["angleoffset"].is_number())
+				{
+					Shadow.AngleOffset= json["shadow"]["angleoffset"];
+				}
+				else
+				{
+					LOG_VERBOSE("Model " + std::to_string(Sirens::CurrentModel) + " siren configuration exception!\n \nState '" + state + "' material " + std::to_string(material) + ", shadow object property type is not an acceptable number or string!");
+				}
+			}
+
 			if (json["shadow"].contains("type"))
 			{
 				if (json["shadow"]["type"].is_string())
@@ -898,7 +910,8 @@ void Sirens::EnableDummy(int id, VehicleDummy *dummy, CVehicle *vehicle, Vehicle
 	}
 
 	const VehicleDummyConfig& dummyConfig = dummy->GetRef();
-	float dummyAngle = dummyConfig.rotation.angle;
+	float dummyAngle = Util::NormalizeAngle(dummyConfig.rotation.angle + material->Shadow.AngleOffset);
+	dummy->UpdateDummyType(dummyAngle);
 
 	if (material->Type != eLightingMode::NonDirectional)
 	{
@@ -928,11 +941,6 @@ void Sirens::EnableDummy(int id, VehicleDummy *dummy, CVehicle *vehicle, Vehicle
 			dummy->SetAngle(angle);
 			dummyAngle = Util::NormalizeAngle(dummyAngle);
 		}
-		// else if (material->Type == eLightingMode::Inversed)
-		// {
-		// 	dummyAngle -= 180.0f;
-		// }
-
 		RenderUtil::RegisterCoronaWithAngle(vehicle, (reinterpret_cast<unsigned int>(vehicle) * 255) + 255 + id, dummyConfig.position,
 									  material->Color,
 									  dummyAngle, material->Radius, material->Size);
