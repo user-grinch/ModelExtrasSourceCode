@@ -384,25 +384,12 @@ void Lights::Initialize()
 		}
 	};
 
-	Events::vehicleRenderEvent += [](CVehicle *pVeh) {
-		if (pVeh->m_nVehicleFlags.bLightsOn && !CModelInfo::IsTrailerModel(pVeh->m_nModelIndex))
-		{
-			if (pVeh->m_renderLights.m_bLeftFront || pVeh->m_renderLights.m_bRightFront) {
-			}
-		}
-	};
-
 	Events::processScriptsEvent += []() {
-		auto pool = CPools::ms_pVehiclePool;
-
-		for (CVehicle *pVeh : pool) {
-			if (pVeh->m_pDriver == FindPlayerPed()) {
+		for (CVehicle *pVeh : CPools::ms_pVehiclePool) {
+			if (pVeh->m_pDriver == FindPlayerPed() || CModelInfo::IsTrailerModel(pVeh->m_nModelIndex)) {
 				continue;
 			}
-			CVector vehPos = pVeh->GetPosition();
-			CVector camPos = TheCamera.GetPosition();
-
-			if (DistanceBetweenPoints(vehPos, camPos) < 50.0f) {
+			if (DistanceBetweenPoints(pVeh->GetPosition(), TheCamera.GetPosition()) < 50.0f) {
 				RenderHeadlights(pVeh, false);
 			}
 		}
