@@ -127,7 +127,7 @@ void RpmMeter::Initialize() {
                 rpm += 2.0f * delta * speed / pVeh->m_nCurrentGear;
             }
 
-            if (pVeh->m_nVehicleFlags.bEngineOn)
+            if (pVeh->bEngineOn)
             {
                 rpm += 6.0f * delta;
             }

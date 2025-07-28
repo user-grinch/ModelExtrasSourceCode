@@ -127,12 +127,12 @@ bool Util::IsNightTime()
 
 bool Util::IsTailLightOn(CVehicle *pVeh)
 {
-	return IsNightTime() || pVeh->m_nOverrideLights == eLightOverride::ForceLightsOn || pVeh->m_nVehicleFlags.bLightsOn;
+	return IsNightTime() || pVeh->m_nOverrideLights == eLightOverride::ForceLightsOn || pVeh->bLightsOn;
 }
 
 bool Util::IsEngineOff(CVehicle *pVeh)
 {
-	return !pVeh->m_nVehicleFlags.bEngineOn || pVeh->m_nVehicleFlags.bEngineBroken;
+	return !pVeh->bEngineOn || pVeh->bEngineBroken;
 }
 
 float CLAMP_OFFSET_X = 0.25f;

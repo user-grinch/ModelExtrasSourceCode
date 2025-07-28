@@ -39,11 +39,11 @@ void SoundEffects::Initialize()
             if (bEngineSounds)
             {
                 bool isValid = !CModelInfo::IsPlaneModel(model) && !CModelInfo::IsBmxModel(model) && !CModelInfo::IsHeliModel(model) && !CModelInfo::IsBoatModel(model);
-                if (isValid && data.m_bEngineState != pVeh->m_nVehicleFlags.bEngineOn)
+                if (isValid && data.m_bEngineState != pVeh->bEngineOn)
                 {
                     static std::string carPath = MOD_DATA_PATH("audio/effects/engine_start.wav");
                     static std::string bikePath = MOD_DATA_PATH("audio/effects/bike_engine_start.wav");
-                    if (pVeh->m_nVehicleFlags.bEngineOn)
+                    if (pVeh->bEngineOn)
                     {
                         if (CModelInfo::IsCarModel(model))
                         {
@@ -54,7 +54,7 @@ void SoundEffects::Initialize()
                             AudioMgr::PlayFileSound(bikePath, pVeh, 1.0f, true);
                         }
                     }
-                    data.m_bEngineState = pVeh->m_nVehicleFlags.bEngineOn;
+                    data.m_bEngineState = pVeh->bEngineOn;
                 }
             }
 
@@ -79,7 +79,7 @@ void SoundEffects::Initialize()
             }
         }
 
-        data.m_bEngineState = pVeh->m_nVehicleFlags.bEngineOn;
+        data.m_bEngineState = pVeh->bEngineOn;
 
         CVector vehPos = pVeh->GetPosition();
         CVector camPos = TheCamera.GetPosition();
@@ -115,7 +115,7 @@ void SoundEffects::Initialize()
             {
                 static std::string path = MOD_DATA_PATH("audio/effects/reverse.wav");
 
-                if (isBigVeh && pVeh->m_nCurrentGear == 0 && pVeh->m_nVehicleFlags.bEngineOn && !pVeh->m_nVehicleFlags.bEngineBroken && speed >= 3.0f)
+                if (isBigVeh && pVeh->m_nCurrentGear == 0 && pVeh->bEngineOn && !pVeh->bEngineBroken && speed >= 3.0f)
                 {
                     AudioMgr::PlayFileSound(path, pVeh, 0.5f, true);
                 }

@@ -4,7 +4,6 @@
 #include "defines.h"
 #include <CShadows.h>
 #include <eVehicleClass.h>
-#include <CCutsceneMgr.h>
 #include <rwcore.h>
 #include <rpworld.h>
 #include "spotlights.h"
@@ -370,7 +369,7 @@ void Lights::Initialize()
 			}
 
 			static uint32_t longLightKey = gConfig.ReadInteger("KEYS", "LongLightKey", VK_G);
-			if (KeyPressed(longLightKey) && pVeh->m_nVehicleFlags.bLightsOn)
+			if (KeyPressed(longLightKey) && pVeh->bLightsOn)
 			{
 				size_t now = CTimer::m_snTimeInMilliseconds;
 				if (now - prev > 500.0f)
@@ -417,11 +416,11 @@ void Lights::Initialize()
 		}
 		
 		if (pControlVeh->m_nOverrideLights == eLightOverride::ForceLightsOn) {
-			pControlVeh->m_nVehicleFlags.bLightsOn = true;
+			pControlVeh->bLightsOn = true;
 			pControlVeh->m_renderLights.m_bLeftFront = true;
 			pControlVeh->m_renderLights.m_bRightFront = true;
 			if (pTowedVeh) {
-				pTowedVeh->m_nVehicleFlags.bLightsOn = true;
+				pTowedVeh->bLightsOn = true;
 				pTowedVeh->m_renderLights.m_bLeftRear = true;
 				pTowedVeh->m_renderLights.m_bRightRear = true;
 			}
@@ -551,11 +550,6 @@ void Lights::Initialize()
 				return;
 			}
 
-			if (CCutsceneMgr::ms_running || TheCamera.m_bWideScreenOn)
-			{
-				return;
-			}
-
 			if (pControlVeh->m_pDriver == FindPlayerPed() &&
 				(pControlVeh->m_nVehicleSubClass == VEHICLE_AUTOMOBILE || pControlVeh->m_nVehicleSubClass == VEHICLE_BIKE || pControlVeh->m_nVehicleSubClass == VEHICLE_QUAD || pControlVeh->m_nVehicleSubClass == VEHICLE_MTRUCK))
 			{
@@ -621,7 +615,7 @@ void Lights::Initialize()
 			{
 				if ((pControlVeh->m_nVehicleSubClass == VEHICLE_AUTOMOBILE || pControlVeh->m_nVehicleSubClass == VEHICLE_BIKE || pControlVeh->m_nVehicleSubClass == VEHICLE_QUAD) &&
 					(pControlVeh->GetVehicleAppearance() == VEHICLE_APPEARANCE_AUTOMOBILE || pControlVeh->GetVehicleAppearance() == VEHICLE_APPEARANCE_BIKE) &&
-					pControlVeh->m_nVehicleFlags.bEngineOn && pControlVeh->m_fHealth > 0 && !pControlVeh->m_nVehicleFlags.bIsDrowning && !pControlVeh->m_pAttachedTo)
+					pControlVeh->bEngineOn && pControlVeh->m_fHealth > 0 && !pControlVeh->bIsDrowning && !pControlVeh->m_pAttachedTo)
 				{
 					if (DistanceBetweenPoints(TheCamera.m_vecGameCamPos, pControlVeh->GetPosition()) < 150.0f)
 					{
@@ -747,7 +741,7 @@ void Lights::RenderHeadlights(CVehicle *pControlVeh, bool realTime) {
 		pTowedVeh = pControlVeh->m_pTrailer;
 	}
 
-	if (pControlVeh->m_nVehicleFlags.bLightsOn) {
+	if (pControlVeh->bLightsOn) {
 		bool isFoggy = (CWeather::NewWeatherType == WEATHER_FOGGY_SF || CWeather::NewWeatherType == WEATHER_SANDSTORM_DESERT || CWeather::OldWeatherType == WEATHER_FOGGY_SF || CWeather::OldWeatherType == WEATHER_SANDSTORM_DESERT);
 		std::string texName = data.m_bLongLightsOn ? "headlight_long" : "headlight_short";
 		

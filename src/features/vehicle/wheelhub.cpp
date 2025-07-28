@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "wheelhub.h"
-#include <CCutsceneMgr.h>
 #include "modelinfomgr.h"
 
 void UpdateRotation(CVehicle *pVeh, RwFrame *ori, RwFrame *tar)
@@ -34,7 +33,7 @@ void WheelHub::Initialize()
 
     ModelInfoMgr::RegisterRender([](CVehicle *pVeh)
                                 {
-        if (!pVeh || !pVeh->GetIsOnScreen() || CCutsceneMgr::ms_running)
+        if (!pVeh || !pVeh->GetIsOnScreen())
         {
             return;
         }

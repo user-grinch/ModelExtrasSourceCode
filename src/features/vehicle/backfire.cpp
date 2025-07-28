@@ -87,7 +87,7 @@ void BackFireEffect::Initialize(RwFrame *frame, CEntity *pVeh)
 // Inspired by Junior's https://www.mixmods.com.br/2016/06/backfire-als-v2-5-mod-estalar-escapamento/
 void BackFireEffect::Process(CVehicle *pVeh)
 {
-    if (!pVeh->GetIsOnScreen() || pVeh->m_nVehicleFlags.bEngineBroken || !pVeh->m_nVehicleFlags.bEngineOn || pVeh->m_nVehicleFlags.bIsBig || pVeh->m_nVehicleFlags.bIsVan || pVeh->m_nVehicleFlags.bIsBus || pVeh->m_nVehicleFlags.bIsRCVehicle)
+    if (!pVeh->GetIsOnScreen() || pVeh->bEngineBroken || !pVeh->bEngineOn || pVeh->bIsBig || pVeh->bIsVan || pVeh->bIsBus || pVeh->bIsRCVehicle)
     {
         return;
     }
