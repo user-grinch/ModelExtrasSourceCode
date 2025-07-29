@@ -10,7 +10,9 @@ class Util
 public:
   static bool IsNightTime();
   static bool IsEngineOff(CVehicle *pVeh);
+  static bool IsDoorDamaged(CVehicle *pVeh, eDoors door);
   static bool IsLightDamaged(CVehicle *pVeh, eLights light);
+  static bool IsPanelDamaged(CVehicle *pVeh, ePanels panel);
   static void UpdateRelativeToBoundingBox(CVehicle *pVeh, eDummyPos dummyPos, CVector &pos);
 
   static float NormalizeAngle(float angle);

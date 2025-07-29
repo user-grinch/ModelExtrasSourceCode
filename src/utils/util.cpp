@@ -28,16 +28,39 @@ float Util::GetVehicleSpeed(CVehicle *pVeh)
 }
 
 bool Util::IsLightDamaged(CVehicle *pVeh, eLights light) {
-    if (!pVeh || pVeh->GetVehicleAppearance() != VEHICLE_APPEARANCE_AUTOMOBILE) {
+    if (!pVeh || pVeh->m_nVehicleSubClass != VEHICLE_AUTOMOBILE) {
         return true;
     }
     CAutomobile *pAutoMobile = static_cast<CAutomobile*>(pVeh);
-
     if (!pAutoMobile) {
         return true;
     }
 
     return pAutoMobile->m_damageManager.GetLightStatus(light);
+}
+
+bool Util::IsDoorDamaged(CVehicle *pVeh, eDoors door) {
+    if (!pVeh || pVeh->m_nVehicleSubClass != VEHICLE_AUTOMOBILE) {
+        return true;
+    }
+    CAutomobile *pAutoMobile = static_cast<CAutomobile*>(pVeh);
+    if (!pAutoMobile) {
+        return true;
+    }
+
+    return pAutoMobile->m_damageManager.GetDoorStatus(door);
+}
+
+bool Util::IsPanelDamaged(CVehicle *pVeh, ePanels panel) {
+    if (!pVeh || pVeh->m_nVehicleSubClass != VEHICLE_AUTOMOBILE) {
+        return true;
+    }
+    CAutomobile *pAutoMobile = static_cast<CAutomobile*>(pVeh);
+    if (!pAutoMobile) {
+        return true;
+    }
+
+    return pAutoMobile->m_damageManager.GetPanelStatus(panel);
 }
 
 // Taken from vehfuncs

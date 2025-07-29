@@ -94,20 +94,6 @@ void Lights::Initialize()
 	patch::Nop(0x6E2722, 19);	  // CVehicle::DoHeadLightReflection
 	patch::SetUChar(0x6E1A22, 0); // CVehicle::DoTailLightEffect
 
-	injector::MakeInline<0x6E2870, 0x6E2870+6>([](injector::reg_pack &regs) {
-		CVehicle *pVeh = reinterpret_cast<CVehicle*>(regs.esi);
-		if (pVeh && pVeh->m_nVehicleSubClass == VEHICLE_AUTOMOBILE)
-		{
-			CAutomobile *pAutomobile = reinterpret_cast<CAutomobile *>(pVeh);
-			if (pAutomobile->m_damageManager.GetDoorStatus(eDoors::BOOT))
-			{
-				regs.eax = 0;
-			}
-		} else {
-			regs.eax = 1;
-		}
-	});
-
 	plugin::Events::initGameEvent += []()
 	{
 		gbGlobalIndicatorLights = gConfig.ReadBoolean("VEHICLE_FEATURES", "StandardLights_GlobalIndicatorLights", false);
@@ -443,8 +429,14 @@ void Lights::Initialize()
 
 		bool isLeftFrontOk = !Util::IsLightDamaged(pControlVeh, eLights::LIGHT_FRONT_LEFT);
 		bool isRightFrontOk = !Util::IsLightDamaged(pControlVeh, eLights::LIGHT_FRONT_RIGHT);
-		bool isLeftRearOk = !Util::IsLightDamaged(pTowedVeh, eLights::LIGHT_REAR_LEFT);
-		bool isRightRearOk = !Util::IsLightDamaged(pTowedVeh, eLights::LIGHT_REAR_RIGHT);
+		bool isLeftRearOk = !(Util::IsLightDamaged(pTowedVeh, eLights::LIGHT_REAR_LEFT) 
+								|| Util::IsPanelDamaged(pTowedVeh, ePanels::WING_REAR_LEFT) 
+								|| Util::IsDoorDamaged(pTowedVeh, eDoors::BOOT)
+							);
+		bool isRightRearOk = !(Util::IsLightDamaged(pTowedVeh, eLights::LIGHT_REAR_RIGHT) 
+								|| Util::IsPanelDamaged(pTowedVeh, ePanels::WING_REAR_RIGHT) 
+								|| Util::IsDoorDamaged(pTowedVeh, eDoors::BOOT)
+							);
 		bool isHeadlightLeftOn = pControlVeh->m_renderLights.m_bLeftFront && isLeftFrontOk;
 		bool isHeadlightRightOn = pControlVeh->m_renderLights.m_bRightFront && isRightFrontOk;
 
@@ -731,7 +723,7 @@ void Lights::RenderLight(CVehicle *pVeh, eLightType state, bool shadows, std::st
 				}
 			}
 
-			EnableDummy((int)pVeh + 42 + id++, e, pVeh, highlight ? 1.5f : 1.0f);
+			EnableDummy((int)pVeh + 42 + id++, e, pVeh, highlight ? 1.75f : 1.0f);
 
 			if (shadows && c.shadow.render)
 			{

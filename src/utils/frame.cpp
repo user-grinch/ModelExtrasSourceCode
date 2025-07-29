@@ -164,7 +164,7 @@ RwFrame * FrameUtil::Clone(RwFrame *frame, RpClump *clump, RwFrame *parent, bool
 	if (isRoot) {
 		*(uint32_t*)0xC1CB58 = (uint32_t)clump;
 		RwFrameForAllObjects(frame, CopyObjectsCB, parent);
-		if (RwFrame * nextFrame = frame->child) CloneNode(nextFrame, clump, parent, false);
+		if (RwFrame * nextFrame = frame->child) Clone(nextFrame, clump, parent, false);
 	} else {
 		newFrame = RwFrameCreate();
 
@@ -187,7 +187,7 @@ RwFrame * FrameUtil::Clone(RwFrame *frame, RpClump *clump, RwFrame *parent, bool
 
 		RwFrameAddChild(parent, newFrame);
 
-		if (RwFrame * nextFrame = frame->child) CloneNode(nextFrame, clump, newFrame, false);
+		if (RwFrame * nextFrame = frame->child) Clone(nextFrame, clump, newFrame, false);
 		// if (RwFrame * nextFrame = frame->next)  CloneNode(nextFrame, clump, parent, false);
 	}
 	return newFrame;
