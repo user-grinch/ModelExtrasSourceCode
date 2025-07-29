@@ -27,6 +27,18 @@ float Util::GetVehicleSpeed(CVehicle *pVeh)
     return pVeh->m_vecMoveSpeed.Magnitude2D() * 50.0f;
 }
 
+bool Util::IsComponentOk(CVehicle *pVeh, eLights light) {
+    if (!pVeh || pVeh->GetVehicleAppearance() != VEHICLE_APPEARANCE_AUTOMOBILE) {
+        return true;
+    }
+    CAutomobile *pAutoMobile = static_cast<CAutomobile*>(pVeh);
+
+    if (!pAutoMobile) {
+        return true;
+    }
+    return !pAutoMobile->m_damageManager.GetLightStatus(light);
+}
+
 // Taken from vehfuncs
 float Util::GetVehicleSpeedRealistic(CVehicle *vehicle)
 {

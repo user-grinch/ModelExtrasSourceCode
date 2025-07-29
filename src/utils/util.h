@@ -11,6 +11,7 @@ public:
   static bool IsNightTime();
   static bool IsTailLightOn(CVehicle *pVeh);
   static bool IsEngineOff(CVehicle *pVeh);
+  static bool IsComponentOk(CVehicle *pVeh, eLights light);
   static void UpdateRelativeToBoundingBox(CVehicle *pVeh, eDummyPos dummyPos, CVector &pos);
 
   static float NormalizeAngle(float angle);
