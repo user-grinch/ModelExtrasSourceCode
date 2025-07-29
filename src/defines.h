@@ -1,7 +1,7 @@
 #pragma once
 #include <plugin.h>
 
-#define PATRON_BUILD 0
+#define PATRON_BUILD 1
 
 #define CORONA_SZ_MUL 0.7f
 #define AMBIENT_ON_VAL 8.0f
@@ -26,3 +26,5 @@
 
 #define STR_FOUND(x, y) x.find(y) != std::string::npos
 #define STR_NOT_FOUND(x, y) x.find(y) == std::string::npos
+
+#define RwFrameSetParent(frame) ((RwObject *)(frame))->parent

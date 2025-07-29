@@ -27,7 +27,7 @@ float Util::GetVehicleSpeed(CVehicle *pVeh)
     return pVeh->m_vecMoveSpeed.Magnitude2D() * 50.0f;
 }
 
-bool Util::IsComponentOk(CVehicle *pVeh, eLights light) {
+bool Util::IsLightDamaged(CVehicle *pVeh, eLights light) {
     if (!pVeh || pVeh->GetVehicleAppearance() != VEHICLE_APPEARANCE_AUTOMOBILE) {
         return true;
     }
@@ -36,7 +36,8 @@ bool Util::IsComponentOk(CVehicle *pVeh, eLights light) {
     if (!pAutoMobile) {
         return true;
     }
-    return !pAutoMobile->m_damageManager.GetLightStatus(light);
+
+    return pAutoMobile->m_damageManager.GetLightStatus(light);
 }
 
 // Taken from vehfuncs
@@ -135,11 +136,6 @@ std::optional<std::string> Util::GetCharsAfterPrefix(const std::string &str, con
 bool Util::IsNightTime()
 {
 	return CClock::GetIsTimeInRange(20, 6);
-}
-
-bool Util::IsTailLightOn(CVehicle *pVeh)
-{
-	return IsNightTime() || pVeh->m_nOverrideLights == eLightOverride::ForceLightsOn || pVeh->bLightsOn;
 }
 
 bool Util::IsEngineOff(CVehicle *pVeh)
