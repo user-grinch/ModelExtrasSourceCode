@@ -8,7 +8,8 @@ typedef enum class eModelEntityType eModelEntityType;
 class FrameUtil {
 public:
     static bool IsOkAtomicVisible(RwFrame* frame);
-
+    static RwFrame * Clone(RwFrame *frame, RpClump *clump, RwFrame *parent, bool isRoot)
+    
     // Returns the number of childs a parent contains
     static unsigned int GetChildCount(RwFrame *pParent);
 

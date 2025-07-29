@@ -157,3 +157,38 @@ bool FrameUtil::IsOkAtomicVisible(RwFrame* frame) {
 
     return true;
 }
+
+// VehFuncs
+RwFrame * FrameUtil::Clone(RwFrame *frame, RpClump *clump, RwFrame *parent, bool isRoot) {
+	RwFrame * newFrame;
+	if (isRoot) {
+		*(uint32_t*)0xC1CB58 = (uint32_t)clump;
+		RwFrameForAllObjects(frame, CopyObjectsCB, parent);
+		if (RwFrame * nextFrame = frame->child) CloneNode(nextFrame, clump, parent, false);
+	} else {
+		newFrame = RwFrameCreate();
+
+		//CVisibilityPlugins::SetFrameHierarchyId(newFrame, 101);
+
+		memcpy(&newFrame->modelling, &frame->modelling, sizeof(RwMatrix));
+		RwMatrixUpdate(&newFrame->modelling);
+
+		const std::string frameName = GetFrameNodeName(frame);
+		SetFrameNodeName(newFrame, &frameName[0]);
+
+		RpAtomic * atomic = (RpAtomic*)GetFirstObject(frame);
+
+		if (atomic) {
+			RpAtomic * newAtomic = RpAtomicClone(atomic);
+			RpAtomicSetFrame(newAtomic, newFrame);
+			RpClumpAddAtomic(clump, newAtomic);
+			//CVisibilityPlugins::SetAtomicRenderCallback(newAtomic, (RpAtomic *(*)(RpAtomic *))0x007323C0);
+		}
+
+		RwFrameAddChild(parent, newFrame);
+
+		if (RwFrame * nextFrame = frame->child) CloneNode(nextFrame, clump, newFrame, false);
+		// if (RwFrame * nextFrame = frame->next)  CloneNode(nextFrame, clump, parent, false);
+	}
+	return newFrame;
+}
