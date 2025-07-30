@@ -32,6 +32,15 @@ struct VehicleDummyConfig {
     } corona;
 
     struct {
+        struct {
+            CRGBA color = {255, 255, 255, 100};
+        } on;
+        struct {
+            CRGBA color = {255, 255, 255, 100};
+        } off;
+    } material;
+
+    struct {
         bool render = true;
         std::string texture;
         CRGBA color = {255, 255, 255, 100};

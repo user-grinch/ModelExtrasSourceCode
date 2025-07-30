@@ -554,7 +554,6 @@ void Sirens::Initialize()
 	 });
 
 	 ModelInfoMgr::RegisterMaterialColProvider([](CVehicle *pVeh, RpMaterial* pMat, eLightType type){
-
 		if (type == eLightType::SirenLight) {
 			int matIdx = GetSirenIndex(pVeh, pMat);
 
@@ -562,11 +561,15 @@ void Sirens::Initialize()
 				int curState = vehicleData[pVeh]->GetCurrentState();
 				auto& state = modelData[pVeh->m_nModelIndex]->States[curState];
 				if (state->Materials.contains(matIdx)) {
-					return state->Materials[matIdx]->Color;
+					if (modelData[pVeh->m_nModelIndex]->isImVehFtSiren) {
+						return MatStateColor{state->Materials[matIdx]->Color, state->Materials[matIdx]->Color};
+					} else {
+						return MatStateColor{state->Materials[matIdx]->Color, DEFAULT_MAT_COL};
+					}
 				}
 			}
 		}
-		return CRGBA(255, 255, 255, 255);
+		return MatStateColor{DEFAULT_MAT_COL, DEFAULT_MAT_COL};
 	 });
 
 	ModelInfoMgr::RegisterDummy([](CVehicle *vehicle, RwFrame *frame)

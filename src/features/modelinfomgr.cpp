@@ -145,11 +145,11 @@ struct tRestoreEntry
 	void *m_pValue;
 };
 
-CRGBA ModelInfoMgr::FetchMaterialCol(CVehicle *pVeh, RpMaterial *pMat, eLightType type) {
-	CRGBA col = DEFAULT_MAT_COL;
+MatStateColor ModelInfoMgr::FetchMaterialCol(CVehicle *pVeh, RpMaterial *pMat, eLightType type) {
+	MatStateColor col = {DEFAULT_MAT_COL, DEFAULT_MAT_COL};
 	for (auto& e : matColProviders) {
 		col = e(pVeh, pMat, type);
-		if (col != DEFAULT_MAT_COL) {
+		if (col.on != DEFAULT_MAT_COL || col.off != DEFAULT_MAT_COL) {
 			break;
 		}
 	}
@@ -204,14 +204,14 @@ RpMaterial *ModelInfoMgr::SetEditableMaterialsCB(RpMaterial *material, void *dat
 			lightOn = m_LightStatus[pCurVeh][iLightIndex];
 		}
 		
-		CRGBA enabledCol = FetchMaterialCol(pCurVeh, material, iLightIndex);
+		MatStateColor matCol = FetchMaterialCol(pCurVeh, material, iLightIndex);
 		(*ppEntries)->m_pAddress = RpMaterialGetColor(material);
 		(*ppEntries)->m_pValue = *reinterpret_cast<void **>(RpMaterialGetColor(material));
 		(*ppEntries)++;
 
-		RpMaterialGetColor(material)->red = enabledCol.r;
-		RpMaterialGetColor(material)->green = enabledCol.g;
-		RpMaterialGetColor(material)->blue = enabledCol.b;
+		RpMaterialGetColor(material)->red = matCol.on.r;
+		RpMaterialGetColor(material)->green = matCol.on.g;
+		RpMaterialGetColor(material)->blue = matCol.on.b;
 
 		if (lightOn)
 		{
@@ -233,9 +233,9 @@ RpMaterial *ModelInfoMgr::SetEditableMaterialsCB(RpMaterial *material, void *dat
 			}
 			material->surfaceProps.ambient = gLightSurfProps.ambient;
 		} else {
-			RpMaterialGetColor(material)->red = DEFAULT_MAT_COL.r;
-			RpMaterialGetColor(material)->green = DEFAULT_MAT_COL.g;
-			RpMaterialGetColor(material)->blue = DEFAULT_MAT_COL.b;
+			RpMaterialGetColor(material)->red = matCol.off.r;
+			RpMaterialGetColor(material)->green = matCol.off.g;
+			RpMaterialGetColor(material)->blue = matCol.off.b;
 			material->surfaceProps.ambient = gLightSurfPropsOff.ambient;
 		}
 	}

@@ -109,7 +109,6 @@ void Lights::Initialize()
 		m_Dummies.erase(pVeh);
 	};
 
-
 	ModelInfoMgr::RegisterMaterial([](CVehicle *pVeh, RpMaterial *pMat){
 		if (!m_bEnabled) {
 			return eLightType::UnknownLight;
@@ -343,7 +342,7 @@ void Lights::Initialize()
 		}
 
 		CVehicle *pVeh = FindPlayerVehicle(-1, false);
-		if (pVeh && pVeh->m_nOverrideLights != eLightOverride::ForceLightsOff && !Util::IsEngineOff(pVeh))
+		if (pVeh && pVeh->IsDriver(FindPlayerPed()) && pVeh->m_nOverrideLights != eLightOverride::ForceLightsOff && !Util::IsEngineOff(pVeh))
 		{
 			static size_t prev = 0;
 			static uint32_t fogLightKey = gConfig.ReadInteger("KEYS", "FogLightKey", VK_J);
@@ -468,7 +467,7 @@ void Lights::Initialize()
 
 		std::string shdwName = (isBike ? "taillight_bike" : "taillight");
 		CVector2D shdwSz = {1.0f, 1.5f};
-			
+
 		if (isBike || CModelInfo::IsCarModel(pControlVeh->m_nModelIndex))
 		{
 			bool isRevlightSupportedByModel = IsDummyAvail(pTowedVeh, {eLightType::ReverseLightLeft, eLightType::ReverseLightRight});

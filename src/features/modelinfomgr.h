@@ -8,12 +8,16 @@
 #include "enums/dummypos.h"
 #include "enums/lighttype.h"
 
+struct MatStateColor {
+	CRGBA on, off;
+};
+
 constexpr uint32_t MAX_LIGHTS = 256;
 const CRGBA DEFAULT_MAT_COL = CRGBA(255, 255, 255, 255);
 using DummyCallback_t = std::function<void(CVehicle *, RwFrame *)>;
 using RenderCallback_t = std::function<void(CVehicle *)>;
 using MaterialCallback_t = std::function<eLightType(CVehicle *, RpMaterial*)>;
-using MaterialColProviderCallback_t = std::function<CRGBA(CVehicle *, RpMaterial*, eLightType)>;
+using MaterialColProviderCallback_t = std::function<MatStateColor(CVehicle *, RpMaterial*, eLightType)>;
 
 class ModelInfoMgr
 {
@@ -28,7 +32,7 @@ private:
 
 	static void FindDummies(CVehicle *vehicle, RwFrame *frame);
 	static void OnRender(CVehicle *pVeh);
-	static CRGBA FetchMaterialCol(CVehicle *pVeh, RpMaterial *pMat, eLightType type);
+	static MatStateColor FetchMaterialCol(CVehicle *pVeh, RpMaterial *pMat, eLightType type);
 	static eLightType FetchMaterialType(CVehicle *pVeh, RpMaterial *pMat);
 
 	static RpMaterial *SetEditableMaterialsCB(RpMaterial *material, void *data);
