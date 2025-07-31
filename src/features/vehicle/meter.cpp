@@ -132,7 +132,7 @@ void RpmMeter::Initialize() {
                 rpm += 6.0f * delta;
             }
 
-            float newRot = (data.m_fMaxRotation / data.m_nMaxRpm) * rpm * delta * 0.50f;
+            float newRot = (data.m_fMaxRotation / data.m_nMaxRpm) * rpm * delta * 50.0f;
             newRot = plugin::Clamp(newRot, 0, data.m_fMaxRotation);
 
             float change = (newRot - data.m_fCurRotation) * 0.25f * delta;
