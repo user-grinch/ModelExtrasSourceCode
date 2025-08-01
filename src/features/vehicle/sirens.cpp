@@ -553,7 +553,7 @@ void Sirens::Initialize()
 		return eLightType::UnknownLight;
 	 });
 
-	 ModelInfoMgr::RegisterMaterialColProvider([](CVehicle *pVeh, RpMaterial* pMat, eLightType type){
+	 ModelInfoMgr::RegisterMaterialColProvider([](CVehicle *pVeh, RpMaterial* pMat, eLightType type) {
 		if (type == eLightType::SirenLight) {
 			int matIdx = GetSirenIndex(pVeh, pMat);
 

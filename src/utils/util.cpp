@@ -12,6 +12,7 @@
 #include "defines.h"
 #include "vehicle/core/dummy.h"
 #include "enums/lightoverride.h"
+#include <math.h>
 
 float Util::NormalizeAngle(float angle)
 {
@@ -166,23 +167,46 @@ bool Util::IsEngineOff(CVehicle *pVeh)
 	return !pVeh->bEngineOn || pVeh->bEngineBroken;
 }
 
-float CLAMP_OFFSET_X = 0.25f;
-float CLAMP_OFFSET_Y = 0.25f;
+float mx1, my1, mz1;
+float mx2, my2, mz2;
 
-void Util::UpdateRelativeToBoundingBox(CVehicle *pVeh, eDummyPos dummyPos, CVector &pos) {
+CVector Util::UpdateRelativeToBoundingBox(CVehicle *pVeh, eDummyPos dummyPos, CVector shdwPos, CVector up, CVector right) {
     CVehicleModelInfo* pInfo = (CVehicleModelInfo*)CModelInfo::GetModelInfo(pVeh->m_nModelIndex);
-    CVector min = pInfo->m_pColModel->m_boundBox.m_vecMin;
-    CVector max = pInfo->m_pColModel->m_boundBox.m_vecMax;
+    CVector min = pInfo->m_pColModel->m_boundBox.m_vecMin + CVector(mx1, my1, mz1);
+    CVector max = pInfo->m_pColModel->m_boundBox.m_vecMax + CVector(mx2, my2, mz2);
+
+    shdwPos += (min + max) * 0.5f;
+    CVector corner1 = shdwPos + up + right;
+    CVector corner2 = shdwPos + up - right;
+    CVector corner3 = shdwPos - up + right;
+    CVector corner4 = shdwPos - up - right;
+
+    // Compute min vector
+    CVector minVec;
+    minVec.x = std::min({ corner1.x, corner2.x, corner3.x, corner4.x });
+    minVec.y = std::min({ corner1.y, corner2.y, corner3.y, corner4.y });
+    minVec.z = std::min({ corner1.z, corner2.z, corner3.z, corner4.z });
+
+    // Compute max vector
+    CVector maxVec;
+    maxVec.x = std::max({ corner1.x, corner2.x, corner3.x, corner4.x });
+    maxVec.y = std::max({ corner1.y, corner2.y, corner3.y, corner4.y });
+    maxVec.z = std::max({ corner1.z, corner2.z, corner3.z, corner4.z });
 
     if (dummyPos == eDummyPos::Front) {
-        pos.y = std::max(pos.y, max.y + CLAMP_OFFSET_Y);
+        minVec.y = std::max(minVec.y, max.y);
     }
     else if (dummyPos == eDummyPos::Rear) {
-        pos.y = std::min(pos.y, min.y - CLAMP_OFFSET_Y);
-    } else if (dummyPos == eDummyPos::Left) {
-        pos.x = std::min(pos.x, min.x - CLAMP_OFFSET_X);
-    }
-    else if (dummyPos == eDummyPos::Right) {
-        pos.x = std::max(pos.x, max.x + CLAMP_OFFSET_X);
-    }
+        maxVec.y = std::min(maxVec.y, min.y);
+    } 
+
+    shdwPos = (maxVec + minVec) * 0.5f;
+    shdwPos -= (min + max) * 0.5f;
+    // else if (dummyPos == eDummyPos::Left) {
+    //     pos.x = std::min(offset.x, min.x);
+    // }
+    // else if (dummyPos == eDummyPos::Right) {
+    //     pos.x = std::max(offset.x, max.x);
+    // }
+    return shdwPos;
 }

@@ -54,67 +54,66 @@ void RenderUtil::RegisterCoronaWithAngle(CEntity *pEntity, int coronaID, CVector
 }
 
 extern int gGlobalShadowIntensity;
-void RenderUtil::RegisterShadow(CEntity *pEntity, CVector position, CRGBA col, float angle, eDummyPos dummyPos, const std::string &shadwTexName, CVector2D shdwSz, CVector2D shdwOffset, RwTexture *pTexture)
+void RenderUtil::RegisterShadow(CEntity* pEntity, CVector position, CRGBA col, float angle,
+                                eDummyPos dummyPos, const std::string& shadwTexName,
+                                CVector2D shdwSz, CVector2D shdwOffset, RwTexture* pTexture)
 {
-    if (shdwSz.x == 0.0f || shdwSz.y == 0.0f || !gConfig.ReadBoolean("VEHICLE_FEATURES", "LightShadows", false))
+    if (shdwSz.x == 0.0f || shdwSz.y == 0.0f ||
+        !gConfig.ReadBoolean("VEHICLE_FEATURES", "LightShadows", false))
     {
         return;
     }
 
-    float angleRad = DegToRad(angle);
-    float fAngle = pEntity->GetHeading() + angleRad;
-    CVector vehPos = pEntity->GetPosition();
+    const float angleRad = DegToRad(angle);
+    const CVector vehPos = pEntity->GetPosition();
+    const CMatrix& entityMatrix = *(CMatrix*)pEntity->m_matrix;
 
-    CVector up = CVector(-sin(fAngle), cos(fAngle), 0.0f) * shdwSz.y;
-    CVector right = CVector(cos(fAngle), sin(fAngle), 0.0f) * shdwSz.x;
-    CVector center, nSize = {0.0f, 0.0f, 0.0f};
+    auto RotateVector2D = [angleRad](const CVector& v) -> CVector {
+        return {
+            v.x * cos(angleRad) - v.y * sin(angleRad),
+            v.x * sin(angleRad) + v.y * cos(angleRad),
+            v.z
+        };
+    };
 
-    if (dummyPos == eDummyPos::Right)
+    CVector up    = RotateVector2D(entityMatrix.up * shdwSz.y);
+    CVector right = RotateVector2D(entityMatrix.right * shdwSz.x);
+
+    CVector nSize = {0.0f, 0.0f, 0.0f};
+    switch (dummyPos)
     {
-        nSize = {shdwSz.y, 0.0f, 0};
-    }
-    else if (dummyPos == eDummyPos::Left)
-    {
-        nSize = {-shdwSz.y, 0.0f, 0};
-    }
-    else if (dummyPos == eDummyPos::Front)
-    {
-        nSize = {0.0f, shdwSz.y, 0};
-    }
-    else if (dummyPos == eDummyPos::Rear)
-    {
-        nSize = {0.0f, -shdwSz.y, 0};
-    }
-
-    // rotation matrix
-    //
-    // |cos  -sin|
-    // |sin   cos|
-
-    CVector nOffset = {shdwOffset.x * cos(angleRad) - shdwOffset.y * sin(angleRad),
-                       shdwOffset.x * sin(angleRad) + shdwOffset.y * cos(angleRad),
-                       0};
-    center = pEntity->TransformFromObjectSpace(position + nOffset + nSize);
-
-    center.z = CWorld::FindGroundZFor3DCoord(center.x, center.y, center.z + 100, nullptr, nullptr) + 2.0f;
-
-    // Fix issues like under bridges
-    if (abs(center.z - vehPos.z) > 3.0f)
-    {
-        center.z = vehPos.z + position.z + 1.0f;
+        case eDummyPos::Right: nSize = { shdwSz.y,  0.0f, 0.0f }; break;
+        case eDummyPos::Left:  nSize = {-shdwSz.y,  0.0f, 0.0f }; break;
+        case eDummyPos::Front: nSize = { 0.0f,      shdwSz.y, 0.0f }; break;
+        case eDummyPos::Rear:  nSize = { 0.0f,     -shdwSz.y, 0.0f }; break;
+        default: break;
     }
 
-    // Fix heli drawing shadow from sky
-    if (abs(vehPos.z - center.z) > 15.0f)
-    {
+    CVector nOffset = {
+        shdwOffset.x * cos(angleRad) - shdwOffset.y * sin(angleRad),
+        shdwOffset.x * sin(angleRad) + shdwOffset.y * cos(angleRad),
+        0.0f
+    };
+
+    CVector shdwPos = pEntity->TransformFromObjectSpace(position + nOffset + nSize);
+
+    const float zDiff = abs(shdwPos.z - vehPos.z);
+    if (zDiff > 3.0f)
+        shdwPos.z = vehPos.z + position.z + 1.0f;
+
+    if (abs(vehPos.z - shdwPos.z) > 15.0f)
         return;
-    }
-    RwTexture *pTex = (pTexture != NULL ? pTexture : TextureMgr::Get(shadwTexName, gGlobalShadowIntensity));
-    if (pTex) {
-        CShadows::StoreShadowToBeRendered(2, pTex, &center,
-                                        up.x, up.y,
-                                        right.x, right.y,
-                                        col.a, col.r, col.g, col.b,
-                                        6.0f, false, 1.0f, 0, true);
+
+    RwTexture* pTex = (pTexture != nullptr)
+        ? pTexture
+        : TextureMgr::Get(shadwTexName, gGlobalShadowIntensity);
+
+    if (pTex)
+    {
+        CShadows::StoreShadowToBeRendered(2, pTex, &shdwPos,
+                                          up.x, up.y,
+                                          right.x, right.y,
+                                          col.a, col.r, col.g, col.b,
+                                          6.0f, false, 1.0f, 0, true);
     }
 }

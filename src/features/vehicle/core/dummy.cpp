@@ -179,8 +179,6 @@ void VehicleDummy::Update()
     data.shadow.position.y = data.position.y = vehMatrix.up.x * offset.x + vehMatrix.up.y * offset.y + vehMatrix.up.z * offset.z;
     data.shadow.position.z = data.position.z = vehMatrix.at.x * offset.x + vehMatrix.at.y * offset.y + vehMatrix.at.z * offset.z;
 
-    Util::UpdateRelativeToBoundingBox(data.pVeh, data.dummyType, data.shadow.position);
-
     if (data.mirroredX)
     {
         data.position.x *= -1;

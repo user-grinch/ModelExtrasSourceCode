@@ -21,8 +21,8 @@ bool gbGlobalReverseLights = false;
 float gfGlobalCoronaSize = 0.3f;
 int gGlobalCoronaIntensity = 80;
 int gGlobalShadowIntensity = 80;
-CVector2D shdwOffset = {0.0f, 0.0f};
-CVector2D headlightOffset = {0.0f, shdwOffset.y + 0.2f};
+CVector2D shdwOffset = {0.0f, 0.2f};
+CVector2D headlightOffset = {0.0f, shdwOffset.y + 0.15f};
 CVector2D headlightSz = {4.0f, 8.0f};
 
 int GetStrobeIndex(CVehicle *pVeh, RpMaterial *pMat) {
@@ -65,7 +65,7 @@ void DrawGlobalLight(CVehicle* pVeh, bool isRear, bool isLeft, CRGBA col,
     if (isLeft) coronaPos.x *= -1.0f;
 
 	CVector shdwPos = coronaPos;
-	Util::UpdateRelativeToBoundingBox(pVeh, isRear ? eDummyPos::Rear : eDummyPos::Front, shdwPos);
+	// Util::UpdateRelativeToBoundingBox(pVeh, isRear ? eDummyPos::Rear : eDummyPos::Front, shdwPos);
 
     float dummyAngle = isRear ? 180.0f : 0.0f;
 
@@ -375,7 +375,10 @@ void Lights::Initialize()
 
 	Events::processScriptsEvent += []() {
 		for (CVehicle *pVeh : CPools::ms_pVehiclePool) {
-			if (pVeh->m_pDriver == FindPlayerPed() || CModelInfo::IsTrailerModel(pVeh->m_nModelIndex)) {
+			if (pVeh->m_pDriver == FindPlayerPed() 
+			|| pVeh->m_nVehicleSubClass == VEHICLE_BMX
+			|| pVeh->m_nVehicleSubClass == VEHICLE_BOAT 
+			|| pVeh->m_nVehicleSubClass == VEHICLE_TRAILER) {
 				continue;
 			}
 			if (DistanceBetweenPoints(pVeh->GetPosition(), TheCamera.GetPosition()) < 50.0f) {
@@ -388,7 +391,7 @@ void Lights::Initialize()
 	ModelInfoMgr::RegisterRender([](CVehicle *pControlVeh)
 								{
 		int model = pControlVeh->m_nModelIndex;
-		
+
 		// skip directly processing trailers
 		if (CModelInfo::IsTrailerModel(model)) {
 			return;
