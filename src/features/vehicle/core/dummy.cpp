@@ -27,10 +27,16 @@ VehicleDummy::VehicleDummy(const VehicleDummyConfig& config)
         CGeneral::GetATanOfXY(data.frame->modelling.right.x, data.frame->modelling.right.y) * 57.295776f
     );
 
-    UpdateDummyType(modelAngle);
-
     auto &jsonData = DataMgr::Get(data.pVeh->m_nModelIndex);
     std::string name = GetFrameNodeName(data.frame);
+
+    eDummyPos modelType = UpdateDummyType(modelAngle);
+    if (modelType != eDummyPos::None && modelType != config.dummyType) {
+        gLogger->warn("Model angle & node name mismatch. Node {} has an angle of {}. Applying fix...", name, modelAngle);
+        data.dummyType = modelType;
+    }
+
+   
   
     if (jsonData.contains("lights"))
     {
@@ -156,15 +162,23 @@ VehicleDummy::VehicleDummy(const VehicleDummyConfig& config)
     }
 }
 
-void VehicleDummy::UpdateDummyType(float angle) {
-    switch (static_cast<int>(angle)) {
-        // Keep this disabled
-        // case 0:   data.dummyType = eDummyPos::Front; break;
-        case 90:  data.dummyType = eDummyPos::Left;  break;
-        case 180: data.dummyType = eDummyPos::Rear;  break;
-        case 270: data.dummyType = eDummyPos::Right; break;
-        default: break;
+eDummyPos VehicleDummy::UpdateDummyType(float angle) {
+    eDummyPos type;
+
+    auto isClose = [](float a, float b, float tolerance = 2.0f) {
+        return std::fabs(a - b) <= tolerance;
+    };
+
+    if (isClose(angle, 90)) {
+        type = eDummyPos::Left;
+    } else if (isClose(angle, 180)) {
+        type = eDummyPos::Rear;
+    } else if (isClose(angle, 270)) {
+        type = eDummyPos::Right;
+    } else {
+        type = eDummyPos::None;
     }
+    return type;
 }
 
 void VehicleDummy::Update()

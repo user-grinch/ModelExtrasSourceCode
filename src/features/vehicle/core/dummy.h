@@ -57,5 +57,5 @@ public:
     }
 
     void Update();
-    void UpdateDummyType(float angle);
+    eDummyPos UpdateDummyType(float angle);
 };

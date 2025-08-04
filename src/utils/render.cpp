@@ -54,6 +54,7 @@ void RenderUtil::RegisterCoronaWithAngle(CEntity *pEntity, int coronaID, CVector
 }
 
 extern int gGlobalShadowIntensity;
+
 void RenderUtil::RegisterShadow(CEntity* pEntity, CVector position, CRGBA col, float angle,
                                 eDummyPos dummyPos, const std::string& shadwTexName,
                                 CVector2D shdwSz, CVector2D shdwOffset, RwTexture* pTexture)
