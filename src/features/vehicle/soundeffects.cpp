@@ -34,48 +34,45 @@ void SoundEffects::Initialize()
                          (animGroup == ANIMGROUP_TRUCK || animGroup == ANIMGROUP_BUS || animGroup == ANIMGROUP_COACH);
         bool isBigVeh = isAllowed || std::find(ValidForReverseSound.begin(), ValidForReverseSound.end(), pVeh->m_nModelIndex) != ValidForReverseSound.end();
 
-        if (pVeh == FindPlayerVehicle(0, false))
+        if (bEngineSounds)
         {
-            if (bEngineSounds)
+            bool isValid = !CModelInfo::IsPlaneModel(model) && !CModelInfo::IsBmxModel(model) && !CModelInfo::IsHeliModel(model) && !CModelInfo::IsBoatModel(model);
+            if (isValid && data.m_bEngineState != pVeh->bEngineOn)
             {
-                bool isValid = !CModelInfo::IsPlaneModel(model) && !CModelInfo::IsBmxModel(model) && !CModelInfo::IsHeliModel(model) && !CModelInfo::IsBoatModel(model);
-                if (isValid && data.m_bEngineState != pVeh->bEngineOn)
+                static std::string carPath = MOD_DATA_PATH("audio/effects/engine_start.wav");
+                static std::string bikePath = MOD_DATA_PATH("audio/effects/bike_engine_start.wav");
+                if (pVeh->bEngineOn)
                 {
-                    static std::string carPath = MOD_DATA_PATH("audio/effects/engine_start.wav");
-                    static std::string bikePath = MOD_DATA_PATH("audio/effects/bike_engine_start.wav");
-                    if (pVeh->bEngineOn)
+                    if (CModelInfo::IsCarModel(model))
                     {
-                        if (CModelInfo::IsCarModel(model))
-                        {
-                            AudioMgr::PlayFileSound(carPath, pVeh, 1.0f, true);
-                        }
-                        else
-                        {
-                            AudioMgr::PlayFileSound(bikePath, pVeh, 1.0f, true);
-                        }
-                    }
-                    data.m_bEngineState = pVeh->bEngineOn;
-                }
-            }
-
-            if (bIndicatorSounds)
-            {
-                bool state = Lights::IsIndicatorOn(pVeh);
-                if (state != data.m_bIndicatorState)
-                {
-                    static std::string onpath = MOD_DATA_PATH("audio/effects/indicator_on.wav");
-                    static std::string offpath = MOD_DATA_PATH("audio/effects/indicator_off.wav");
-
-                    if (state)
-                    {
-                        AudioMgr::PlayFileSound(onpath, pVeh, 0.6f, true);
+                        AudioMgr::PlayFileSound(carPath, pVeh, 1.0f, true);
                     }
                     else
                     {
-                        AudioMgr::PlayFileSound(offpath, pVeh, 0.6f, true);
+                        AudioMgr::PlayFileSound(bikePath, pVeh, 1.0f, true);
                     }
-                    data.m_bIndicatorState = state;
                 }
+                data.m_bEngineState = pVeh->bEngineOn;
+            }
+        }
+
+        if (bIndicatorSounds)
+        {
+            bool state = Lights::IsIndicatorOn(pVeh);
+            if (state != data.m_bIndicatorState)
+            {
+                static std::string onpath = MOD_DATA_PATH("audio/effects/indicator_on.wav");
+                static std::string offpath = MOD_DATA_PATH("audio/effects/indicator_off.wav");
+
+                if (state)
+                {
+                    AudioMgr::PlayFileSound(onpath, pVeh, 0.6f, true);
+                }
+                else
+                {
+                    AudioMgr::PlayFileSound(offpath, pVeh, 0.6f, true);
+                }
+                data.m_bIndicatorState = state;
             }
         }
 

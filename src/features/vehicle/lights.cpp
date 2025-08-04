@@ -382,8 +382,11 @@ void Lights::Initialize()
 				continue;
 			}
 			if (DistanceBetweenPoints(pVeh->GetPosition(), TheCamera.GetPosition()) < 50.0f) {
-				bool nightTime = Util::IsNightTime();
-				RenderHeadlights(pVeh, nightTime, nightTime, false);
+				bool isLeftFrontOk = !Util::IsLightDamaged(pVeh, eLights::LIGHT_FRONT_LEFT);
+				bool isRightFrontOk = !Util::IsLightDamaged(pVeh, eLights::LIGHT_FRONT_RIGHT);
+				bool isHeadlightLeftOn = pVeh->m_renderLights.m_bLeftFront && isLeftFrontOk;
+				bool isHeadlightRightOn = pVeh->m_renderLights.m_bRightFront && isRightFrontOk;
+				RenderHeadlights(pVeh, isHeadlightLeftOn, isHeadlightRightOn, false);
 			}
 		}
 	};

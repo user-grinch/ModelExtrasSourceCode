@@ -36,8 +36,6 @@ VehicleDummy::VehicleDummy(const VehicleDummyConfig& config)
         data.dummyType = modelType;
     }
 
-   
-  
     if (jsonData.contains("lights"))
     {
         std::string newName = name.substr(0, name.find("_prm"));
