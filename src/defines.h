@@ -12,7 +12,7 @@
 #define MOD_NAME "ModelExtras"
 #define MOD_VERSION "2.0"
 #define MOD_VERSION_NUMBER 20000
-#define MOD_VERSION_SUFFIX "rc23"
+#define MOD_VERSION_SUFFIX "rc24"
 
 #ifdef PATRON_BUILD
 #define MOD_TITLE MOD_NAME " v" MOD_VERSION "-"MOD_VERSION_SUFFIX" (Patron Build)"

@@ -19,6 +19,11 @@ bool VehicleSiren::GetSirenState()
 
 char __fastcall Sirens::hkUsesSiren(CVehicle *ptr)
 {
+	if (Util::IsEngineOff(ptr)) {
+		ptr->bSirenOrAlarm = false;
+		return false;
+	}
+
 	if (Sirens::modelData.contains(ptr->m_nModelIndex))
 	{
 		ptr->m_vehicleAudio.m_bModelWithSiren = true;

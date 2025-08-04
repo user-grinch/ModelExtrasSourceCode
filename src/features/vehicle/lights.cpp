@@ -378,7 +378,7 @@ void Lights::Initialize()
 			if (pVeh->m_pDriver == FindPlayerPed() 
 			|| pVeh->m_nVehicleSubClass == VEHICLE_BMX
 			|| pVeh->m_nVehicleSubClass == VEHICLE_BOAT 
-			|| pVeh->m_nVehicleSubClass == VEHICLE_TRAILER) {
+			|| pVeh->m_nVehicleSubClass == VEHICLE_TRAILER || Util::IsEngineOff(pVeh)) {
 				continue;
 			}
 			if (DistanceBetweenPoints(pVeh->GetPosition(), TheCamera.GetPosition()) < 50.0f) {
@@ -819,4 +819,8 @@ bool Lights::IsDummyAvail(CVehicle* pVeh, std::initializer_list<eLightType> stat
 		}
 	}
 	return false;
+}
+
+bool Lights::IsIndicatorOn(CVehicle *pVeh) {
+	return !Util::IsEngineOff(pVeh) && (pVeh->m_nVehicleSubClass == VEHICLE_AUTOMOBILE || pVeh->m_nVehicleSubClass == VEHICLE_BIKE) && indicatorsDelay && m_VehData.Get(pVeh).m_nIndicatorState != eIndicatorState::Off && pVeh->m_nOverrideLights != eLightOverride::ForceLightsOff;
 }

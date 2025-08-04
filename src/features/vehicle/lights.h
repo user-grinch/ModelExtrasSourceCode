@@ -39,11 +39,7 @@ private:
 public:
 
 	static void Initialize();
-	static bool IsIndicatorOn(CVehicle *pVeh)
-	{
-		return (pVeh->m_nVehicleSubClass == VEHICLE_AUTOMOBILE || pVeh->m_nVehicleSubClass == VEHICLE_BIKE) && indicatorsDelay && m_VehData.Get(pVeh).m_nIndicatorState != eIndicatorState::Off && pVeh->m_nOverrideLights != eLightOverride::ForceLightsOff;
-	}
-
+	static bool IsIndicatorOn(CVehicle *pVeh);
 	friend int GetSirenIndex(CVehicle *pVeh, RpMaterial *pMat);
 	static void Reload(CVehicle *pVeh);
 };
