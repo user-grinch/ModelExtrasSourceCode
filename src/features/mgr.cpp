@@ -11,6 +11,7 @@
 #include "vehicle/wheelhub.h"
 #include "weapon/bodystate.h"
 #include "weapon/sound.h"
+#include "ped/remap.h"
 #include "common/remap.h"
 #include "common/randomizer.h"
 #include "vehicle/lights.h"
@@ -149,6 +150,7 @@ void FeatureMgr::Initialize()
     LOG_NO_LEVEL("\nCommon Features->");
     if (gConfig.ReadBoolean("COMMON_FEATURES", "TextureRemaper", false))
     {
+        PedRemap::Initialize();
         Remap::Initialize();
         LOG_NO_LEVEL("  TextureRemaper");
     }

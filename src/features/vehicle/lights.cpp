@@ -436,11 +436,9 @@ void Lights::Initialize()
 		bool isRightFrontOk = !Util::IsLightDamaged(pControlVeh, eLights::LIGHT_FRONT_RIGHT);
 		bool isLeftRearOk = !(Util::IsLightDamaged(pTowedVeh, eLights::LIGHT_REAR_LEFT) 
 								|| Util::IsPanelDamaged(pTowedVeh, ePanels::WING_REAR_LEFT) 
-								|| Util::IsDoorDamaged(pTowedVeh, eDoors::BOOT)
 							);
 		bool isRightRearOk = !(Util::IsLightDamaged(pTowedVeh, eLights::LIGHT_REAR_RIGHT) 
 								|| Util::IsPanelDamaged(pTowedVeh, ePanels::WING_REAR_RIGHT) 
-								|| Util::IsDoorDamaged(pTowedVeh, eDoors::BOOT)
 							);
 		bool isHeadlightLeftOn = pControlVeh->m_renderLights.m_bLeftFront && isLeftFrontOk;
 		bool isHeadlightRightOn = pControlVeh->m_renderLights.m_bRightFront && isRightFrontOk;
