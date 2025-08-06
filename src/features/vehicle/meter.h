@@ -52,9 +52,9 @@ protected:
   {
     RwFrame *pFrame = nullptr;
     bool m_bInitialized = false;
-    int m_nMaxRpm = 100.0f;
+    int m_nMaxRpm = 5000.0f;
     float m_fCurRotation = 0.0f;
-    float m_fMaxRotation = 100.0f;
+    float m_fMaxRotation = 260.0f;
 
     VehData(CVehicle *pVeh) {}
     ~VehData() {}
@@ -95,7 +95,7 @@ protected:
   {
     RwFrame *pFrame = nullptr;
     bool m_bInitialized = false;
-    int m_nMaxTurbo = 220.0f;
+    float m_nMaxTurbo = 220.0f;
     float m_fCurRotation = 0.0f;
     float m_fMaxRotation = 220.0f;
 

@@ -118,24 +118,24 @@ void RpmMeter::Initialize() {
 
         VehData &data = vehData.Get(pVeh);
         if (data.m_bInitialized && data.pFrame) {
-            float rpm = 0.0f;
-            float speed = Util::GetVehicleSpeedRealistic(pVeh);
             float delta = CTimer::ms_fTimeScale;
+            float speed = Util::GetVehicleSpeedRealistic(pVeh);
+            float rpm = 0.0f;
 
-            if (pVeh->m_nCurrentGear != 0)
-            {
-                rpm += 2.0f * delta * speed / pVeh->m_nCurrentGear;
+            if (pVeh->m_nCurrentGear > 0) {
+                rpm = (speed / pVeh->m_nCurrentGear) * 100.0f;
             }
 
-            if (pVeh->bEngineOn)
-            {
-                rpm += 6.0f * delta;
+            if (pVeh->bEngineOn) {
+                rpm = std::max(rpm, 0.1f * data.m_nMaxRpm);
             }
 
-            float newRot = (data.m_fMaxRotation / data.m_nMaxRpm) * rpm * delta * 50.0f;
-            newRot = plugin::Clamp(newRot, 0, data.m_fMaxRotation);
+            rpm = plugin::Clamp(rpm, 0.0f, static_cast<float>(data.m_nMaxRpm));
 
-            float change = (newRot - data.m_fCurRotation) * 0.25f * delta;
+            float targetRotation = (rpm / data.m_nMaxRpm) * data.m_fMaxRotation;
+            targetRotation = plugin::Clamp(targetRotation, 0.0f, data.m_fMaxRotation);
+
+            float change = (targetRotation - data.m_fCurRotation) * 0.25f * delta;
             FrameUtil::SetRotationY(data.pFrame, change);
             data.m_fCurRotation += change;
         }
@@ -189,7 +189,7 @@ void SpeedMeter::Initialize() {
 void TurboMeter::Initialize() {
     ModelInfoMgr::RegisterDummy([](CVehicle* pVeh, RwFrame* pFrame) {
         std::string name = GetFrameNodeName(pFrame);
-        if (name == "x_tm") {
+        if (name.starts_with("x_tm")) {
             VehData &data = vehData.Get(pVeh);
             auto &jsonData = DataMgr::Get(pVeh->m_nModelIndex);
             if (jsonData.contains("TurboMeter"))

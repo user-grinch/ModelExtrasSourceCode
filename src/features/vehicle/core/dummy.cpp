@@ -22,7 +22,7 @@ VehicleDummy::VehicleDummy(const VehicleDummyConfig& config)
     data = config;
     float angleVal = 0.0f;
 
-        // Calculate the angle based on the frame's orientation
+    // Calculate the angle based on the frame's orientation
     float modelAngle = Util::NormalizeAngle(
         CGeneral::GetATanOfXY(data.frame->modelling.right.x, data.frame->modelling.right.y) * 57.295776f
     );
