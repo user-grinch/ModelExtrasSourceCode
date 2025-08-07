@@ -42,7 +42,6 @@ private:
     static inline RwTexDictionary* pedstxdArray[4];
     static inline int pedstxdIndexArray[4];
     static inline bool anyAdditionalPedsTxd;
-    static inline PedExtendedData<PedExtended> extData;
 
     static void FindRemaps(CPed* ped);
     static void CustomAssignRemapTxd(const char* txdName, uint16_t txdId);
@@ -50,6 +49,7 @@ private:
     static void LoadAdditionalTxds();
 
 public:
-  static void Initialize();
-  
+    static inline PedExtendedData<PedExtended> extData;
+	
+	static void Initialize();
 };

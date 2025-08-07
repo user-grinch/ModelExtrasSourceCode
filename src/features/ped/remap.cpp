@@ -308,3 +308,24 @@ void PedRemap::FindRemaps(CPed * ped)
 		}
 	}
 }
+
+extern "C" {
+    int ME_GetPedRemap(CPed * ped, int index) {
+        PedExtended &info = PedRemap::extData.Get(ped);
+        return info.curRemapNum[index];
+    }
+
+    void ME_SetPedRemap(CPed * ped, int index, int num) {
+        PedExtended &info = PedRemap::extData.Get(ped);
+        info.curRemapNum[index] = num;
+		LOG_VERBOSE("MEAPI: {} called with index: {}, num: {}", __func__, index, num);
+    }
+
+    void ME_SetAllPedRemaps(CPed * ped, int num) {
+        for (int i = 0; i < TEXTURE_LIMIT; ++i) {
+            PedExtended& info = PedRemap::extData.Get(ped);
+            info.curRemapNum[i] = num;
+        }
+		LOG_VERBOSE("MEAPI: {} called with num: {}", __func__, num);
+    }
+}

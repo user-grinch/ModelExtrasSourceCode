@@ -90,6 +90,7 @@
         "random": "cpp",
         "*.def": "cpp",
         "queue": "cpp",
-        "source_location": "cpp"
+        "source_location": "cpp",
+        "bitset": "cpp"
     },
 }

@@ -152,6 +152,7 @@ void FeatureMgr::Initialize()
     {
         PedRemap::Initialize();
         Remap::Initialize();
+        m_bEnabledFeatures.set(eFeatureMatrix::TextureRemapper);
         LOG_NO_LEVEL("  TextureRemaper");
     }
 
@@ -159,6 +160,7 @@ void FeatureMgr::Initialize()
     {
         Randomizer::Initialize();
         m_FunctionTable["x_randomizer"] = Randomizer::Process;
+        m_bEnabledFeatures.set(eFeatureMatrix::ModelRandomizer);
         LOG_NO_LEVEL("  ModelRandomizer");
     }
 
@@ -168,24 +170,28 @@ void FeatureMgr::Initialize()
     {
         FrontBrake::Initialize();
         RearBrake::Initialize();
+        m_bEnabledFeatures.set(eFeatureMatrix::AnimatedBrakes);
         LOG_NO_LEVEL("  AnimatedBrakes");
     }
 
     if (gConfig.ReadBoolean("BIKE_FEATURES", "AnimatedClutch", false))
     {
         Clutch::Initialize();
+        m_bEnabledFeatures.set(eFeatureMatrix::AnimatedClutch);
         LOG_NO_LEVEL("  AnimatedClutch");
     }
 
     if (gConfig.ReadBoolean("BIKE_FEATURES", "AnimatedGearLever", false))
     {
         GearLever::Initialize();
+        m_bEnabledFeatures.set(eFeatureMatrix::AnimatedGearLever);
         LOG_NO_LEVEL("  AnimatedClutch");
     }
 
     if (gConfig.ReadBoolean("BIKE_FEATURES", "RotatingHandleBar", false))
     {
         HandleBar::Initialize();
+        m_bEnabledFeatures.set(eFeatureMatrix::RotatingHandleBar);
         LOG_NO_LEVEL("  RotatingHandleBar");
     }
 
@@ -195,6 +201,7 @@ void FeatureMgr::Initialize()
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "AnimatedChain", false))
     {
         ChainFeature::Initialize();
+        m_bEnabledFeatures.set(eFeatureMatrix::AnimatedChain);
         LOG_NO_LEVEL("  AnimatedChain");
     }
 
@@ -202,66 +209,77 @@ void FeatureMgr::Initialize()
     {
         SlideDoor::Initialize();
         RotateDoor::Initialize();
+        m_bEnabledFeatures.set(eFeatureMatrix::AnimatedDoors);
         LOG_NO_LEVEL("  AnimatedDoor");
     }
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "AnimatedGasMeter", false))
     {
         GasMeter::Initialize();
+        m_bEnabledFeatures.set(eFeatureMatrix::AnimatedGasMeter);
         LOG_NO_LEVEL("  AnimatedGasMeter");
     }
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "AnimatedGearMeter", false))
     {
         GearMeter::Initialize();
+        m_bEnabledFeatures.set(eFeatureMatrix::AnimatedGearMeter);
         LOG_NO_LEVEL("  AnimatedGearMeter");
     }
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "AnimatedOdoMeter", false))
     {
         OdoMeter::Initialize();
+        m_bEnabledFeatures.set(eFeatureMatrix::AnimatedOdoMeter);
         LOG_NO_LEVEL("  AnimatedOdoMeter");
     }
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "AnimatedRpmMeter", false))
     {
         RpmMeter::Initialize();
+        m_bEnabledFeatures.set(eFeatureMatrix::AnimatedRpmMeter);
         LOG_NO_LEVEL("  AnimatedRpmMeter");
     }
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "AnimatedSpeedMeter", false))
     {
         SpeedMeter::Initialize();
+        m_bEnabledFeatures.set(eFeatureMatrix::AnimatedSpeedMeter);
         LOG_NO_LEVEL("  AnimatedSpeedMeter");
     }
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "AnimatedSpoiler", false))
     {
         Spoiler::Initialize();
+        m_bEnabledFeatures.set(eFeatureMatrix::AnimatedSpoiler);
         LOG_NO_LEVEL("  AnimatedSpoiler");
     }
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "AnimatedTurboMeter", false))
     {
         TurboMeter::Initialize();
+        m_bEnabledFeatures.set(eFeatureMatrix::AnimatedTurboMeter);
         LOG_NO_LEVEL("  AnimatedTurboMeter");
     }
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "BackfireEffect", false))
     {
         BackFireEffect::Initialize(NULL, NULL);
+        m_bEnabledFeatures.set(eFeatureMatrix::BackfireEffect);
         LOG_NO_LEVEL("  BackfireEffect");
     }
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "DirtFX", false))
     {
         DirtFx::Initialize();
+        m_bEnabledFeatures.set(eFeatureMatrix::DirtFX);
         LOG_NO_LEVEL("  DirtFX");
     }
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "HDLicensePlate", false))
     {
         LicensePlate::Initialize();
+        m_bEnabledFeatures.set(eFeatureMatrix::HDLicensePlate);
         LOG_NO_LEVEL("  HDLicensePlate");
     }
 
@@ -274,6 +292,7 @@ void FeatureMgr::Initialize()
         else
         {
             IVFCarcols::Initialize();
+            m_bEnabledFeatures.set(eFeatureMatrix::IVFCarcols);
             LOG_NO_LEVEL("  IVFCarcols");
         }
     }
@@ -281,36 +300,42 @@ void FeatureMgr::Initialize()
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "RotatingSteeringWheel", false))
     {
         SteerWheel::Initialize();
+        m_bEnabledFeatures.set(eFeatureMatrix::RotatingSteeringWheel);
         LOG_NO_LEVEL("  RotatingSteeringWheel");
     }
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "RotatingWheelHubs", false))
     {
         WheelHub::Initialize();
+        m_bEnabledFeatures.set(eFeatureMatrix::RotatingWheelHubs);
         LOG_NO_LEVEL("  RotatingWheelHubs");
     }
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "StandardLights", false))
     {
         Lights::Initialize();
+        m_bEnabledFeatures.set(eFeatureMatrix::StandardLights);
         LOG_NO_LEVEL("  StandardLights");
     }
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "SirenLights", false))
     {
         Sirens::Initialize();
+        m_bEnabledFeatures.set(eFeatureMatrix::SirenLights);
         LOG_NO_LEVEL("  SirenLights");
     }
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "SoundEffects", false))
     {
         SoundEffects::Initialize();
+        m_bEnabledFeatures.set(eFeatureMatrix::SoundEffects);
         LOG_NO_LEVEL("  SoundEffects");
     }
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "SpotLights", false))
     {
         SpotLights::Initialize();
+        m_bEnabledFeatures.set(eFeatureMatrix::SpotLights);
         LOG_NO_LEVEL("  Spotlights");
     }
 
@@ -319,12 +344,14 @@ void FeatureMgr::Initialize()
     if (gConfig.ReadBoolean("WEAPON_FEATURES", "BodyStateVariation", false))
     {
         m_FunctionTable["x_body_state"] = BodyState::Process;
+        m_bEnabledFeatures.set(eFeatureMatrix::BodyStateVariation);
         LOG_NO_LEVEL("  BodyStateVariation");
     }
 
     if (gConfig.ReadBoolean("WEAPON_FEATURES", "CustomSounds", false))
     {
         WeaponSoundSystem::Initialize();
+        m_bEnabledFeatures.set(eFeatureMatrix::CustomSounds);
         LOG_NO_LEVEL("  CustomSounds");
     }
 
