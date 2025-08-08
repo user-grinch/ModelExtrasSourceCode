@@ -11,6 +11,7 @@ typedef void (*T_FUNC)(void *value);
 #define ME_WRAPPER __declspec(dllexport)
 #else
 #define ME_WRAPPER __declspec(dllimport)
+#endif
 
 enum eFeatureMatrix {
     // Common Features
@@ -43,13 +44,11 @@ enum eFeatureMatrix {
     SirenLights,
     SoundEffects,
     SpotLights,
-
-    // Weapon Features
     BodyStateVariation,
     CustomSounds,
+    
     FeatureCount
 };
-#endif
 
 #ifdef __cplusplus
 extern "C"

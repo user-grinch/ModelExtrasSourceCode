@@ -1,7 +1,7 @@
 #pragma once
 #include <plugin.h>
 
-#define PATRON_BUILD 1
+#define PATRON_BUILD 0
 
 #define CORONA_SZ_MUL 0.7f
 #define AMBIENT_ON_VAL 8.0f
@@ -12,7 +12,7 @@
 #define MOD_NAME "ModelExtras"
 #define MOD_VERSION "2.0"
 #define MOD_VERSION_NUMBER 20000
-#define MOD_VERSION_SUFFIX "rc24"
+#define MOD_VERSION_SUFFIX "rc25"
 
 #ifdef PATRON_BUILD
 #define MOD_TITLE MOD_NAME " v" MOD_VERSION "-"MOD_VERSION_SUFFIX" (Patron Build)"

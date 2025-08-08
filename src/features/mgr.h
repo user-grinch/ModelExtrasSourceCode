@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include <functional>
 #include <bitset>
-#include "enums/featurematrix.h"
+#include "ModelExtrasAPI.h"
 
 class FeatureMgr {
 private:

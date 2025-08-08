@@ -412,7 +412,6 @@ void Lights::Initialize()
 			return;
 		}
 
-
 		if (pControlVeh->m_nOverrideLights == eLightOverride::ForceLightsOn) {
 			pControlVeh->bLightsOn = true;
 			pControlVeh->m_renderLights.m_bLeftFront = true;
