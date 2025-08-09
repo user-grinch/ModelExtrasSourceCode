@@ -65,7 +65,7 @@ void DrawGlobalLight(CVehicle* pVeh, bool isRear, bool isLeft, CRGBA col,
     if (isLeft) coronaPos.x *= -1.0f;
 
 	CVector shdwPos = coronaPos;
-	// Util::UpdateRelativeToBoundingBox(pVeh, isRear ? eDummyPos::Rear : eDummyPos::Front, shdwPos);
+	shdwPos = Util::UpdateRelativeToBoundingBox(pVeh, isRear ? eDummyPos::Rear : eDummyPos::Front, shdwPos, {0,0,0}, {0,0,0});
 
     float dummyAngle = isRear ? 180.0f : 0.0f;
 
@@ -381,7 +381,7 @@ void Lights::Initialize()
 			|| pVeh->m_nVehicleSubClass == VEHICLE_TRAILER || Util::IsEngineOff(pVeh)) {
 				continue;
 			}
-			if (DistanceBetweenPoints(pVeh->GetPosition(), TheCamera.GetPosition()) < 50.0f) {
+			if (DistanceBetweenPoints(pVeh->GetPosition(), TheCamera.GetPosition()) < 50.0f || pVeh->GetIsOnScreen()) {
 				bool isLeftFrontOk = !Util::IsLightDamaged(pVeh, eLights::LIGHT_FRONT_LEFT);
 				bool isRightFrontOk = !Util::IsLightDamaged(pVeh, eLights::LIGHT_FRONT_RIGHT);
 				bool isHeadlightLeftOn = pVeh->m_renderLights.m_bLeftFront && isLeftFrontOk;

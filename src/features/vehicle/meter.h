@@ -53,6 +53,7 @@ protected:
     RwFrame *pFrame = nullptr;
     bool m_bInitialized = false;
     int m_nMaxRpm = 5000.0f;
+    int prevGear = -1;
     float m_fCurRotation = 0.0f;
     float m_fMaxRotation = 260.0f;
 
