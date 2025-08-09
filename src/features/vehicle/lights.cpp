@@ -351,7 +351,7 @@ void Lights::Initialize()
 				size_t now = CTimer::m_snTimeInMilliseconds;
 				if (now - prev > 500.0f)
 				{
-					VehData &data = m_VehData.Get(pVeh);
+					VehLightData &data = m_VehData.Get(pVeh);
 					data.m_bFogLightsOn = !data.m_bFogLightsOn;
 					prev = now;
 					AudioMgr::PlaySwitchSound(pVeh);
@@ -364,7 +364,7 @@ void Lights::Initialize()
 				size_t now = CTimer::m_snTimeInMilliseconds;
 				if (now - prev > 500.0f)
 				{
-					VehData &data = m_VehData.Get(pVeh);
+					VehLightData &data = m_VehData.Get(pVeh);
 					data.m_bLongLightsOn = !data.m_bLongLightsOn;
 					prev = now;
 					AudioMgr::PlaySwitchSound(pVeh);
@@ -423,7 +423,7 @@ void Lights::Initialize()
 			}
 		}
 
-		VehData &data = m_VehData.Get(pControlVeh);
+		VehLightData &data = m_VehData.Get(pControlVeh);
 		eIndicatorState indState = data.m_nIndicatorState;
 
 		// Fix for park car alarm lights
@@ -750,17 +750,18 @@ void Lights::RenderLights(CVehicle *pControlVeh, CVehicle *pTowedVeh, eLightType
 		texture = "pointlight";
 	}
 
-	RenderLight(pControlVeh, state, shadows, texture, sz, offset, highlight);
+	if (GetLightState(pControlVeh, state)) {
+		RenderLight(pControlVeh, state, shadows, texture, sz, offset, highlight);
+	}
 
-	if (pControlVeh != pTowedVeh)
-	{
+	if (pControlVeh != pTowedVeh && GetLightState(pTowedVeh, state)) {
 		RenderLight(pTowedVeh, state, shadows, texture, sz, offset, highlight);
 	}
 }
 
 void Lights::RenderHeadlights(CVehicle *pControlVeh, bool isLeftOn, bool isRightOn, bool realTime) {
 	CVehicle *pTowedVeh = pControlVeh;
-	VehData &data = m_VehData.Get(pControlVeh);
+	VehLightData &data = m_VehData.Get(pControlVeh);
 
 	if (pControlVeh->m_pTrailer) {
 		pTowedVeh = pControlVeh->m_pTrailer;
@@ -774,10 +775,10 @@ void Lights::RenderHeadlights(CVehicle *pControlVeh, bool isLeftOn, bool isRight
 			if (realTime) {
 				CPointLights::AddLight(PLTYPE_SPOTLIGHT, pControlVeh->m_matrix->pos, pControlVeh->m_matrix->up, 20.0f, 1.0, 1.0, 1.0, 0, 0, 0);
 			}
-			if (isLeftOn) {
+			if (isLeftOn && GetLightState(pControlVeh, eLightType::HeadLightLeft)) {
 				RenderLights(pControlVeh, pTowedVeh, eLightType::HeadLightLeft, true, texName, headlightSz, headlightOffset, isFoggy || data.m_bLongLightsOn);
 			}
-			if (isRightOn) {
+			if (isRightOn && GetLightState(pControlVeh, eLightType::HeadLightRight)) {
 				RenderLights(pControlVeh, pTowedVeh, eLightType::HeadLightRight, true, texName, headlightSz, headlightOffset, isFoggy || data.m_bLongLightsOn);
 			}
 		}
@@ -823,4 +824,25 @@ bool Lights::IsDummyAvail(CVehicle* pVeh, std::initializer_list<eLightType> stat
 
 bool Lights::IsIndicatorOn(CVehicle *pVeh) {
 	return !Util::IsEngineOff(pVeh) && (pVeh->m_nVehicleSubClass == VEHICLE_AUTOMOBILE || pVeh->m_nVehicleSubClass == VEHICLE_BIKE) && indicatorsDelay && m_VehData.Get(pVeh).m_nIndicatorState != eIndicatorState::Off && pVeh->m_nOverrideLights != eLightOverride::ForceLightsOff;
+}
+
+
+bool Lights::GetLightState(CVehicle *pVeh, eLightType lightId) {
+	return m_VehData.Get(pVeh).m_bLightStates[lightId];
+}
+
+void Lights::SetLightState(CVehicle *pVeh, eLightType lightId, bool state) {
+	m_VehData.Get(pVeh).m_bLightStates[lightId] = state;
+}
+
+extern enum ME_LightID;
+
+extern "C" {
+	bool ME_GetVehicleLightState(CVehicle *pVeh, ME_LightID lightId) {
+		return Lights::GetLightState(pVeh, static_cast<eLightType>(lightId));
+	}
+    
+	void ME_SetVehicleLightState(CVehicle *pVeh, ME_LightID lightId, bool state) {
+		Lights::SetLightState(pVeh, static_cast<eLightType>(lightId), state);
+	}
 }

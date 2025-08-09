@@ -12,7 +12,7 @@ extern "C" {
         return MOD_VERSION_NUMBER;
     }
 
-    bool ME_IsFeatureAvail(eFeatureMatrix featureId) {
+    bool ME_IsFeatureAvail(ME_FeatureID featureId) {
         return FeatureMgr::m_bEnabledFeatures.test(featureId);
     }
 }

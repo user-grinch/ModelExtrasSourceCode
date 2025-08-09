@@ -8,21 +8,22 @@
 #include "enums/lighttype.h"
 #include "enums/indicatorstate.h"
 
+struct VehLightData {
+	bool m_bFogLightsOn = false;
+	bool m_bLongLightsOn = false;
+	eIndicatorState m_nIndicatorState = eIndicatorState::Off;
+	bool m_bLightStates[eLightType::TotalLight] = {true};
+
+	VehLightData(CVehicle *pVeh) {}
+	~VehLightData() {}
+};
+
 class Lights
 {
 private:
 	static inline bool m_bEnabled = false;
 	static inline bool indicatorsDelay;
-	struct VehData
-	{
-		bool m_bFogLightsOn = false;
-		bool m_bLongLightsOn = false;
-		eIndicatorState m_nIndicatorState = eIndicatorState::Off;
-
-		VehData(CVehicle *pVeh) {}
-		~VehData() {}
-	};
-	static inline VehicleExtendedData<VehData> m_VehData;
+	static inline VehicleExtendedData<VehLightData> m_VehData;
 
 	static inline std::map<CVehicle *, std::map<eLightType, std::vector<VehicleDummy *>>> m_Dummies;
 
@@ -37,9 +38,11 @@ private:
 	static bool IsDummyAvail(CVehicle* pVeh, std::initializer_list<eLightType> states);
 	
 public:
-
 	static void Initialize();
 	static bool IsIndicatorOn(CVehicle *pVeh);
 	friend int GetSirenIndex(CVehicle *pVeh, RpMaterial *pMat);
 	static void Reload(CVehicle *pVeh);
+
+	static bool GetLightState(CVehicle *pVeh, eLightType lightId);
+	static void SetLightState(CVehicle *pVeh, eLightType lightId, bool state);
 };
