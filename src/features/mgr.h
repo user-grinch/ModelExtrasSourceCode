@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include <functional>
 #include <bitset>
-#include "ModelExtrasAPI.h"
+#include "enums/featurematrix.h"
 
 class FeatureMgr {
 private:
@@ -19,7 +19,7 @@ private:
     static void FindNodes(void* ptr, RwFrame *frame, eModelEntityType type);
 
 public:
-    static inline std::bitset<eFeatureMatrix::FeatureCount> m_bEnabledFeatures;
+    static inline std::bitset<static_cast<int>(eFeatureMatrix::FeatureCount)> m_bEnabledFeatures;
 
     static void Initialize();
     static void Reload(CVehicle *pVeh);

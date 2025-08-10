@@ -1,6 +1,6 @@
 #pragma once
 
-enum eFeatureMatrix {
+enum class eFeatureMatrix {
     // Common Features
     TextureRemapper,
     ModelRandomizer,

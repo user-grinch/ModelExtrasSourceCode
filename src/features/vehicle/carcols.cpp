@@ -5,6 +5,11 @@
 #include <RenderWare.h>
 #include "core/colors.h"
 
+#define IS_SAME_COLOR(type, VEHCOL) \
+    ((type.r == VEHCOL.r) && \
+     (type.g == VEHCOL.g) && \
+     (type.b == VEHCOL.b))
+
 void IVFCarcols::Initialize()
 {
     m_bEnabled = true;
@@ -28,21 +33,21 @@ bool IVFCarcols::GetColor(CVehicle *pVeh, RpMaterial *pMat, CRGBA &col) {
             }
             col = data.m_Colors.primary;
         }
-        else if (type == VEHCOL_SECONDARY) {
+        else if (IS_SAME_COLOR(type, VEHCOL_SECONDARY)) {
             if (!data.m_bSec) {
                 data.m_Colors.secondary = storeCol.secondary;
                 data.m_bSec = true;
             }
             col = data.m_Colors.secondary;
         }
-        else if (type == VEHCOL_TERTIARY) {
+        else if (IS_SAME_COLOR(type, VEHCOL_TERTIARY)) {
             if (!data.m_bTer) {
                 data.m_Colors.tert = storeCol.tert;
                 data.m_bTer = true;
             }
             col = data.m_Colors.tert;
         }
-        else if (type == VEHCOL_QUATARNARY) {
+        else if (IS_SAME_COLOR(type, VEHCOL_QUATARNARY)) {
             if (!data.m_bQuat) {
                 data.m_Colors.quart = storeCol.quart;
                 data.m_bQuat = true;
@@ -57,13 +62,13 @@ bool IVFCarcols::GetColor(CVehicle *pVeh, RpMaterial *pMat, CRGBA &col) {
         if (type.r == VEHCOL_PRIMARY.r && type.g == VEHCOL_PRIMARY.g) { // blue can be anything
             idx = CVehicleModelInfo::ms_currentCol[0];
         }
-        else if (type == VEHCOL_SECONDARY) {
+        else if (IS_SAME_COLOR(type, VEHCOL_SECONDARY)) {
             idx = CVehicleModelInfo::ms_currentCol[1];
         }
-        else if (type == VEHCOL_TERTIARY) {
+        else if (IS_SAME_COLOR(type, VEHCOL_TERTIARY)) {
             idx = CVehicleModelInfo::ms_currentCol[2];
         }
-        else if (type == VEHCOL_QUATARNARY) {
+        else if (IS_SAME_COLOR(type, VEHCOL_QUATARNARY)) {
             idx = CVehicleModelInfo::ms_currentCol[3];
         }
         else {
