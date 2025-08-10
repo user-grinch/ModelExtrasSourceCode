@@ -18,72 +18,73 @@ void SoundEffects::Initialize()
         Util::GetModelsFromIni(line, ValidForReverseSound);
     };
 
-    plugin::Events::vehicleRenderEvent += [](CVehicle *pVeh)
-    {
-        static bool bReverseSounds = gConfig.ReadBoolean("VEHICLE_FEATURES", "SoundEffects_GlobalReverseSound", false);
-        static bool bEngineSounds = gConfig.ReadBoolean("VEHICLE_FEATURES", "SoundEffects_GlobalEngineSound", false);
-        static bool bIndicatorSounds = gConfig.ReadBoolean("VEHICLE_FEATURES", "SoundEffects_GlobalIndicatorSound", false);
-        static bool bAirbreakSounds = gConfig.ReadBoolean("VEHICLE_FEATURES", "SoundEffects_GlobalAirbreakSound", false);
+    static bool bReverseSounds = gConfig.ReadBoolean("VEHICLE_FEATURES", "SoundEffects_GlobalReverseSound", false);
+    static bool bEngineSounds = gConfig.ReadBoolean("VEHICLE_FEATURES", "SoundEffects_GlobalEngineSound", false);
+    static bool bIndicatorSounds = gConfig.ReadBoolean("VEHICLE_FEATURES", "SoundEffects_GlobalIndicatorSound", false);
+    static bool bAirbreakSounds = gConfig.ReadBoolean("VEHICLE_FEATURES", "SoundEffects_GlobalAirbreakSound", false);
 
-        auto &data = vehData.Get(pVeh);
-        float speed = Util::GetVehicleSpeed(pVeh);
-        int model = pVeh->m_nModelIndex;
+    Events::processScriptsEvent += []() {
+		for (CVehicle *pVeh : CPools::ms_pVehiclePool) {
+			if (DistanceBetweenPoints(pVeh->GetPosition(), TheCamera.GetPosition()) > 50.0f ) {
+				continue;
+			}
 
-        int animGroup = pVeh->m_pHandlingData->m_nAnimGroup;
-        bool isAllowed = pVeh->m_nVehicleSubClass == VEHICLE_AUTOMOBILE &&
-                         (animGroup == ANIMGROUP_TRUCK || animGroup == ANIMGROUP_BUS || animGroup == ANIMGROUP_COACH);
-        bool isBigVeh = isAllowed || std::find(ValidForReverseSound.begin(), ValidForReverseSound.end(), pVeh->m_nModelIndex) != ValidForReverseSound.end();
+            auto &data = vehData.Get(pVeh);
+            float speed = Util::GetVehicleSpeed(pVeh);
+            int model = pVeh->m_nModelIndex;
 
-        if (bEngineSounds)
-        {
-            bool isValid = !CModelInfo::IsPlaneModel(model) && !CModelInfo::IsBmxModel(model) && !CModelInfo::IsHeliModel(model) && !CModelInfo::IsBoatModel(model);
-            if (isValid && data.m_bEngineState != pVeh->bEngineOn)
+            int animGroup = pVeh->m_pHandlingData->m_nAnimGroup;
+            bool isAllowed = pVeh->m_nVehicleSubClass == VEHICLE_AUTOMOBILE &&
+                            (animGroup == ANIMGROUP_TRUCK || animGroup == ANIMGROUP_BUS || animGroup == ANIMGROUP_COACH);
+            bool isBigVeh = isAllowed || std::find(ValidForReverseSound.begin(), ValidForReverseSound.end(), pVeh->m_nModelIndex) != ValidForReverseSound.end();
+
+            if (bEngineSounds && pVeh == FindPlayerVehicle())
             {
-                static std::string carPath = MOD_DATA_PATH("audio/effects/engine_start.wav");
-                static std::string bikePath = MOD_DATA_PATH("audio/effects/bike_engine_start.wav");
-                if (pVeh->bEngineOn)
+                bool isValid = !CModelInfo::IsPlaneModel(model) && !CModelInfo::IsBmxModel(model) && !CModelInfo::IsHeliModel(model) && !CModelInfo::IsBoatModel(model);
+                if (isValid && data.m_bEngineState != pVeh->bEngineOn)
                 {
-                    if (CModelInfo::IsCarModel(model))
+                    static std::string carPath = MOD_DATA_PATH("audio/effects/engine_start.wav");
+                    static std::string bikePath = MOD_DATA_PATH("audio/effects/bike_engine_start.wav");
+                    if (pVeh->bEngineOn)
                     {
-                        AudioMgr::PlayFileSound(carPath, pVeh, 1.0f, true);
+                        if (CModelInfo::IsCarModel(model))
+                        {
+                            AudioMgr::PlayFileSound(carPath, pVeh, 1.0f, true);
+                        }
+                        else
+                        {
+                            AudioMgr::PlayFileSound(bikePath, pVeh, 1.0f, true);
+                        }
+                    }
+                    data.m_bEngineState = pVeh->bEngineOn;
+                }
+            }
+
+            if (bIndicatorSounds)
+            {
+                bool state = Lights::IsIndicatorOn(pVeh);
+                if (state != data.m_bIndicatorState)
+                {
+                    static std::string onpath = MOD_DATA_PATH("audio/effects/indicator_on.wav");
+                    static std::string offpath = MOD_DATA_PATH("audio/effects/indicator_off.wav");
+
+                    if (state)
+                    {
+                        AudioMgr::PlayFileSound(onpath, pVeh, 0.6f, true);
                     }
                     else
                     {
-                        AudioMgr::PlayFileSound(bikePath, pVeh, 1.0f, true);
+                        AudioMgr::PlayFileSound(offpath, pVeh, 0.6f, true);
                     }
+                    data.m_bIndicatorState = state;
                 }
-                data.m_bEngineState = pVeh->bEngineOn;
             }
-        }
 
-        if (bIndicatorSounds)
-        {
-            bool state = Lights::IsIndicatorOn(pVeh);
-            if (state != data.m_bIndicatorState)
-            {
-                static std::string onpath = MOD_DATA_PATH("audio/effects/indicator_on.wav");
-                static std::string offpath = MOD_DATA_PATH("audio/effects/indicator_off.wav");
+            data.m_bEngineState = pVeh->bEngineOn;
 
-                if (state)
-                {
-                    AudioMgr::PlayFileSound(onpath, pVeh, 0.6f, true);
-                }
-                else
-                {
-                    AudioMgr::PlayFileSound(offpath, pVeh, 0.6f, true);
-                }
-                data.m_bIndicatorState = state;
-            }
-        }
+            CVector vehPos = pVeh->GetPosition();
+            CVector camPos = TheCamera.GetPosition();
 
-        data.m_bEngineState = pVeh->bEngineOn;
-
-        CVector vehPos = pVeh->GetPosition();
-        CVector camPos = TheCamera.GetPosition();
-
-        float dist = DistanceBetweenPoints(vehPos, camPos);
-        if (dist < 80.0f)
-        {
             if (bAirbreakSounds && isBigVeh)
             {
                 float pedal = pVeh->m_fBreakPedal;
@@ -117,6 +118,6 @@ void SoundEffects::Initialize()
                     AudioMgr::PlayFileSound(path, pVeh, 0.5f, true);
                 }
             }
-        }
-    };
+		}
+	};
 }
