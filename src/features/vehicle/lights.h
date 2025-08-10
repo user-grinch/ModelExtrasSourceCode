@@ -12,9 +12,11 @@ struct VehLightData {
 	bool m_bFogLightsOn = false;
 	bool m_bLongLightsOn = false;
 	eIndicatorState m_nIndicatorState = eIndicatorState::Off;
-	bool m_bLightStates[eLightType::TotalLight] = {true};
+	bool m_bLightStates[eLightType::TotalLight];
 
-	VehLightData(CVehicle *pVeh) {}
+	VehLightData(CVehicle *pVeh) {
+		std::fill(std::begin(m_bLightStates), std::end(m_bLightStates), true);
+	}
 	~VehLightData() {}
 };
 
