@@ -22,12 +22,17 @@ void SoundEffects::Initialize()
     static bool bEngineSounds = gConfig.ReadBoolean("VEHICLE_FEATURES", "SoundEffects_GlobalEngineSound", false);
     static bool bIndicatorSounds = gConfig.ReadBoolean("VEHICLE_FEATURES", "SoundEffects_GlobalIndicatorSound", false);
     static bool bAirbreakSounds = gConfig.ReadBoolean("VEHICLE_FEATURES", "SoundEffects_GlobalAirbreakSound", false);
+    static bool bOnlyPlayerVehicle = !gConfig.ReadBoolean("VEHICLE_FEATURES", "SoundEffects_NonPlayerVehicles", false);
 
     Events::processScriptsEvent += []() {
 		for (CVehicle *pVeh : CPools::ms_pVehiclePool) {
 			if (DistanceBetweenPoints(pVeh->GetPosition(), TheCamera.GetPosition()) > 50.0f ) {
 				continue;
 			}
+
+            if (bOnlyPlayerVehicle && pVeh->m_pDriver != FindPlayerPed()) {
+                continue;
+            }
 
             auto &data = vehData.Get(pVeh);
             float speed = Util::GetVehicleSpeed(pVeh);
