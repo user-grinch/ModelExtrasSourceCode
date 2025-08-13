@@ -97,6 +97,7 @@ void RenderUtil::RegisterShadow(CEntity* pEntity, CVector position, CRGBA col, f
     };
 
     CVector shdwPos = pEntity->TransformFromObjectSpace(position + nOffset + nSize);
+    shdwPos.z = CWorld::FindGroundZFor3DCoord(shdwPos.x, shdwPos.y, shdwPos.z + 100.0f,  NULL, &pEntity) + 2.0f;
 
     const float zDiff = abs(shdwPos.z - vehPos.z);
     if (zDiff > 3.0f)

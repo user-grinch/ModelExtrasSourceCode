@@ -114,37 +114,16 @@ void RpmMeter::Initialize() {
     });
 
     ModelInfoMgr::RegisterRender([](CVehicle* pVeh) {
-        if (!pVeh || !pVeh->GetIsOnScreen())
-            return;
+        if (!pVeh || !pVeh->GetIsOnScreen()) return;
 
-        VehData& data = vehData.Get(pVeh);
-
+        VehData &data = vehData.Get(pVeh);
         if (data.m_bInitialized && data.pFrame) {
             float delta = CTimer::ms_fTimeScale;
             float speed = Util::GetVehicleSpeedRealistic(pVeh);
             float rpm = 0.0f;
 
-            int maxGear = 5;
-            float minVel = 0.0f;
-            float maxVel = 100.0f;
-
-            if (pVeh->m_pHandlingData) {
-                auto& trans = pVeh->m_pHandlingData->m_transmissionData;
-                maxGear = trans.m_nNumberOfGears - 1;
-                minVel = trans.m_fMinGearVelocity;
-                maxVel = trans.m_fMaxGearVelocity;
-
-                if (maxVel <= minVel) {
-                    maxVel = minVel + 50.0f;
-                }
-            }
-
             if (pVeh->m_nCurrentGear > 0) {
-                float normalizedSpeed = (speed - minVel) / (maxVel - minVel);
-                normalizedSpeed = plugin::Clamp(normalizedSpeed, 0.0f, 1.0f);
-
-                float gearRatio = static_cast<float>(pVeh->m_nCurrentGear) / maxGear;
-                rpm = normalizedSpeed * gearRatio * data.m_nMaxRpm;
+                rpm = (speed / pVeh->m_nCurrentGear) * 100.0f;
             }
 
             if (pVeh->bEngineOn) {
@@ -155,10 +134,10 @@ void RpmMeter::Initialize() {
 
             float targetRotation = (rpm / data.m_nMaxRpm) * data.m_fMaxRotation;
             targetRotation = plugin::Clamp(targetRotation, 0.0f, data.m_fMaxRotation);
-            data.m_fCurRotation += (targetRotation - data.m_fCurRotation) * delta * 0.025f * delta;
 
-            MatrixUtil::ResetRotation(&data.pFrame->modelling);
-            MatrixUtil::SetRotationY(&data.pFrame->modelling, data.m_fCurRotation * -1);
+            float change = (targetRotation - data.m_fCurRotation) * 0.25f * delta;
+            FrameUtil::SetRotationY(data.pFrame, change);
+            data.m_fCurRotation += change;
         }
     });
 }
