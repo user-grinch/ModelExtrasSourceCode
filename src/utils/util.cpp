@@ -210,3 +210,19 @@ CVector Util::UpdateRelativeToBoundingBox(CVehicle *pVeh, eDummyPos dummyPos, CV
     // }
     return shdwPos;
 }
+
+float Util::GetVehiclePitch(CVehicle* pVeh) {
+    if (!pVeh || !pVeh->m_matrix) {
+        return 0.0f;
+	}
+
+    CVector forward = pVeh->m_matrix->at;
+    forward.Normalise();
+
+    float pitchRad = asinf(forward.y);
+    return pitchRad * 57.2957795f;
+}
+
+bool Util::IsVehicleDoingWheelie(CVehicle *pVeh) {
+    return pVeh->m_nVehicleSubClass == VEHICLE_BIKE && (Util::GetVehiclePitch(pVeh) > 30.0f || pVeh->GetNumContactWheels() < 2);
+}

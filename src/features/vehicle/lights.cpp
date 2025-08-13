@@ -68,17 +68,19 @@ void DrawGlobalLight(CVehicle* pVeh, bool isRear, bool isLeft, CRGBA col,
 	shdwPos = Util::UpdateRelativeToBoundingBox(pVeh, isRear ? eDummyPos::Rear : eDummyPos::Front, shdwPos, {0,0,0}, {0,0,0});
 
     float dummyAngle = isRear ? 180.0f : 0.0f;
-
     col.a = static_cast<unsigned char>(gGlobalShadowIntensity);
-    RenderUtil::RegisterShadow(pVeh, shdwPos, col, dummyAngle,
-                                isRear ? eDummyPos::Rear : eDummyPos::Front,
-                                texture, shdwSz, shdwOffset);
-
-    int coronaId = reinterpret_cast<uintptr_t>(pVeh)
-                 + 255 * isRear + 128 * isLeft + col.r + col.g + col.b;
+	int coronaId = reinterpret_cast<uintptr_t>(pVeh) + 255 * isRear + 128 * isLeft + col.r + col.g + col.b;
     RenderUtil::RegisterCoronaWithAngle(pVeh, coronaId, coronaPos,
                                         col, dummyAngle,
                                         180.0f, gfGlobalCoronaSize);
+
+	if (!isRear && Util::IsVehicleDoingWheelie(pVeh)) {
+		return;
+	}
+
+    RenderUtil::RegisterShadow(pVeh, shdwPos, col, dummyAngle,
+                                isRear ? eDummyPos::Rear : eDummyPos::Front,
+                                texture, shdwSz, shdwOffset);
 }
 
 inline float GetZAngleForPoint(CVector2D const &point) {
@@ -726,6 +728,11 @@ void Lights::RenderLight(CVehicle *pVeh, eLightType state, bool shadows, std::st
 			}
 
 			EnableDummy((int)pVeh + 42 + id++, e, pVeh, highlight ? 1.75f : 1.0f);
+
+			// Skip front shadows on bike wheelie
+			if ( c.dummyType == eDummyPos::Front && Util::IsVehicleDoingWheelie(pVeh)) {
+				continue;
+			}
 
 			if (shadows && c.shadow.render)
 			{

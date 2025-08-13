@@ -18,6 +18,8 @@ public:
   static float NormalizeAngle(float angle);
  
   // Returns the speed of the vehicle handler
+  static float GetVehiclePitch(CVehicle *pVeh);
+  static bool IsVehicleDoingWheelie(CVehicle *pVeh);
   static float GetVehicleSpeed(CVehicle *pVeh);
   static float GetVehicleSpeedRealistic(CVehicle *vehicle);
   static unsigned int GetEntityModel(void *ptr, eModelEntityType type);
