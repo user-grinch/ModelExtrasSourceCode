@@ -99,6 +99,10 @@ void BackFireEffect::Process(CVehicle *pVeh)
         return;
     }
 
+    if (pVeh->m_nCurrentGear == 0) {
+        return;
+    }
+
     VehData &data = vehData.Get(pVeh);
 
     if (pVeh->m_nVehicleSubClass == VEHICLE_BIKE || pVeh->m_nVehicleSubClass == VEHICLE_AUTOMOBILE)
@@ -128,7 +132,7 @@ void BackFireEffect::Process(CVehicle *pVeh)
         }
         else
         {
-            if (acclPadel == 128)
+            if (acclPadel == 128 || (acclPadel > 50 && nitroActivated))
             {
                 data.wasFullThrottled = true;
             }
