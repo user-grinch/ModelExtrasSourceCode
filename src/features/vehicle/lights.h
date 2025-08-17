@@ -38,6 +38,8 @@ private:
 	// Helper functions
 	static bool IsDummyAvail(CVehicle *pVeh, eLightType state);
 	static bool IsDummyAvail(CVehicle* pVeh, std::initializer_list<eLightType> states);
+	static bool IsMatAvail(CVehicle *pVeh, eLightType state);
+	static bool IsMatAvail(CVehicle* pVeh, std::initializer_list<eLightType> states);
 	
 public:
 	static void Initialize();
