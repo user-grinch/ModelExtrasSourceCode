@@ -52,13 +52,13 @@ void SoundEffects::Initialize()
                     static std::string bikePath = MOD_DATA_PATH("audio/effects/bike_engine_start.wav");
                     if (pVeh->bEngineOn)
                     {
-                        if (CModelInfo::IsCarModel(model))
+                        if (CModelInfo::IsBikeModel(model) || CModelInfo::IsQuadBikeModel(model))
                         {
-                            AudioMgr::PlayFileSound(carPath, pVeh, 1.0f, true);
+                            AudioMgr::PlayFileSound(bikePath, pVeh, 1.0f, true);
                         }
                         else
                         {
-                            AudioMgr::PlayFileSound(bikePath, pVeh, 1.0f, true);
+                            AudioMgr::PlayFileSound(carPath, pVeh, 1.0f, true);
                         }
                     }
                     data.m_bEngineState = pVeh->bEngineOn;
