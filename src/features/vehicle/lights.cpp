@@ -397,7 +397,7 @@ void Lights::Initialize()
 		int model = pControlVeh->m_nModelIndex;
 
 		// skip directly processing trailers
-		if (CModelInfo::IsTrailerModel(model)) {
+		if (CModelInfo::IsTrailerModel(model) || model != 444) {
 			return;
 		}
 
@@ -472,7 +472,10 @@ void Lights::Initialize()
 		std::string shdwName = (isBike ? "taillight_bike" : "taillight");
 		CVector2D shdwSz = {1.0f, 1.5f};
 
-		if (isBike || CModelInfo::IsCarModel(pControlVeh->m_nModelIndex))
+		if (pControlVeh->m_nVehicleSubClass == VEHICLE_AUTOMOBILE || pControlVeh->m_nVehicleSubClass == VEHICLE_MTRUCK
+			|| pControlVeh->m_nVehicleSubClass == VEHICLE_QUAD || pControlVeh->m_nVehicleSubClass == VEHICLE_BIKE
+			|| pControlVeh->m_nVehicleSubClass == VEHICLE_TRAILER
+		)
 		{
 			bool isRevlightSupportedByModel = IsMatAvail(pTowedVeh, {eLightType::ReverseLightLeft, eLightType::ReverseLightRight});
 
