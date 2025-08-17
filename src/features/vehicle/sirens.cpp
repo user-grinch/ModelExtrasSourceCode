@@ -909,6 +909,7 @@ void Sirens::hkRegisterCorona(unsigned int id, CEntity *attachTo, unsigned char 
 
 void Sirens::EnableDummy(int id, VehicleDummy *dummy, CVehicle *vehicle, VehicleSirenMaterial *material, eCoronaFlareType type, uint64_t time)
 {
+	dummy->Update();
 	CVector position = reinterpret_cast<CVehicleModelInfo *>(CModelInfo__ms_modelInfoPtrs[vehicle->m_nModelIndex])->m_pVehicleStruct->m_avDummyPos[0];
 	unsigned char alpha = material->Color.a;
 
@@ -969,7 +970,6 @@ void Sirens::EnableDummy(int id, VehicleDummy *dummy, CVehicle *vehicle, Vehicle
 		dummyPos.x = dummyPos.x * 1.5f;
 		dummyPos.y = dummyPos.y * 1.2f;
 	}
-	dummy->Update();
 
 	RenderUtil::RegisterShadow(vehicle, dummyPos, *(CRGBA *)&material->Color, dummyAngle + dummyConfig.rotation.currentAngle, dummyConfig.dummyType, material->Shadow.Type, {material->Shadow.Size, material->Shadow.Size}, {material->Shadow.Offset, material->Shadow.Offset}, nullptr);
 };

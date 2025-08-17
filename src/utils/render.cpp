@@ -76,9 +76,15 @@ void RenderUtil::RegisterShadow(CEntity* pEntity, CVector position, CRGBA col, f
             v.z
         };
     };
+    CVector upDir = entityMatrix.up;
+    CVector rightDir = entityMatrix.right;
+    
+    upDir.z = rightDir.z = 0.0f; // Flatten vertical influence
+    upDir.Normalise();
+    rightDir.Normalise();
 
-    CVector up    = RotateVector2D(entityMatrix.up * shdwSz.y);
-    CVector right = RotateVector2D(entityMatrix.right * shdwSz.x);
+    CVector up    = RotateVector2D(upDir * shdwSz.y);
+    CVector right = RotateVector2D(rightDir * shdwSz.x);
 
     CVector nSize = {0.0f, 0.0f, 0.0f};
     switch (dummyPos)

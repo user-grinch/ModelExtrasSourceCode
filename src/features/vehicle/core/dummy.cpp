@@ -104,7 +104,8 @@ VehicleDummy::VehicleDummy(const VehicleDummyConfig& config)
 
             if (prmPos + 10 < name.size())
             {
-                data.corona.lightingType = static_cast<eLightingMode>(name[prmPos + 10] - '0');
+                int type = name[prmPos + 10] - '0';
+                data.corona.lightingType = (type == 2) ? eLightingMode::NonDirectional : eLightingMode::Directional;
             }
             else
             {
@@ -179,8 +180,7 @@ eDummyPos VehicleDummy::UpdateDummyType(float angle) {
     return type;
 }
 
-void VehicleDummy::Update()
-{
+void VehicleDummy::Update() {
     CMatrix &vehMatrix = *(CMatrix *)data.pVeh->GetMatrix();
     CVector pos = data.pVeh->GetPosition();
     CVector dummyPos = data.frame->ltm.pos;

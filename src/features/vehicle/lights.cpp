@@ -281,7 +281,7 @@ void Lights::Initialize()
 			c.lightType = eLightType::AllDayLight;
 			c.dummyType = eDummyPos::Front;
 		}
-		else if (name.starts_with("taillights")) {
+		else if (name == "taillights" || name == "taillights2") {
 			c.dummyType = eDummyPos::Rear;
 			c.lightType = eLightType::TailLightRight;
 			c.corona.color = c.shadow.color = {250, 0, 0, static_cast<unsigned char>(gGlobalCoronaIntensity)};
@@ -291,7 +291,7 @@ void Lights::Initialize()
 			c.mirroredX = true;
 			c.lightType = eLightType::TailLightLeft;
 		}
-		else if (name.starts_with("headlights")) {
+		else if (name == "headlights" || name == "headlights2") {
 			c.dummyType = eDummyPos::Front;
 			c.lightType = eLightType::HeadLightLeft;
 			c.corona.color = c.shadow.color = {250, 250, 250, static_cast<unsigned char>(gGlobalCoronaIntensity)};
@@ -393,8 +393,7 @@ void Lights::Initialize()
 		}
 	};
 
-	ModelInfoMgr::RegisterRender([](CVehicle *pControlVeh)
-								{
+	ModelInfoMgr::RegisterRender([](CVehicle *pControlVeh) {
 		int model = pControlVeh->m_nModelIndex;
 
 		// skip directly processing trailers
@@ -698,6 +697,7 @@ void Lights::RenderLight(CVehicle *pVeh, eLightType state, bool shadows, std::st
 		for (auto e : m_Dummies[pVeh][state])
 		{
 			const VehicleDummyConfig& c = e->GetRef();
+			e->Update();
 			RwFrame *parent = RwFrameGetParent(e->Get().frame);
 			eLightType type = e->GetRef().lightType;
 			bool atomicCheck = type != eLightType::HeadLightLeft 
@@ -737,7 +737,6 @@ void Lights::RenderLight(CVehicle *pVeh, eLightType state, bool shadows, std::st
 			if (shadows && c.shadow.render)
 			{
 				texture = (c.shadow.texture == "") ? texture : c.shadow.texture;
-				e->Update();
 				RenderUtil::RegisterShadow(pVeh, c.shadow.position, c.shadow.color, c.rotation.angle, c.dummyType, texture, {sz.x * c.shadow.size.x, sz.y * c.shadow.size.y}, {offset.x + c.shadow.offset.x, offset.y + c.shadow.offset.y});
 			}
 		}
