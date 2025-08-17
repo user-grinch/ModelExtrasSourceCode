@@ -311,6 +311,9 @@ int Convert_IvfcToJsonc(const std::string &inPath)
         }
     }
 
+    jsonData["metadata"]["author"] = "Unknown";
+    jsonData["metadata"]["desc"] = "Converted from IVF";
+    jsonData["metadata"]["minver"] = 20000; // First ME Version with support
     infile.close();
     outfile << jsonData.dump(4);
     outfile.close();
