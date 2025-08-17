@@ -87,29 +87,34 @@ void IVFCarcols::Parse(const nlohmann::json &data, int model)
         auto &cols = data["carcols"]["colors"];
         auto &var = data["carcols"]["variations"];
 
-        try {
-            for (auto &e : var)
-            {
-                int pIdx = e.value("primary", 0);
-                int sIdx = e.value("secondary", 0);
-                int tIdx = e.value("tertiary", 0);
-                int qIdx = e.value("quaternary", 0);
+        for (auto &e : var) {
+            int pIdx = e.value("primary", 0);
+            int sIdx = e.value("secondary", 0);
+            int tIdx = e.value("tertiary", 0);
+            int qIdx = e.value("quaternary", 0);
 
-                auto &pCol = cols.at(pIdx);
-                auto &sCol = cols.at(sIdx);
-                auto &tCol = cols.at(tIdx);
-                auto &qCol = cols.at(qIdx);
-
-                CRGBA primaryColor = CRGBA(pCol["red"], pCol["green"], pCol["blue"], 255);
-                CRGBA secondaryColor = CRGBA(sCol["red"], sCol["green"], sCol["blue"], 255);
-                CRGBA tertiaryColor = CRGBA(tCol["red"], tCol["green"], tCol["blue"], 255);
-                CRGBA quaternaryColor = CRGBA(qCol["red"], qCol["green"], qCol["blue"], 255);
-
-                variations[model]
-                    .push_back({primaryColor, secondaryColor, tertiaryColor, quaternaryColor});
+            auto maxIdx = cols.size();
+            if (pIdx >= maxIdx || sIdx >= maxIdx || tIdx >= maxIdx || qIdx >= maxIdx) {
+                gLogger->error(
+                    "Carcols index out of bounds for model '{}': "
+                    "primary={}, secondary={}, tertiary={}, quaternary={}, max={}",
+                    model, pIdx, sIdx, tIdx, qIdx, maxIdx
+                );
+                continue;
             }
-        } catch (std::exception& ex) {
-            gLogger->error("Invalid carcols data:= for {}", model);
+
+            auto &pCol = cols.at(pIdx);
+            auto &sCol = cols.at(sIdx);
+            auto &tCol = cols.at(tIdx);
+            auto &qCol = cols.at(qIdx);
+
+            CRGBA primaryColor = CRGBA(pCol["red"], pCol["green"], pCol["blue"], 255);
+            CRGBA secondaryColor = CRGBA(sCol["red"], sCol["green"], sCol["blue"], 255);
+            CRGBA tertiaryColor = CRGBA(tCol["red"], tCol["green"], tCol["blue"], 255);
+            CRGBA quaternaryColor = CRGBA(qCol["red"], qCol["green"], qCol["blue"], 255);
+
+            variations[model]
+                .push_back({primaryColor, secondaryColor, tertiaryColor, quaternaryColor});
         }
     }
 }
