@@ -918,9 +918,9 @@ void Sirens::EnableDummy(int id, VehicleDummy *dummy, CVehicle *vehicle, Vehicle
 		alpha = static_cast<char>(std::abs(alpha) * material->InertiaMultiplier);
 	}
 
-	const VehicleDummyConfig& dummyConfig = dummy->GetRef();
+	VehicleDummyConfig dummyConfig = dummy->GetRef();
+	dummyConfig.shadow.color = material->Color;
 	float dummyAngle = Util::NormalizeAngle(dummyConfig.rotation.angle + material->Shadow.AngleOffset);
-	dummy->UpdateDummyType(dummyAngle);
 
 	if (material->Type != eLightingMode::NonDirectional)
 	{
@@ -953,26 +953,11 @@ void Sirens::EnableDummy(int id, VehicleDummy *dummy, CVehicle *vehicle, Vehicle
 		RenderUtil::RegisterCoronaWithAngle(vehicle, (reinterpret_cast<unsigned int>(vehicle) * 255) + 255 + id, dummyConfig.position,
 									  material->Color,
 									  dummyAngle, material->Radius, material->Size);
-	}
-	else
-	{
+		RenderUtil::RegisterShadowDirectional(vehicle, &dummyConfig, material->Shadow.Type, material->Shadow.Size);
+	} else {
 		RenderUtil::RegisterCorona(vehicle, (reinterpret_cast<unsigned int>(vehicle) * 255) + 255 + id, dummyConfig.position, material->Color, material->Size);
+		RenderUtil::RegisterShadow(vehicle, dummyConfig.position, *(CRGBA *)&material->Color, dummyAngle + dummyConfig.rotation.currentAngle, dummyConfig.dummyType, material->Shadow.Type, {material->Shadow.Size, material->Shadow.Size}, {material->Shadow.Offset, material->Shadow.Offset}, nullptr);
 	}
-
-	// FIX ME
-	CVector dummyPos = dummyConfig.position;
-	if (modelData[vehicle->m_nModelIndex]->isImVehFtSiren)
-	{
-		dummyPos.x *= 1.5f;
-	}
-	else
-	{
-		dummyPos.x = dummyPos.x * 1.5f;
-		dummyPos.y = dummyPos.y * 1.2f;
-	}
-
-	RenderUtil::RegisterShadowNew(vehicle, &dummy->Get(), material->Shadow.Type, material->Shadow.Size);
-	// RenderUtil::RegisterShadow(vehicle, dummyPos, *(CRGBA *)&material->Color, dummyAngle + dummyConfig.rotation.currentAngle, dummyConfig.dummyType, material->Shadow.Type, {material->Shadow.Size, material->Shadow.Size}, {material->Shadow.Offset, material->Shadow.Offset}, nullptr);
 };
 
 VehicleSiren::VehicleSiren(CVehicle *_vehicle)

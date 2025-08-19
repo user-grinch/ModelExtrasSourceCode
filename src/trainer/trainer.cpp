@@ -4,7 +4,6 @@
 #include "defines.h"
 
 extern bool gbGlobalIndicatorLights;
-extern bool gbGlobalReverseLights;
 extern float gfGlobalCoronaSize;
 extern int gGlobalCoronaIntensity;
 extern int gGlobalShadowIntensity;
@@ -31,8 +30,6 @@ void TrainerInit()
                     TAPI_Spacing(0, 10);
                     TAPI_Columns(2);
                     TAPI_Checkbox("Global Indicator Lights", &gbGlobalIndicatorLights, F_NULL);
-                    TAPI_NextColumn();
-                    TAPI_Checkbox("Global Reverse Lights", &gbGlobalReverseLights, F_NULL);
                     TAPI_Columns(1);
 
                     TAPI_Spacing(0, 10);

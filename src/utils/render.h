@@ -14,5 +14,5 @@ public:
     static void RegisterCorona(CEntity *pEntity, int coronaID, CVector pos, CRGBA col, float size);
     static void RegisterCoronaWithAngle(CEntity *pEntity, int coronaID, CVector posn, CRGBA col, float angle, float radius, float size);
     static void RegisterShadow(CEntity *pEntity, CVector position, CRGBA col, float angle, eDummyPos dummyPos, const std::string &shadwTexName, CVector2D shdwSz = {1.0f, 1.0f}, CVector2D shdwOffset = {0.0f, 0.0f}, RwTexture *pTexture = nullptr);
-    static void RegisterShadowNew(CVehicle* pVeh, VehicleDummyConfig *pConfig, const std::string& shadwTexName, float shdwSz);
+    static void RegisterShadowDirectional(CVehicle* pVeh, VehicleDummyConfig *pConfig, const std::string& shadwTexName, float shdwSz);
 };

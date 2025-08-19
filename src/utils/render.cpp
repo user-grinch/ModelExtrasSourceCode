@@ -80,9 +80,6 @@ inline float DotProduct(const CVector& a, const CVector& b)
     return a.x * b.x + a.y * b.y + a.z * b.z;
 }
 
-#define PI      3.14159265358979323846f
-#define HALF_PI PI * 0.5f
-
 bool IsShadowTowardVehicle(CMatrix* dummyMatrix, CVector vehicleCenter) {
     // Dummy world position
     CVector dummyPos = dummyMatrix->pos;
@@ -112,7 +109,7 @@ void RotateMatrix180Z(CMatrix& mat) {
     // forward stays unchanged (Z axis)
 }
 
-void RenderUtil::RegisterShadowNew(CVehicle* pVeh, VehicleDummyConfig* pConfig, const std::string& shadwTexName, float shdwSz)
+void RenderUtil::RegisterShadowDirectional(CVehicle* pVeh, VehicleDummyConfig* pConfig, const std::string& shadwTexName, float shdwSz)
 {
     if (!pVeh || !pConfig || shdwSz == 0.0f || !gConfig.ReadBoolean("VEHICLE_FEATURES", "LightShadows", false)) {
         return;
@@ -144,11 +141,6 @@ void RenderUtil::RegisterShadowNew(CVehicle* pVeh, VehicleDummyConfig* pConfig, 
     lightDir.Normalise();
 
     CVector rotatedLightDir = lightDir;
-    // CVector rotatedLightDir(
-    //     lightDir.x * cos(heading) - lightDir.y * sin(heading),
-    //     lightDir.x * sin(heading) + lightDir.y * cos(heading),
-    //     0.0f
-    // );
 
     // Rotate dummy offset into world space
     CVector2D localOffset(dummyOffset.x, dummyOffset.y);
@@ -169,7 +161,7 @@ void RenderUtil::RegisterShadowNew(CVehicle* pVeh, VehicleDummyConfig* pConfig, 
     CVector shdwPos = pVeh->GetPosition() + CVector(rotatedOffset.x, rotatedOffset.y, 2.0f);
     CShadows::StoreCarLightShadow(
         pVeh,
-        reinterpret_cast<int32_t>(&pConfig->frame->modelling) + 2,
+        reinterpret_cast<int32_t>(&mat) + 2 * pConfig->mirroredX ? 1 : 1000 + (int)pConfig->dummyType,
         pTex,
         &shdwPos,
         shdwFront.x, shdwFront.y,
@@ -183,41 +175,72 @@ void RenderUtil::RegisterShadowNew(CVehicle* pVeh, VehicleDummyConfig* pConfig, 
 
 void RenderUtil::RegisterShadow(CEntity* pEntity, CVector position, CRGBA col, float angle,
                                 eDummyPos dummyPos, const std::string& shadwTexName,
-                                CVector2D shdwSz, CVector2D shdwOffset, RwTexture* pTexture) {
-    // if (!pEntity || shdwSz.x == 0.0f || shdwSz.y == 0.0f ||
-    //     !gConfig.ReadBoolean("VEHICLE_FEATURES", "LightShadows", false))
-    // {
-    //     return;
-    // }
+                                CVector2D shdwSz, CVector2D shdwOffset, RwTexture* pTexture)
+{
+    if (shdwSz.x == 0.0f || shdwSz.y == 0.0f ||
+        !gConfig.ReadBoolean("VEHICLE_FEATURES", "LightShadows", false))
+    {
+        return;
+    }
 
-    // const CVector vehiclePos = pEntity->GetPosition();
-    // const CVector dPos = pEntity->TransformFromObjectSpace(position);
+    const float angleRad = DegToRad(angle);
+    const CVector vehPos = pEntity->GetPosition();
+    const CMatrix& entityMatrix = *(CMatrix*)pEntity->m_matrix;
 
-    // // Direction from dummy to vehicle (2D)
-    // CVector2D dirToVehicle = CVector2D(vehiclePos - dPos).Normalized();
-    // CVector2D shadowDir = -dirToVehicle; // Flip to point away
+    auto RotateVector2D = [angleRad](const CVector& v) -> CVector {
+        return {
+            v.x * cos(angleRad) - v.y * sin(angleRad),
+            v.x * sin(angleRad) + v.y * cos(angleRad),
+            v.z
+        };
+    };
+    CVector upDir = entityMatrix.up;
+    CVector rightDir = entityMatrix.right;
+    
+    upDir.z = rightDir.z = 0.0f; // Flatten vertical influence
+    upDir.Normalise();
+    rightDir.Normalise();
 
-    // // Shadow rectangle vectors
-    // CVector2D shdwFront = shadowDir * shdwSz.y;
-    // CVector2D shdwSide  = shadowDir.GetPerpRight() * shdwSz.x;
+    CVector up    = RotateVector2D(upDir * shdwSz.y);
+    CVector right = RotateVector2D(rightDir * shdwSz.x);
 
-    // // Shadow position offset (in front of dummy)
-    // CVector shdwPos = dummyPos + CVector(shadowDir * (shdwSz.y * 0.5f), 2.0f);
+    CVector nSize = {0.0f, 0.0f, 0.0f};
+    switch (dummyPos)
+    {
+        case eDummyPos::Right: nSize = { shdwSz.y,  0.0f, 0.0f }; break;
+        case eDummyPos::Left:  nSize = {-shdwSz.y,  0.0f, 0.0f }; break;
+        case eDummyPos::Front: nSize = { 0.0f,      shdwSz.y, 0.0f }; break;
+        case eDummyPos::Rear:  nSize = { 0.0f,     -shdwSz.y, 0.0f }; break;
+        default: break;
+    }
 
-    // // Optional: clamp to ground
-    // shdwPos.z = CWorld::FindGroundZFor3DCoord(shdwPos.x, shdwPos.y, shdwPos.z + 100.0f, nullptr, &pEntity) + 2.0f;
+    CVector nOffset = {
+        shdwOffset.x * cos(angleRad) - shdwOffset.y * sin(angleRad),
+        shdwOffset.x * sin(angleRad) + shdwOffset.y * cos(angleRad),
+        0.0f
+    };
 
-    // if (fabs(shdwPos.z - vehiclePos.z) > 15.0f)
-    //     return;
+    CVector shdwPos = pEntity->TransformFromObjectSpace(position + nOffset + nSize);
+    shdwPos.z = CWorld::FindGroundZFor3DCoord(shdwPos.x, shdwPos.y, shdwPos.z + 100.0f,  NULL, &pEntity) + 2.0f;
 
-    // RwTexture* pTex = pTexture ? pTexture : TextureMgr::Get(shadwTexName, gGlobalShadowIntensity);
+    const float zDiff = abs(shdwPos.z - vehPos.z);
+    if (zDiff > 3.0f) {
+        shdwPos.z = vehPos.z + position.z + 1.0f;
+    }
 
-    // if (pTex)
-    // {
-    //     CShadows::StoreShadowToBeRendered(2, pTex, &shdwPos,
-    //                                       shdwFront.x, shdwFront.y,
-    //                                       shdwSide.x,  shdwSide.y,
-    //                                       col.a, col.r, col.g, col.b,
-    //                                       6.0f, false, 1.0f, 0, true);
-    // }
+    if (abs(vehPos.z - shdwPos.z) > 15.0f)
+        return;
+
+    RwTexture* pTex = (pTexture != nullptr)
+        ? pTexture
+        : TextureMgr::Get(shadwTexName, gGlobalShadowIntensity);
+
+    if (pTex)
+    {
+        CShadows::StoreShadowToBeRendered(2, pTex, &shdwPos,
+                                          up.x, up.y,
+                                          right.x, right.y,
+                                          col.a, col.r, col.g, col.b,
+                                          6.0f, false, 1.0f, 0, true);
+    }
 }

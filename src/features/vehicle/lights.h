@@ -12,6 +12,7 @@ struct VehLightData {
 	bool m_bFogLightsOn = false;
 	bool m_bLongLightsOn = false;
 	eIndicatorState m_nIndicatorState = eIndicatorState::Off;
+	bool m_bUsingGlobalIndicators = false;
 	bool m_bLightStates[eLightType::TotalLight];
 
 	VehLightData(CVehicle *pVeh) {
