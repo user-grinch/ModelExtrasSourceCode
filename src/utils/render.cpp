@@ -161,7 +161,7 @@ void RenderUtil::RegisterShadowDirectional(CVehicle* pVeh, VehicleDummyConfig* p
     CVector shdwPos = pVeh->GetPosition() + CVector(rotatedOffset.x, rotatedOffset.y, 2.0f);
     CShadows::StoreCarLightShadow(
         pVeh,
-        reinterpret_cast<int32_t>(&mat) + 2 * pConfig->mirroredX ? 1 : 1000 + (int)pConfig->dummyType,
+        reinterpret_cast<int32_t>(pConfig),
         pTex,
         &shdwPos,
         shdwFront.x, shdwFront.y,

@@ -46,7 +46,7 @@ struct VehicleDummyConfig {
         std::string texture;
         CRGBA color = {255, 255, 255, 100};
         CVector2D offset = {0.0f, 0.0f};
-        CVector2D size = {1.0f, 1.0f};
+        float size = 1.0f;
         CVector position;
     } shadow;
 

@@ -446,7 +446,6 @@ void Lights::Initialize()
 
 			bool sttInstalled = IsMatAvail(pTowedVeh, {eLightType::STTLightLeft, eLightType::STTLightRight});
 			// taillights/ brakelights
-
 			if (pControlVeh->m_fBreakPedal && pControlVeh->m_pDriver) {
 				if (sttInstalled) {
 					if (isLeftRearOk) {
@@ -695,7 +694,7 @@ void Lights::RenderLight(CVehicle *pVeh, eLightType state, bool shadows, std::st
 			{
 				texture = (c.shadow.texture == "") ? texture : c.shadow.texture;
 				// RenderUtil::RegisterShadow(pVeh, c.shadow.position, c.shadow.color, c.rotation.angle, c.dummyType, texture, {sz.x * c.shadow.size.x, sz.y * c.shadow.size.y}, {offset.x + c.shadow.offset.x, offset.y + c.shadow.offset.y});
-				RenderUtil::RegisterShadowDirectional(pVeh, &e->Get(), texture, sz.x * c.shadow.size.x);
+				RenderUtil::RegisterShadowDirectional(pVeh, &e->Get(), texture, sz.x * c.shadow.size);
 			}
 		}
 	}

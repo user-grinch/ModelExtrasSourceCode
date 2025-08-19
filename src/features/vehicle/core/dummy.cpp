@@ -17,42 +17,13 @@ int ReadHex(char a, char b)
     return (a << 4) + b;
 }
 
-int angularDistance(int a, int b) {
-    int diff = a - b;
-    diff = (diff + 180) % 360 - 180; // Wrap to [-180, 180)
-    return abs(diff);
-}
-
-int roundToNearest45(int angle) {
-    int targets[] = {-180, -135, -90, -45, 0, 45, 90, 135, 180};
-    int closest = targets[0];
-    int minDiff = angularDistance(angle, closest);
-
-    for (int i = 1; i < sizeof(targets)/sizeof(targets[0]); ++i) {
-        int diff = angularDistance(angle, targets[i]);
-        if (diff < minDiff) {
-            minDiff = diff;
-            closest = targets[i];
-        }
-    }
-
-    return closest;
-}
-
-float NormalizeAngle180(float angle) {
-    while (angle <= -180.0f) angle += 360.0f;
-    while (angle > 180.0f) angle -= 360.0f;
-    return angle;
-}
-
 VehicleDummy::VehicleDummy(const VehicleDummyConfig& config)
 {
     data = config;
     float angleVal = 0.0f;
 
     // Calculate the angle based on the frame's orientation
-    float modelAngle = CGeneral::GetATanOfXY(data.frame->modelling.right.x, data.frame->modelling.right.y) * 57.295776f;
-    data.rotation.angle = roundToNearest45(modelAngle);
+    data.rotation.angle = CGeneral::GetATanOfXY(data.frame->modelling.right.x, data.frame->modelling.right.y) * 57.295776f;
 
     auto &jsonData = DataMgr::Get(data.pVeh->m_nModelIndex);
     std::string name = GetFrameNodeName(data.frame);
@@ -88,11 +59,7 @@ VehicleDummy::VehicleDummy(const VehicleDummyConfig& config)
                     data.shadow.color.b = shadow["color"].value("blue", data.shadow.color.b);
                     data.shadow.color.a = shadow["color"].value("alpha", gGlobalShadowIntensity);
                 }
-                data.shadow.offset = {shadow.value("offsetx", 0.0f), shadow.value("offsety", 0.0f)};
-
-                // This needs to be like this
-                data.shadow.size = {shadow.value("width", 1.0f), shadow.value("length", 1.0f)};
-                angleVal = shadow.value("angleoffset", 0.0f);
+                data.shadow.size = shadow.value("size", 1.0f);
                 data.shadow.texture = shadow.value("texture", "");
 
                 // shadows will be force enabled if there is JSON data for it.
@@ -149,11 +116,7 @@ VehicleDummy::VehicleDummy(const VehicleDummyConfig& config)
             if (prmPos + 12 < name.size())
             {
                 float shadowValue = static_cast<float>(name[prmPos + 12] - '0') / 7.5f;
-                data.shadow.size = {shadowValue, shadowValue};
-                if (data.shadow.size.x < 0.0f || data.shadow.size.y < 0.0f)
-                {
-                    data.shadow.size = {0.0f, 0.0f};
-                }
+                data.shadow.size = std::min(shadowValue, 0.0f);
             }
             else
             {
@@ -161,25 +124,6 @@ VehicleDummy::VehicleDummy(const VehicleDummyConfig& config)
             }
         }
     }
-}
-
-eDummyPos VehicleDummy::UpdateDummyType(float angle) {
-    eDummyPos type;
-
-    auto isClose = [](float a, float b, float tolerance = 2.0f) {
-        return std::fabs(a - b) <= tolerance;
-    };
-
-    if (isClose(angle, 90)) {
-        type = eDummyPos::Left;
-    } else if (isClose(angle, 180)) {
-        type = eDummyPos::Rear;
-    } else if (isClose(angle, 270)) {
-        type = eDummyPos::Right;
-    } else {
-        type = eDummyPos::None;
-    }
-    return type;
 }
 
 void VehicleDummy::Update() {
