@@ -971,7 +971,8 @@ void Sirens::EnableDummy(int id, VehicleDummy *dummy, CVehicle *vehicle, Vehicle
 		dummyPos.y = dummyPos.y * 1.2f;
 	}
 
-	RenderUtil::RegisterShadow(vehicle, dummyPos, *(CRGBA *)&material->Color, dummyAngle + dummyConfig.rotation.currentAngle, dummyConfig.dummyType, material->Shadow.Type, {material->Shadow.Size, material->Shadow.Size}, {material->Shadow.Offset, material->Shadow.Offset}, nullptr);
+	RenderUtil::RegisterShadowNew(vehicle, &dummy->Get(), material->Shadow.Type, material->Shadow.Size);
+	// RenderUtil::RegisterShadow(vehicle, dummyPos, *(CRGBA *)&material->Color, dummyAngle + dummyConfig.rotation.currentAngle, dummyConfig.dummyType, material->Shadow.Type, {material->Shadow.Size, material->Shadow.Size}, {material->Shadow.Offset, material->Shadow.Offset}, nullptr);
 };
 
 VehicleSiren::VehicleSiren(CVehicle *_vehicle)

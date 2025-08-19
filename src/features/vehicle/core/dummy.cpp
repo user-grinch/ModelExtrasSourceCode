@@ -17,24 +17,45 @@ int ReadHex(char a, char b)
     return (a << 4) + b;
 }
 
+int angularDistance(int a, int b) {
+    int diff = a - b;
+    diff = (diff + 180) % 360 - 180; // Wrap to [-180, 180)
+    return abs(diff);
+}
+
+int roundToNearest45(int angle) {
+    int targets[] = {-180, -135, -90, -45, 0, 45, 90, 135, 180};
+    int closest = targets[0];
+    int minDiff = angularDistance(angle, closest);
+
+    for (int i = 1; i < sizeof(targets)/sizeof(targets[0]); ++i) {
+        int diff = angularDistance(angle, targets[i]);
+        if (diff < minDiff) {
+            minDiff = diff;
+            closest = targets[i];
+        }
+    }
+
+    return closest;
+}
+
+float NormalizeAngle180(float angle) {
+    while (angle <= -180.0f) angle += 360.0f;
+    while (angle > 180.0f) angle -= 360.0f;
+    return angle;
+}
+
 VehicleDummy::VehicleDummy(const VehicleDummyConfig& config)
 {
     data = config;
     float angleVal = 0.0f;
 
     // Calculate the angle based on the frame's orientation
-    float modelAngle = Util::NormalizeAngle(
-        CGeneral::GetATanOfXY(data.frame->modelling.right.x, data.frame->modelling.right.y) * 57.295776f
-    );
+    float modelAngle = CGeneral::GetATanOfXY(data.frame->modelling.right.x, data.frame->modelling.right.y) * 57.295776f;
+    data.rotation.angle = roundToNearest45(modelAngle);
 
     auto &jsonData = DataMgr::Get(data.pVeh->m_nModelIndex);
     std::string name = GetFrameNodeName(data.frame);
-
-    eDummyPos modelType = UpdateDummyType(modelAngle);
-    if (modelType != eDummyPos::None && modelType != config.dummyType) {
-        gLogger->warn("Model angle & node name mismatch. Node {} has an angle of {}. Applying fix...", name, modelAngle);
-        data.dummyType = modelType;
-    }
 
     if (jsonData.contains("lights"))
     {
@@ -139,25 +160,6 @@ VehicleDummy::VehicleDummy(const VehicleDummyConfig& config)
                 LOG_VERBOSE("Model {} has issue with node `{}`: invalid shadow size", data.pVeh->m_nModelIndex, name);
             }
         }
-    }
-
-    switch (data.dummyType) {
-        case eDummyPos::Front:
-            data.rotation.angle = 0.0f - angleVal;
-            break;
-        case eDummyPos::Left:
-            data.rotation.angle = 90.0f - angleVal;
-            break;
-        case eDummyPos::Right:
-            data.rotation.angle = 270.0f - angleVal;
-            break;
-        case eDummyPos::Rear:
-            data.rotation.angle = 180.0f - angleVal;
-            break;
-        case eDummyPos::None:
-        default:
-            data.rotation.angle = modelAngle;
-            break;
     }
 }
 

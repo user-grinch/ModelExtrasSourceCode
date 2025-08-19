@@ -21,8 +21,8 @@ bool gbGlobalReverseLights = false;
 float gfGlobalCoronaSize = 0.3f;
 int gGlobalCoronaIntensity = 80;
 int gGlobalShadowIntensity = 80;
-CVector2D shdwOffset = {0.0f, 0.2f};
-CVector2D headlightOffset = {0.0f, shdwOffset.y + 0.15f};
+CVector2D shdwOffset = {0.0f, -0.2f};
+CVector2D headlightOffset = {0.0f, shdwOffset.y - 0.15f};
 CVector2D headlightSz = {4.0f, 8.0f};
 
 int GetStrobeIndex(CVehicle *pVeh, RpMaterial *pMat) {
@@ -38,49 +38,6 @@ CVector2D GetCarPathLinkPosition(CCarPathLinkAddress &address) {
 						 static_cast<float>(ThePaths.m_pNaviNodes[address.m_nAreaId][address.m_nCarPathLinkId].m_vecPosn.y) / 8.0f);
 	}
 	return CVector2D(0.0f, 0.0f);
-}
-
-void DrawGlobalLight(CVehicle* pVeh, bool isRear, bool isLeft, CRGBA col,
-                     std::string texture = "indicator",
-                     CVector2D shdwSz = {1.0F, 1.0F},
-                     CVector2D shdwOffset = {0.0F, 0.0F}) {
-	
-    eLights lightID;
-
-	if (isLeft) {
-		lightID = isRear ? eLights::LIGHT_REAR_LEFT : eLights::LIGHT_FRONT_LEFT;
-	} else {
-		lightID = isRear ? eLights::LIGHT_REAR_RIGHT : eLights::LIGHT_FRONT_RIGHT;
-	}
-
-	if (Util::IsLightDamaged(pVeh, lightID)) {
-		return;
-	}
-
-    int dummyIdx = isRear ? 1 : 0;
-    auto* pInfo = reinterpret_cast<CVehicleModelInfo*>(CModelInfo__ms_modelInfoPtrs[pVeh->m_nModelIndex]);
-    CVector coronaPos = pInfo->m_pVehicleStruct->m_avDummyPos[dummyIdx];
-
-    if (coronaPos.x == 0.0f) coronaPos.x = 0.15f;
-    if (isLeft) coronaPos.x *= -1.0f;
-
-	CVector shdwPos = coronaPos;
-	shdwPos = Util::UpdateRelativeToBoundingBox(pVeh, isRear ? eDummyPos::Rear : eDummyPos::Front, shdwPos, {0,0,0}, {0,0,0});
-
-    float dummyAngle = isRear ? 180.0f : 0.0f;
-    col.a = static_cast<unsigned char>(gGlobalShadowIntensity);
-	int coronaId = reinterpret_cast<uintptr_t>(pVeh) + 255 * isRear + 128 * isLeft + col.r + col.g + col.b;
-    RenderUtil::RegisterCoronaWithAngle(pVeh, coronaId, coronaPos,
-                                        col, dummyAngle,
-                                        180.0f, gfGlobalCoronaSize);
-
-	if (!isRear && Util::IsVehicleDoingWheelie(pVeh)) {
-		return;
-	}
-
-    RenderUtil::RegisterShadow(pVeh, shdwPos, col, dummyAngle,
-                                isRear ? eDummyPos::Rear : eDummyPos::Front,
-                                texture, shdwSz, shdwOffset);
 }
 
 inline float GetZAngleForPoint(CVector2D const &point) {
@@ -397,7 +354,7 @@ void Lights::Initialize()
 		int model = pControlVeh->m_nModelIndex;
 
 		// skip directly processing trailers
-		if (CModelInfo::IsTrailerModel(model) || model != 444) {
+		if (CModelInfo::IsTrailerModel(model)) {
 			return;
 		}
 
@@ -489,8 +446,8 @@ void Lights::Initialize()
 						RenderLights(pControlVeh, pTowedVeh, eLightType::ReverseLightRight, true, shdwName, shdwSz, shdwOffset);
 					}
 				} else {
-					DrawGlobalLight(pTowedVeh, true, true, {240, 240, 240, 0}, shdwName, shdwSz, shdwOffset);
-					DrawGlobalLight(pTowedVeh, true, false, {240, 240, 240, 0}, shdwName, shdwSz, shdwOffset);
+					// DrawGlobalLight(pTowedVeh, true, true, {240, 240, 240, 0}, shdwName, shdwSz, shdwOffset);
+					// DrawGlobalLight(pTowedVeh, true, false, {240, 240, 240, 0}, shdwName, shdwSz, shdwOffset);
 				}
 			}
 
@@ -643,13 +600,13 @@ void Lights::Initialize()
 					{
 						if (indState == eIndicatorState::BothOn || indState == eIndicatorState::RightOn)
 						{
-							DrawGlobalLight(pControlVeh, false, false, {255, 128, 0, 0}, "indicator", {1.0f, 1.0f}, shdwOffset);
-							DrawGlobalLight(pTowedVeh, true, false, {255, 128, 0, 0}, "indicator", {1.0f, 1.0f}, shdwOffset);
+							// DrawGlobalLight(pControlVeh, false, false, {255, 128, 0, 0}, "indicator", {1.0f, 1.0f}, shdwOffset);
+							// DrawGlobalLight(pTowedVeh, true, false, {255, 128, 0, 0}, "indicator", {1.0f, 1.0f}, shdwOffset);
 						}
 						if (indState == eIndicatorState::BothOn || indState == eIndicatorState::LeftOn)
 						{
-							DrawGlobalLight(pControlVeh, false, true, {255, 128, 0, 0}, "indicator", {1.0f, 1.0f}, shdwOffset);
-							DrawGlobalLight(pTowedVeh, true, true, {255, 128, 0, 0}, "indicator", {1.0f, 1.0f}, shdwOffset);
+							// DrawGlobalLight(pControlVeh, false, true, {255, 128, 0, 0}, "indicator", {1.0f, 1.0f}, shdwOffset);
+							// DrawGlobalLight(pTowedVeh, true, true, {255, 128, 0, 0}, "indicator", {1.0f, 1.0f}, shdwOffset);
 						}
 					}
 				}
@@ -740,7 +697,8 @@ void Lights::RenderLight(CVehicle *pVeh, eLightType state, bool shadows, std::st
 			if (shadows && c.shadow.render)
 			{
 				texture = (c.shadow.texture == "") ? texture : c.shadow.texture;
-				RenderUtil::RegisterShadow(pVeh, c.shadow.position, c.shadow.color, c.rotation.angle, c.dummyType, texture, {sz.x * c.shadow.size.x, sz.y * c.shadow.size.y}, {offset.x + c.shadow.offset.x, offset.y + c.shadow.offset.y});
+				// RenderUtil::RegisterShadow(pVeh, c.shadow.position, c.shadow.color, c.rotation.angle, c.dummyType, texture, {sz.x * c.shadow.size.x, sz.y * c.shadow.size.y}, {offset.x + c.shadow.offset.x, offset.y + c.shadow.offset.y});
+				RenderUtil::RegisterShadowNew(pVeh, &e->Get(), texture, sz.x * c.shadow.size.x);
 			}
 		}
 	}

@@ -55,73 +55,169 @@ void RenderUtil::RegisterCoronaWithAngle(CEntity *pEntity, int coronaID, CVector
 
 extern int gGlobalShadowIntensity;
 
+#include "plugin.h"
+#include "CEntity.h"
+#include "CVehicle.h"
+#include "CPed.h"
+#include "CVector.h"
+#include <cmath>
+
+inline CVector2D GetPerpRight(const CVector2D& vec) {
+    return { vec.y, -vec.x };
+}
+
+inline CVector2D Rotate2D(const CVector2D& vec, float angle) {
+    float cosA = cos(angle);
+    float sinA = sin(angle);
+    return CVector2D(
+        vec.x * cosA - vec.y * sinA,
+        vec.x * sinA + vec.y * cosA
+    );
+}
+
+inline float DotProduct(const CVector& a, const CVector& b)
+{
+    return a.x * b.x + a.y * b.y + a.z * b.z;
+}
+
+#define PI      3.14159265358979323846f
+#define HALF_PI PI * 0.5f
+
+bool IsShadowTowardVehicle(CMatrix* dummyMatrix, CVector vehicleCenter) {
+    // Dummy world position
+    CVector dummyPos = dummyMatrix->pos;
+
+    // Shadow direction (assume 'up' is forward in dummy frame)
+    CVector shadowDir = dummyMatrix->up;
+    shadowDir.z = 0.0f;
+    shadowDir.Normalise();
+
+    // Vector from dummy to vehicle center
+    CVector toVehicle = vehicleCenter - dummyPos;
+    toVehicle.z = 0.0f;
+    toVehicle.Normalise();
+
+    // If dot > 0, shadow is cast toward vehicle
+    return DotProduct(shadowDir, toVehicle) > 0.0f;
+}
+
+void RotateMatrix180Z(CMatrix& mat) {
+    // Flip X and Y of right and up vectors
+    mat.right.x = -mat.right.x;
+    mat.right.y = -mat.right.y;
+
+    mat.up.x = -mat.up.x;
+    mat.up.y = -mat.up.y;
+
+    // forward stays unchanged (Z axis)
+}
+
+void RenderUtil::RegisterShadowNew(CVehicle* pVeh, VehicleDummyConfig* pConfig, const std::string& shadwTexName, float shdwSz)
+{
+    if (!pVeh || !pConfig || shdwSz == 0.0f || !gConfig.ReadBoolean("VEHICLE_FEATURES", "LightShadows", false)) {
+        return;
+    }
+
+    float heading = pVeh->GetHeading();
+    CMatrix mat = *(CMatrix*)&pConfig->frame->ltm;
+    if (IsShadowTowardVehicle((CMatrix*)&pConfig->frame->ltm, pVeh->GetPosition())) {
+        RotateMatrix180Z(mat);
+    }
+
+    // Dummy offset in local space
+    CMatrix vehMat = *(CMatrix*)pVeh->GetMatrix();
+    CVector worldOffset = mat.pos - vehMat.pos; // world-space vector from vehicle to dummy
+
+    // Apply inverse rotation manually
+    CVector dummyOffset;
+    dummyOffset.x = DotProduct(worldOffset, vehMat.right);
+    dummyOffset.y = DotProduct(worldOffset, vehMat.up);
+    dummyOffset.z = DotProduct(worldOffset, vehMat.at);
+
+    if (pConfig->mirroredX) {
+        dummyOffset.x *= -1.0f;
+    }
+
+    // Light direction from dummy (forward vector)
+    CVector lightDir = mat.up; // up is forward in psdk
+    lightDir.z = 0.0f;
+    lightDir.Normalise();
+
+    CVector rotatedLightDir = lightDir;
+    // CVector rotatedLightDir(
+    //     lightDir.x * cos(heading) - lightDir.y * sin(heading),
+    //     lightDir.x * sin(heading) + lightDir.y * cos(heading),
+    //     0.0f
+    // );
+
+    // Rotate dummy offset into world space
+    CVector2D localOffset(dummyOffset.x, dummyOffset.y);
+    CVector2D rotatedOffset = Rotate2D(localOffset, heading);
+
+    // Push shadow forward along light direction
+    rotatedOffset += CVector(rotatedLightDir.x, rotatedLightDir.y, 0.0f) * (shdwSz * 2.0f + 1.0f);
+
+    CVector2D shdwFront(rotatedLightDir.x * (shdwSz * 2.0f), rotatedLightDir.y * (shdwSz * 2.0f));
+    CVector2D perpVec(rotatedLightDir.x * shdwSz, rotatedLightDir.y * shdwSz);
+    CVector2D shdwSide = GetPerpRight(perpVec);
+
+    RwTexture* pTex = TextureMgr::Get(shadwTexName, gGlobalShadowIntensity);
+    if (!pTex) {
+        return;
+    }
+
+    CVector shdwPos = pVeh->GetPosition() + CVector(rotatedOffset.x, rotatedOffset.y, 2.0f);
+    CShadows::StoreCarLightShadow(
+        pVeh,
+        reinterpret_cast<int32_t>(&pConfig->frame->modelling) + 2,
+        pTex,
+        &shdwPos,
+        shdwFront.x, shdwFront.y,
+        shdwSide.x,  shdwSide.y,
+        pConfig->shadow.color.r,
+        pConfig->shadow.color.g,
+        pConfig->shadow.color.b,
+        7.0f
+    );
+}
+
 void RenderUtil::RegisterShadow(CEntity* pEntity, CVector position, CRGBA col, float angle,
                                 eDummyPos dummyPos, const std::string& shadwTexName,
-                                CVector2D shdwSz, CVector2D shdwOffset, RwTexture* pTexture)
-{
-    if (shdwSz.x == 0.0f || shdwSz.y == 0.0f ||
-        !gConfig.ReadBoolean("VEHICLE_FEATURES", "LightShadows", false))
-    {
-        return;
-    }
+                                CVector2D shdwSz, CVector2D shdwOffset, RwTexture* pTexture) {
+    // if (!pEntity || shdwSz.x == 0.0f || shdwSz.y == 0.0f ||
+    //     !gConfig.ReadBoolean("VEHICLE_FEATURES", "LightShadows", false))
+    // {
+    //     return;
+    // }
 
-    const float angleRad = DegToRad(angle);
-    const CVector vehPos = pEntity->GetPosition();
-    const CMatrix& entityMatrix = *(CMatrix*)pEntity->m_matrix;
+    // const CVector vehiclePos = pEntity->GetPosition();
+    // const CVector dPos = pEntity->TransformFromObjectSpace(position);
 
-    auto RotateVector2D = [angleRad](const CVector& v) -> CVector {
-        return {
-            v.x * cos(angleRad) - v.y * sin(angleRad),
-            v.x * sin(angleRad) + v.y * cos(angleRad),
-            v.z
-        };
-    };
-    CVector upDir = entityMatrix.up;
-    CVector rightDir = entityMatrix.right;
-    
-    upDir.z = rightDir.z = 0.0f; // Flatten vertical influence
-    upDir.Normalise();
-    rightDir.Normalise();
+    // // Direction from dummy to vehicle (2D)
+    // CVector2D dirToVehicle = CVector2D(vehiclePos - dPos).Normalized();
+    // CVector2D shadowDir = -dirToVehicle; // Flip to point away
 
-    CVector up    = RotateVector2D(upDir * shdwSz.y);
-    CVector right = RotateVector2D(rightDir * shdwSz.x);
+    // // Shadow rectangle vectors
+    // CVector2D shdwFront = shadowDir * shdwSz.y;
+    // CVector2D shdwSide  = shadowDir.GetPerpRight() * shdwSz.x;
 
-    CVector nSize = {0.0f, 0.0f, 0.0f};
-    switch (dummyPos)
-    {
-        case eDummyPos::Right: nSize = { shdwSz.y,  0.0f, 0.0f }; break;
-        case eDummyPos::Left:  nSize = {-shdwSz.y,  0.0f, 0.0f }; break;
-        case eDummyPos::Front: nSize = { 0.0f,      shdwSz.y, 0.0f }; break;
-        case eDummyPos::Rear:  nSize = { 0.0f,     -shdwSz.y, 0.0f }; break;
-        default: break;
-    }
+    // // Shadow position offset (in front of dummy)
+    // CVector shdwPos = dummyPos + CVector(shadowDir * (shdwSz.y * 0.5f), 2.0f);
 
-    CVector nOffset = {
-        shdwOffset.x * cos(angleRad) - shdwOffset.y * sin(angleRad),
-        shdwOffset.x * sin(angleRad) + shdwOffset.y * cos(angleRad),
-        0.0f
-    };
+    // // Optional: clamp to ground
+    // shdwPos.z = CWorld::FindGroundZFor3DCoord(shdwPos.x, shdwPos.y, shdwPos.z + 100.0f, nullptr, &pEntity) + 2.0f;
 
-    CVector shdwPos = pEntity->TransformFromObjectSpace(position + nOffset + nSize);
-    shdwPos.z = CWorld::FindGroundZFor3DCoord(shdwPos.x, shdwPos.y, shdwPos.z + 100.0f,  NULL, &pEntity) + 2.0f;
+    // if (fabs(shdwPos.z - vehiclePos.z) > 15.0f)
+    //     return;
 
-    const float zDiff = abs(shdwPos.z - vehPos.z);
-    if (zDiff > 3.0f)
-        shdwPos.z = vehPos.z + position.z + 1.0f;
+    // RwTexture* pTex = pTexture ? pTexture : TextureMgr::Get(shadwTexName, gGlobalShadowIntensity);
 
-    if (abs(vehPos.z - shdwPos.z) > 15.0f)
-        return;
-
-    RwTexture* pTex = (pTexture != nullptr)
-        ? pTexture
-        : TextureMgr::Get(shadwTexName, gGlobalShadowIntensity);
-
-    if (pTex)
-    {
-        CShadows::StoreShadowToBeRendered(2, pTex, &shdwPos,
-                                          up.x, up.y,
-                                          right.x, right.y,
-                                          col.a, col.r, col.g, col.b,
-                                          6.0f, false, 1.0f, 0, true);
-    }
+    // if (pTex)
+    // {
+    //     CShadows::StoreShadowToBeRendered(2, pTex, &shdwPos,
+    //                                       shdwFront.x, shdwFront.y,
+    //                                       shdwSide.x,  shdwSide.y,
+    //                                       col.a, col.r, col.g, col.b,
+    //                                       6.0f, false, 1.0f, 0, true);
+    // }
 }
