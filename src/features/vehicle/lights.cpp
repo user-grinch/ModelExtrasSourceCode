@@ -193,11 +193,11 @@ void Lights::Initialize()
 			c.corona.color = c.shadow.color = {240, 0, 0, static_cast<unsigned char>(gGlobalCoronaIntensity)};
 			c.corona.lightingType = eLightingMode::Directional;
 		}
-		else if (name.starts_with("light_day")) {
+		else if (name.starts_with("light_d")) {
 			c.lightType = eLightType::DayLight;
 			c.dummyType = eDummyPos::Front;
 		}
-		else if (name.starts_with("light_nigh")) {
+		else if (name.starts_with("light_n")) {
 			c.lightType = eLightType::NightLight;
 			c.dummyType = eDummyPos::Front;
 		}
@@ -230,7 +230,7 @@ void Lights::Initialize()
 		else if (name.starts_with("spotlight_light")) {
 			c.lightType = eLightType::SpotLight;
 		}
-		else if (name.starts_with("light_allday")) {
+		else if (name.starts_with("light_a")) {
 			c.lightType = eLightType::AllDayLight;
 			c.dummyType = eDummyPos::Front;
 		}
@@ -731,9 +731,6 @@ void Lights::RenderHeadlights(CVehicle *pControlVeh, bool isLeftOn, bool isRight
 		std::string texName = data.m_bLongLightsOn ? "headlight_long" : "headlight_short";
 		
 		if (isLeftOn || isRightOn) {
-			if (realTime) {
-				CPointLights::AddLight(PLTYPE_SPOTLIGHT, pControlVeh->m_matrix->pos, pControlVeh->m_matrix->up, 20.0f, 1.0, 1.0, 1.0, 0, 0, 0);
-			}
 			if (isLeftOn && GetLightState(pControlVeh, eLightType::HeadLightLeft)) {
 				RenderLights(pControlVeh, pTowedVeh, eLightType::HeadLightLeft, true, texName, headlightSz, isFoggy || data.m_bLongLightsOn);
 			}

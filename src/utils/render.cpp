@@ -9,6 +9,7 @@
 #include "texmgr.h"
 #include "defines.h"
 #include "vehicle/core/dummy.h"
+#include <CPointLights.h>
 
 inline float DotProduct(const CVector& a, const CVector& b) {
     return a.x * b.x + a.y * b.y + a.z * b.z;
@@ -62,49 +63,63 @@ void RenderUtil::RegisterCorona(CEntity *pEntity, int coronaID, CVector pos, CRG
     }
 
     CCoronas::RegisterCorona(coronaID, pEntity, col.r, col.g, col.b, col.a, pos,
-                             size * CORONA_SZ_MUL, 260.0f, CORONATYPE_SHINYSTAR, FLARETYPE_NONE, false, false, 0, 0.0f, false, 0.3f, 0, 30.0f, false, false);
+                             size * CORONA_SZ_MUL, 260.0f, CORONATYPE_SHINYSTAR, FLARETYPE_NONE, true, false, 0, 0.0f, false, 0.3f, 0, 30.0f, false, false);
 };
 
 void RenderUtil::RegisterCoronaDirectional(const VehicleDummyConfig *pConfig, float angle, float radius, float szMul, bool checks, bool inversed) {
     const float FADE_RANGE = 20.0f;
 
-    if (checks && IsShadowTowardVehicle((CMatrix*)&pConfig->frame->ltm, pConfig->pVeh->GetPosition())) {
-        angle += 180.0f;
-    }
+    // Disable rotation check when pointing upwards
+    CMatrix mat = *(CMatrix*)&pConfig->frame->ltm;
+    CVector forward = mat.up;
+    CVector up = {0.0f, 0.0f, 1.0f};      
 
-    if (inversed) {
-        angle += 180.0f;
-    }
-
-    float vehicleAngle = Util::NormalizeAngle(Util::RadToDeg(pConfig->pVeh->GetHeading()));
-    float cameraAngle = Util::NormalizeAngle(Util::RadToDeg(TheCamera.GetHeading()));
-    float dummyAngle = Util::NormalizeAngle(vehicleAngle + angle);
-    float diffAngle = Util::NormalizeAngle(cameraAngle - dummyAngle);
-    float cutoff = (radius / 2.0f);
+    float alignment = DotProduct(forward, up);
     float sz = pConfig->corona.size * szMul;
-
-    if (diffAngle < cutoff || diffAngle > (360.0f - cutoff)) {
-        return;
-    }
-
     CRGBA col = pConfig->corona.color;
-    if (diffAngle < cutoff + FADE_RANGE) {
-        float adjustedAngle = cutoff - diffAngle;
-        float mul = std::fabs(adjustedAngle / FADE_RANGE);
-        col.a *= mul;
-    } else if (diffAngle > (360.0f - cutoff - FADE_RANGE)) {
-        float adjustedAngle = FADE_RANGE - (diffAngle - (360.0f - cutoff - FADE_RANGE));
-        float mul = std::fabs(adjustedAngle / FADE_RANGE);
-        col.a *= mul;
-    }
 
+    if (alignment <= 0.7f) {
+        if (checks && IsShadowTowardVehicle((CMatrix*)&pConfig->frame->ltm, pConfig->pVeh->GetPosition())) {
+            angle += 180.0f;
+        }
+
+        if (inversed) {
+            angle += 180.0f;
+        }
+
+        float vehicleAngle = Util::NormalizeAngle(Util::RadToDeg(pConfig->pVeh->GetHeading()));
+        float cameraAngle = Util::NormalizeAngle(Util::RadToDeg(TheCamera.GetHeading()));
+        float dummyAngle = Util::NormalizeAngle(vehicleAngle + angle);
+        float diffAngle = Util::NormalizeAngle(cameraAngle - dummyAngle);
+        float cutoff = (radius / 2.0f);
+
+        if (diffAngle < cutoff || diffAngle > (360.0f - cutoff)) {
+            return;
+        }
+
+        if (diffAngle < cutoff + FADE_RANGE) {
+            float adjustedAngle = cutoff - diffAngle;
+            float mul = std::fabs(adjustedAngle / FADE_RANGE);
+            col.a *= mul;
+        } else if (diffAngle > (360.0f - cutoff - FADE_RANGE)) {
+            float adjustedAngle = FADE_RANGE - (diffAngle - (360.0f - cutoff - FADE_RANGE));
+            float mul = std::fabs(adjustedAngle / FADE_RANGE);
+            col.a *= mul;
+        }
+
+        if (IsShadowTowardVehicle(&mat, pConfig->pVeh->GetPosition())) {
+            RotateMatrix180Z(mat);
+        }
+        CPointLights::AddLight(PLTYPE_SPOTLIGHT, mat.pos, mat.up, 10.0f, col.r/255.0, col.g/255.0, col.b/255.0, 0, 0, 0);
+    }
     RegisterCorona(pConfig->pVeh, reinterpret_cast<int32_t>(pConfig), pConfig->position, col, sz);
 }
 
 extern int gGlobalShadowIntensity;
 
 void RenderUtil::RegisterShadowDirectional(const VehicleDummyConfig* pConfig, const std::string& shadwTexName, float shdwSz)
-{
+{   
+    const float SHDW_SZ_MUL = 2.0f;
     if (!pConfig->pVeh || !pConfig || shdwSz == 0.0f || !gConfig.ReadBoolean("VEHICLE_FEATURES", "LightShadows", false)) {
         return;
     }
@@ -141,9 +156,9 @@ void RenderUtil::RegisterShadowDirectional(const VehicleDummyConfig* pConfig, co
     CVector2D rotatedOffset = Rotate2D(localOffset, heading);
 
     // Push shadow forward along light direction
-    rotatedOffset += CVector(rotatedLightDir.x, rotatedLightDir.y, 0.0f) * (shdwSz * 2.0f);
+    rotatedOffset += CVector(rotatedLightDir.x, rotatedLightDir.y, 0.0f) * (shdwSz * SHDW_SZ_MUL + 0.2f);
 
-    CVector2D shdwFront(rotatedLightDir.x * (shdwSz * 2.0f), rotatedLightDir.y * (shdwSz * 2.0f));
+    CVector2D shdwFront(rotatedLightDir.x * (shdwSz * SHDW_SZ_MUL), rotatedLightDir.y * (shdwSz * SHDW_SZ_MUL));
     CVector2D perpVec(rotatedLightDir.x * shdwSz, rotatedLightDir.y * shdwSz);
     CVector2D shdwSide = GetPerpRight(perpVec);
 
