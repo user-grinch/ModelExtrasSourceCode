@@ -20,7 +20,7 @@ bool gbGlobalIndicatorLights = false;
 float gfGlobalCoronaSize = 0.3f;
 int gGlobalCoronaIntensity = 80;
 int gGlobalShadowIntensity = 80;
-float headlightSz = 4.0f;
+float headlightSz = 5.0f;
 
 int GetStrobeIndex(CVehicle *pVeh, RpMaterial *pMat) {
 	return pMat->color.blue;
@@ -423,7 +423,7 @@ void Lights::Initialize()
 		}
 
 		std::string shdwName = (isBike ? "taillight_bike" : "taillight");
-		float shdwSz = 1.0f;
+		float shdwSz = 2.0f;
 
 		if (pControlVeh->m_nVehicleSubClass == VEHICLE_AUTOMOBILE || pControlVeh->m_nVehicleSubClass == VEHICLE_MTRUCK
 			|| pControlVeh->m_nVehicleSubClass == VEHICLE_QUAD || pControlVeh->m_nVehicleSubClass == VEHICLE_BIKE
@@ -755,7 +755,7 @@ void Lights::EnableDummy(int id, VehicleDummy *dummy, CVehicle *pVeh, float szMu
 		}
 		else
 		{
-			RenderUtil::RegisterCoronaDirectional(&dummy->Get(), c.rotation.angle, 180.0f, szMul, c.corona.lightingType == eLightingMode::Inversed, true);
+			RenderUtil::RegisterCoronaDirectional(&dummy->Get(), c.rotation.angle, 180.0f, szMul, true, c.corona.lightingType == eLightingMode::Inversed);
 		}
 	}
 }

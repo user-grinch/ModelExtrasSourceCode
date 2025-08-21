@@ -66,21 +66,21 @@ void RenderUtil::RegisterCorona(CEntity *pEntity, int coronaID, CVector pos, CRG
 };
 
 void RenderUtil::RegisterCoronaDirectional(const VehicleDummyConfig *pConfig, float angle, float radius, float szMul, bool checks, bool inversed) {
+    const float FADE_RANGE = 20.0f;
 
     if (checks && IsShadowTowardVehicle((CMatrix*)&pConfig->frame->ltm, pConfig->pVeh->GetPosition())) {
         angle += 180.0f;
     }
 
-    if (!inversed) {
+    if (inversed) {
         angle += 180.0f;
     }
 
     float vehicleAngle = Util::NormalizeAngle(Util::RadToDeg(pConfig->pVeh->GetHeading()));
     float cameraAngle = Util::NormalizeAngle(Util::RadToDeg(TheCamera.GetHeading()));
     float dummyAngle = Util::NormalizeAngle(vehicleAngle + angle);
-    float fadeRange = 20.0f;
+    float diffAngle = Util::NormalizeAngle(cameraAngle - dummyAngle);
     float cutoff = (radius / 2.0f);
-    float diffAngle = std::fabs(std::fmod(std::fabs(cameraAngle - dummyAngle) + 180.0f, 360.0f) - 180.0f);
     float sz = pConfig->corona.size * szMul;
 
     if (diffAngle < cutoff || diffAngle > (360.0f - cutoff)) {
@@ -88,13 +88,13 @@ void RenderUtil::RegisterCoronaDirectional(const VehicleDummyConfig *pConfig, fl
     }
 
     CRGBA col = pConfig->corona.color;
-    if (diffAngle < cutoff + fadeRange) {
+    if (diffAngle < cutoff + FADE_RANGE) {
         float adjustedAngle = cutoff - diffAngle;
-        float mul = std::fabs(adjustedAngle / fadeRange);
+        float mul = std::fabs(adjustedAngle / FADE_RANGE);
         col.a *= mul;
-    } else if (diffAngle > (360.0f - cutoff - fadeRange)) {
-        float adjustedAngle = fadeRange - (diffAngle - (360.0f - cutoff - fadeRange));
-        float mul = std::fabs(adjustedAngle / fadeRange);
+    } else if (diffAngle > (360.0f - cutoff - FADE_RANGE)) {
+        float adjustedAngle = FADE_RANGE - (diffAngle - (360.0f - cutoff - FADE_RANGE));
+        float mul = std::fabs(adjustedAngle / FADE_RANGE);
         col.a *= mul;
     }
 
@@ -141,7 +141,7 @@ void RenderUtil::RegisterShadowDirectional(const VehicleDummyConfig* pConfig, co
     CVector2D rotatedOffset = Rotate2D(localOffset, heading);
 
     // Push shadow forward along light direction
-    rotatedOffset += CVector(rotatedLightDir.x, rotatedLightDir.y, 0.0f) * (shdwSz * 2.0f + 1.0f);
+    rotatedOffset += CVector(rotatedLightDir.x, rotatedLightDir.y, 0.0f) * (shdwSz * 2.0f);
 
     CVector2D shdwFront(rotatedLightDir.x * (shdwSz * 2.0f), rotatedLightDir.y * (shdwSz * 2.0f));
     CVector2D perpVec(rotatedLightDir.x * shdwSz, rotatedLightDir.y * shdwSz);
