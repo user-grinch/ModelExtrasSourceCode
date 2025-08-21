@@ -755,7 +755,7 @@ void Lights::EnableDummy(int id, VehicleDummy *dummy, CVehicle *pVeh, float szMu
 		}
 		else
 		{
-			RenderUtil::RegisterCoronaDirectional(&dummy->Get(), c.rotation.angle + (c.corona.lightingType == eLightingMode::Inversed ? 180.0f : 0.0f), 180.0f, szMul);
+			RenderUtil::RegisterCoronaDirectional(&dummy->Get(), c.rotation.angle, 180.0f, szMul, c.corona.lightingType == eLightingMode::Inversed, true);
 		}
 	}
 }
