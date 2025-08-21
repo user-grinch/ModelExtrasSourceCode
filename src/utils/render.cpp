@@ -10,57 +10,9 @@
 #include "defines.h"
 #include "vehicle/core/dummy.h"
 
-void RenderUtil::RegisterCorona(CEntity *pEntity, int coronaID, CVector pos, CRGBA col, float size)
-{
-    if (!gConfig.ReadBoolean("VEHICLE_FEATURES", "LightCoronas", false))
-    {
-        return;
-    }
-
-    CCoronas::RegisterCorona(coronaID, pEntity, col.r, col.g, col.b, col.a, pos,
-                             size * CORONA_SZ_MUL, 260.0f, CORONATYPE_SHINYSTAR, FLARETYPE_NONE, false, false, 0, 0.0f, false, 0.3f, 0, 30.0f, false, false);
-};
-
-void RenderUtil::RegisterCoronaWithAngle(CEntity *pEntity, int coronaID, CVector posn, CRGBA col, float angle, float radius, float size)
-{
-    constexpr float RAD_TO_DEG = 180.0f / 3.141592653589793f;
-
-    float vehicleAngle = Util::NormalizeAngle(pEntity->GetHeading() * RAD_TO_DEG);
-    float cameraAngle = Util::NormalizeAngle(TheCamera.GetHeading() * RAD_TO_DEG);
-    float dummyAngle = Util::NormalizeAngle(vehicleAngle + angle);
-    float fadeRange = 20.0f;
-    float cutoff = (radius / 2.0f);
-    float diffAngle = std::fabs(std::fmod(std::fabs(cameraAngle - dummyAngle) + 180.0f, 360.0f) - 180.0f);
-
-    if (diffAngle < cutoff || diffAngle > (360.0f - cutoff))
-    {
-        return;
-    }
-
-    if (diffAngle < cutoff + fadeRange)
-    {
-        float adjustedAngle = cutoff - diffAngle;
-        float mul = std::fabs(adjustedAngle / fadeRange);
-        col.a *= mul;
-    }
-    else if (diffAngle > (360.0f - cutoff - fadeRange))
-    {
-        float adjustedAngle = fadeRange - (diffAngle - (360.0f - cutoff - fadeRange));
-        float mul = std::fabs(adjustedAngle / fadeRange);
-        col.a *= mul;
-    }
-
-    RegisterCorona(pEntity, coronaID, posn, col, size);
+inline float DotProduct(const CVector& a, const CVector& b) {
+    return a.x * b.x + a.y * b.y + a.z * b.z;
 }
-
-extern int gGlobalShadowIntensity;
-
-#include "plugin.h"
-#include "CEntity.h"
-#include "CVehicle.h"
-#include "CPed.h"
-#include "CVector.h"
-#include <cmath>
 
 inline CVector2D GetPerpRight(const CVector2D& vec) {
     return { vec.y, -vec.x };
@@ -73,11 +25,6 @@ inline CVector2D Rotate2D(const CVector2D& vec, float angle) {
         vec.x * cosA - vec.y * sinA,
         vec.x * sinA + vec.y * cosA
     );
-}
-
-inline float DotProduct(const CVector& a, const CVector& b)
-{
-    return a.x * b.x + a.y * b.y + a.z * b.z;
 }
 
 bool IsShadowTowardVehicle(CMatrix* dummyMatrix, CVector vehicleCenter) {
@@ -109,20 +56,62 @@ void RotateMatrix180Z(CMatrix& mat) {
     // forward stays unchanged (Z axis)
 }
 
-void RenderUtil::RegisterShadowDirectional(CVehicle* pVeh, VehicleDummyConfig* pConfig, const std::string& shadwTexName, float shdwSz)
-{
-    if (!pVeh || !pConfig || shdwSz == 0.0f || !gConfig.ReadBoolean("VEHICLE_FEATURES", "LightShadows", false)) {
+void RenderUtil::RegisterCorona(CEntity *pEntity, int coronaID, CVector pos, CRGBA col, float size) {
+    if (!gConfig.ReadBoolean("VEHICLE_FEATURES", "LightCoronas", false)) {
         return;
     }
 
-    float heading = pVeh->GetHeading();
+    CCoronas::RegisterCorona(coronaID, pEntity, col.r, col.g, col.b, col.a, pos,
+                             size * CORONA_SZ_MUL, 260.0f, CORONATYPE_SHINYSTAR, FLARETYPE_NONE, false, false, 0, 0.0f, false, 0.3f, 0, 30.0f, false, false);
+};
+
+void RenderUtil::RegisterCoronaDirectional(const VehicleDummyConfig *pConfig, float angle, float radius, float szMul) {
+    if (IsShadowTowardVehicle((CMatrix*)&pConfig->frame->ltm, pConfig->pVeh->GetPosition())) {
+        angle += 180.0f;
+    }
+
+    float vehicleAngle = Util::NormalizeAngle(Util::RadToDeg(pConfig->pVeh->GetHeading()));
+    float cameraAngle = Util::NormalizeAngle(Util::RadToDeg(TheCamera.GetHeading()));
+    float dummyAngle = Util::NormalizeAngle(vehicleAngle + angle);
+    float fadeRange = 20.0f;
+    float cutoff = (radius / 2.0f);
+    float diffAngle = std::fabs(std::fmod(std::fabs(cameraAngle - dummyAngle) + 180.0f, 360.0f) - 180.0f);
+    float sz = pConfig->corona.size * szMul;
+
+    if (diffAngle < cutoff || diffAngle > (360.0f - cutoff)) {
+        return;
+    }
+
+    CRGBA col = pConfig->corona.color;
+    if (diffAngle < cutoff + fadeRange) {
+        float adjustedAngle = cutoff - diffAngle;
+        float mul = std::fabs(adjustedAngle / fadeRange);
+        col.a *= mul;
+    } else if (diffAngle > (360.0f - cutoff - fadeRange)) {
+        float adjustedAngle = fadeRange - (diffAngle - (360.0f - cutoff - fadeRange));
+        float mul = std::fabs(adjustedAngle / fadeRange);
+        col.a *= mul;
+    }
+
+    RegisterCorona(pConfig->pVeh, reinterpret_cast<int32_t>(pConfig), pConfig->position, col, sz);
+}
+
+extern int gGlobalShadowIntensity;
+
+void RenderUtil::RegisterShadowDirectional(const VehicleDummyConfig* pConfig, const std::string& shadwTexName, float shdwSz)
+{
+    if (!pConfig->pVeh || !pConfig || shdwSz == 0.0f || !gConfig.ReadBoolean("VEHICLE_FEATURES", "LightShadows", false)) {
+        return;
+    }
+
+    float heading = pConfig->pVeh->GetHeading();
     CMatrix mat = *(CMatrix*)&pConfig->frame->ltm;
-    if (IsShadowTowardVehicle((CMatrix*)&pConfig->frame->ltm, pVeh->GetPosition())) {
+    if (IsShadowTowardVehicle((CMatrix*)&pConfig->frame->ltm, pConfig->pVeh->GetPosition())) {
         RotateMatrix180Z(mat);
     }
 
     // Dummy offset in local space
-    CMatrix vehMat = *(CMatrix*)pVeh->GetMatrix();
+    CMatrix vehMat = *(CMatrix*)pConfig->pVeh->GetMatrix();
     CVector worldOffset = mat.pos - vehMat.pos; // world-space vector from vehicle to dummy
 
     // Apply inverse rotation manually
@@ -158,9 +147,9 @@ void RenderUtil::RegisterShadowDirectional(CVehicle* pVeh, VehicleDummyConfig* p
         return;
     }
 
-    CVector shdwPos = pVeh->GetPosition() + CVector(rotatedOffset.x, rotatedOffset.y, 2.0f);
+    CVector shdwPos = pConfig->pVeh->GetPosition() + CVector(rotatedOffset.x, rotatedOffset.y, 2.0f);
     CShadows::StoreCarLightShadow(
-        pVeh,
+        pConfig->pVeh,
         reinterpret_cast<int32_t>(pConfig),
         pTex,
         &shdwPos,

@@ -16,6 +16,8 @@ public:
   static CVector UpdateRelativeToBoundingBox(CVehicle *pVeh, eDummyPos dummyPos, CVector center, CVector up, CVector right);
 
   static float NormalizeAngle(float angle);
+  static double RadToDeg(double rad);
+  static double DegToRad(double rad);
  
   // Returns the speed of the vehicle handler
   static float GetVehiclePitch(CVehicle *pVeh);

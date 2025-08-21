@@ -918,9 +918,10 @@ void Sirens::EnableDummy(int id, VehicleDummy *dummy, CVehicle *vehicle, Vehicle
 		alpha = static_cast<char>(std::abs(alpha) * material->InertiaMultiplier);
 	}
 
-	VehicleDummyConfig dummyConfig = dummy->GetRef();
-	dummyConfig.shadow.color = material->Color;
-	float dummyAngle = Util::NormalizeAngle(dummyConfig.rotation.angle + material->Shadow.AngleOffset);
+	VehicleDummyConfig *pDummyConfig = &dummy->Get();
+	pDummyConfig->shadow.color = pDummyConfig->corona.color = material->Color;
+	pDummyConfig->corona.size = material->Size;
+	float dummyAngle = Util::NormalizeAngle(pDummyConfig->rotation.angle + material->Shadow.AngleOffset);
 
 	if (material->Type != eLightingMode::NonDirectional)
 	{
@@ -950,13 +951,11 @@ void Sirens::EnableDummy(int id, VehicleDummy *dummy, CVehicle *vehicle, Vehicle
 			dummy->SetAngle(angle);
 			dummyAngle = Util::NormalizeAngle(dummyAngle);
 		}
-		RenderUtil::RegisterCoronaWithAngle(vehicle, (reinterpret_cast<unsigned int>(vehicle) * 255) + 255 + id, dummyConfig.position,
-									  material->Color,
-									  dummyAngle, material->Radius, material->Size);
-		RenderUtil::RegisterShadowDirectional(vehicle, &dummyConfig, material->Shadow.Type, material->Shadow.Size);
+		RenderUtil::RegisterCoronaDirectional(pDummyConfig, dummyAngle, material->Radius);
+		RenderUtil::RegisterShadowDirectional(pDummyConfig, material->Shadow.Type, material->Shadow.Size);
 	} else {
-		RenderUtil::RegisterCorona(vehicle, (reinterpret_cast<unsigned int>(vehicle) * 255) + 255 + id, dummyConfig.position, material->Color, material->Size);
-		RenderUtil::RegisterShadow(vehicle, dummyConfig.position, *(CRGBA *)&material->Color, dummyAngle + dummyConfig.rotation.currentAngle, dummyConfig.dummyType, material->Shadow.Type, {material->Shadow.Size, material->Shadow.Size}, {material->Shadow.Offset, material->Shadow.Offset}, nullptr);
+		RenderUtil::RegisterCorona(vehicle, (reinterpret_cast<unsigned int>(vehicle) * 255) + 255 + id, pDummyConfig->position, material->Color, material->Size);
+		RenderUtil::RegisterShadow(vehicle, pDummyConfig->position, *(CRGBA *)&material->Color, dummyAngle + pDummyConfig->rotation.currentAngle, pDummyConfig->dummyType, material->Shadow.Type, {material->Shadow.Size, material->Shadow.Size}, {material->Shadow.Offset, material->Shadow.Offset}, nullptr);
 	}
 };
 

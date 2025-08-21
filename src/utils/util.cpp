@@ -23,6 +23,14 @@ float Util::NormalizeAngle(float angle)
     return angle;
 }
 
+double Util::RadToDeg(double rad) {
+    return rad * (180.0 / PI);
+}
+
+double Util::DegToRad(double deg) {
+    return deg * (PI / 180.0);
+}
+
 float Util::GetVehicleSpeed(CVehicle *pVeh)
 {
     return pVeh->m_vecMoveSpeed.Magnitude2D() * 50.0f;
