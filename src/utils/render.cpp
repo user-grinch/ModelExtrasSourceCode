@@ -57,28 +57,29 @@ void RotateMatrix180Z(CMatrix& mat) {
     // forward stays unchanged (Z axis)
 }
 
+bool IsDummyPointingUp(CMatrix mat) {
+    CVector forward = mat.up;
+    CVector up = {0.0f, 0.0f, 1.0f};      
+    float alignment = DotProduct(forward, up);
+    return alignment > 0.7f;
+}
+
 void RenderUtil::RegisterCorona(CEntity *pEntity, int coronaID, CVector pos, CRGBA col, float size) {
     if (!gConfig.ReadBoolean("VEHICLE_FEATURES", "LightCoronas", false)) {
         return;
     }
 
     CCoronas::RegisterCorona(coronaID, pEntity, col.r, col.g, col.b, col.a, pos,
-                             size * CORONA_SZ_MUL, 260.0f, CORONATYPE_SHINYSTAR, FLARETYPE_NONE, true, false, 0, 0.0f, false, 0.3f, 0, 30.0f, false, false);
+                             size * CORONA_SZ_MUL, 260.0f, CORONATYPE_HEADLIGHT, FLARETYPE_NONE, true, false, 0, 0.0f, false, 0.3f, 0, 30.0f, false, false);
 };
 
 void RenderUtil::RegisterCoronaDirectional(const VehicleDummyConfig *pConfig, float angle, float radius, float szMul, bool checks, bool inversed) {
     const float FADE_RANGE = 20.0f;
-
-    // Disable rotation check when pointing upwards
-    CMatrix mat = *(CMatrix*)&pConfig->frame->ltm;
-    CVector forward = mat.up;
-    CVector up = {0.0f, 0.0f, 1.0f};      
-
-    float alignment = DotProduct(forward, up);
     float sz = pConfig->corona.size * szMul;
     CRGBA col = pConfig->corona.color;
 
-    if (alignment <= 0.7f) {
+    CMatrix mat = *(CMatrix*)&pConfig->frame->ltm;
+    if (!IsDummyPointingUp(mat)) {
         if (checks && IsShadowTowardVehicle((CMatrix*)&pConfig->frame->ltm, pConfig->pVeh->GetPosition())) {
             angle += 180.0f;
         }
@@ -121,6 +122,10 @@ void RenderUtil::RegisterShadowDirectional(const VehicleDummyConfig* pConfig, co
 {   
     const float SHDW_SZ_MUL = 2.0f;
     if (!pConfig->pVeh || !pConfig || shdwSz == 0.0f || !gConfig.ReadBoolean("VEHICLE_FEATURES", "LightShadows", false)) {
+        return;
+    }
+
+    if (IsDummyPointingUp(*(CMatrix*)&pConfig->frame->ltm)) {
         return;
     }
 

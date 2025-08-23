@@ -97,6 +97,7 @@ VehicleDummy::VehicleDummy(const VehicleDummyConfig& config)
             }
             else
             {
+                data.corona.lightingType = eLightingMode::NonDirectional;
                 LOG_VERBOSE("Model {} has issue with node `{}`: invalid light type", data.pVeh->m_nModelIndex, name);
             }
 
@@ -110,6 +111,7 @@ VehicleDummy::VehicleDummy(const VehicleDummyConfig& config)
             }
             else
             {
+                data.corona.size = 0.0f;
                 LOG_VERBOSE("Model {} has issue with node `{}`: invalid corona size", data.pVeh->m_nModelIndex, name);
             }
 
@@ -120,6 +122,7 @@ VehicleDummy::VehicleDummy(const VehicleDummyConfig& config)
             }
             else
             {
+                data.shadow.size = 0.0f;
                 LOG_VERBOSE("Model {} has issue with node `{}`: invalid shadow size", data.pVeh->m_nModelIndex, name);
             }
         }
