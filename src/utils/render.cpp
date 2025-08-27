@@ -119,9 +119,14 @@ void RenderUtil::RegisterCoronaDirectional(const VehicleDummyConfig *pConfig, fl
 extern int gGlobalShadowIntensity;
 
 void RenderUtil::RegisterShadowDirectional(const VehicleDummyConfig* pConfig, const std::string& shadwTexName, float shdwSz)
-{   
+{       
     const float SHDW_SZ_MUL = 2.0f;
     if (!pConfig->pVeh || !pConfig || shdwSz == 0.0f || !gConfig.ReadBoolean("VEHICLE_FEATURES", "LightShadows", false)) {
+        return;
+    }
+
+    float lightHeightLimit = gConfig.ReadBoolean("TWEAKS", "LightHeightLimit", false);
+    if (lightHeightLimit != 0.0f && pConfig->frame->modelling.pos.z >= lightHeightLimit) {
         return;
     }
 
@@ -164,7 +169,7 @@ void RenderUtil::RegisterShadowDirectional(const VehicleDummyConfig* pConfig, co
     rotatedOffset += CVector(rotatedLightDir.x, rotatedLightDir.y, 0.0f) * (shdwSz * SHDW_SZ_MUL + 0.2f);
 
     CVector2D shdwFront(rotatedLightDir.x * (shdwSz * SHDW_SZ_MUL), rotatedLightDir.y * (shdwSz * SHDW_SZ_MUL));
-    CVector2D perpVec(rotatedLightDir.x * shdwSz, rotatedLightDir.y * shdwSz);
+    CVector2D perpVec(rotatedLightDir.x * shdwSz * 1.25f, rotatedLightDir.y * shdwSz * 1.25f);
     CVector2D shdwSide = GetPerpRight(perpVec);
 
     RwTexture* pTex = TextureMgr::Get(shadwTexName, gGlobalShadowIntensity);

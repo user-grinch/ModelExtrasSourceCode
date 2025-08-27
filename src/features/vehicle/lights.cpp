@@ -50,6 +50,12 @@ void Lights::Initialize()
 	patch::Nop(0x6E2722, 19);	  // CVehicle::DoHeadLightReflection
 	patch::SetUChar(0x6E1A22, 0); // CVehicle::DoTailLightEffect
 
+	// NOP CVehicle::DoHeadLightBeam
+	if (!gConfig.ReadBoolean("TWEAKS", "HeadLightBeams", false)) {
+		patch::Nop(0x6A2E9F, 0x58);
+		patch::Nop(0x6BDE73, 0x12);
+	}
+
 	plugin::Events::initGameEvent += []()
 	{
 		gbGlobalIndicatorLights = gConfig.ReadBoolean("VEHICLE_FEATURES", "StandardLights_GlobalIndicatorLights", false);
@@ -234,7 +240,7 @@ void Lights::Initialize()
 			c.lightType = eLightType::AllDayLight;
 			c.dummyType = eDummyPos::Front;
 		}
-		else if (name == "taillights" || name == "taillights2") {
+		else if (name.starts_with("taillights")) {
 			c.dummyType = eDummyPos::Rear;
 			c.lightType = eLightType::TailLightRight;
 			c.corona.color = c.shadow.color = {250, 0, 0, static_cast<unsigned char>(gGlobalCoronaIntensity)};
@@ -494,14 +500,14 @@ void Lights::Initialize()
 				}
 				else {
 					auto tailLightsRender = [&](bool leftOk, bool rightOk) {
-						if (IsMatAvail(pTowedVeh, {eLightType::TailLightLeft, eLightType::TailLightRight})) {
+						if (IsMatAvail(pTowedVeh, {eLightType::TailLightLeft, eLightType::TailLightRight}) || IsDummyAvail(pTowedVeh, {eLightType::TailLightLeft, eLightType::TailLightRight})) {
 							if (leftOk) {
 								RenderLights(pControlVeh, pTowedVeh, eLightType::TailLightLeft, true, shdwName, shdwSz);
 							}
 							if (rightOk) {
 								RenderLights(pControlVeh, pTowedVeh, eLightType::TailLightRight, true, shdwName, shdwSz);
 							}
-						} else if (IsMatAvail(pTowedVeh, {eLightType::BrakeLightLeft, eLightType::BrakeLightRight})) {
+						} else if (IsMatAvail(pTowedVeh, {eLightType::BrakeLightLeft, eLightType::BrakeLightRight}) || IsDummyAvail(pTowedVeh, {eLightType::BrakeLightLeft, eLightType::BrakeLightRight})) {
 							if (leftOk) {
 								RenderLights(pControlVeh, pTowedVeh, eLightType::BrakeLightLeft, true, shdwName, shdwSz);
 							}
