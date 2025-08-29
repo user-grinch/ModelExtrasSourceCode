@@ -342,7 +342,7 @@ void Lights::Initialize()
 				continue;
 			}
 
-			if (DistanceBetweenPoints(pVeh->GetPosition(), TheCamera.GetPosition()) < 50.0f || pVeh->GetIsOnScreen()) {
+			if (DistanceBetweenPoints(pVeh->GetPosition(), TheCamera.GetPosition()) < 150.0f || pVeh->GetIsOnScreen()) {
 				bool isLeftFrontOk = !Util::IsLightDamaged(pVeh, eLights::LIGHT_FRONT_LEFT);
 				bool isRightFrontOk = !Util::IsLightDamaged(pVeh, eLights::LIGHT_FRONT_RIGHT);
 				bool isHeadlightLeftOn = pVeh->m_renderLights.m_bLeftFront && isLeftFrontOk;
@@ -488,7 +488,9 @@ void Lights::Initialize()
 				}
 			}
 
-			if (Util::IsNightTime() || pControlVeh->m_nOverrideLights == eLightOverride::ForceLightsOn || pControlVeh->bLightsOn) {
+			bool indicatorOn = data.m_bUsingGlobalIndicators && data.m_nIndicatorState != eIndicatorState::Off;
+			bool tailLightFlag = Util::IsNightTime() || pControlVeh->m_nOverrideLights == eLightOverride::ForceLightsOn || pControlVeh->bLightsOn;
+			if (tailLightFlag || indicatorOn) {
 				if (sttInstalled) {
 					if (isLeftRearOk) {
 						RenderLights(pControlVeh, pTowedVeh, eLightType::STTLightLeft, true, shdwName, shdwSz);
@@ -517,17 +519,17 @@ void Lights::Initialize()
 						}
 					};
 
-					if (data.m_bUsingGlobalIndicators && data.m_nIndicatorState != eIndicatorState::Off) {
+					if (indicatorOn) {
 						if (data.m_nIndicatorState == eIndicatorState::BothOn) {
 							tailLightsRender(isLeftRearOk && !indicatorsDelay, isRightRearOk && !indicatorsDelay);
 						}
 
 						if (data.m_nIndicatorState == eIndicatorState::LeftOn) {
-							tailLightsRender(isLeftRearOk && !indicatorsDelay, isRightRearOk);
+							tailLightsRender(isLeftRearOk && !indicatorsDelay, isRightRearOk && tailLightFlag);
 						}
 
 						if (data.m_nIndicatorState == eIndicatorState::RightOn) {
-							tailLightsRender(isLeftRearOk, isRightRearOk && !indicatorsDelay);
+							tailLightsRender(isLeftRearOk && tailLightFlag, isRightRearOk && !indicatorsDelay);
 						}
 					} else {
 						tailLightsRender(isLeftRearOk, isRightRearOk);

@@ -70,7 +70,7 @@ void RenderUtil::RegisterCorona(CEntity *pEntity, int coronaID, CVector pos, CRG
     }
 
     CCoronas::RegisterCorona(coronaID, pEntity, col.r, col.g, col.b, col.a, pos,
-                             size * CORONA_SZ_MUL, 260.0f, CORONATYPE_HEADLIGHT, FLARETYPE_NONE, true, false, 0, 0.0f, false, 0.3f, 0, 30.0f, false, false);
+                             size * CORONA_SZ_MUL, 260.0f, CORONATYPE_HEADLIGHT, FLARETYPE_NONE, false, false, 0, 0.0f, false, 0.3f, 0, 30.0f, false, false);
 };
 
 void RenderUtil::RegisterCoronaDirectional(const VehicleDummyConfig *pConfig, float angle, float radius, float szMul, bool checks, bool inversed) {
@@ -169,7 +169,7 @@ void RenderUtil::RegisterShadowDirectional(const VehicleDummyConfig* pConfig, co
     rotatedOffset += CVector(rotatedLightDir.x, rotatedLightDir.y, 0.0f) * (shdwSz * SHDW_SZ_MUL + 0.2f);
 
     CVector2D shdwFront(rotatedLightDir.x * (shdwSz * SHDW_SZ_MUL), rotatedLightDir.y * (shdwSz * SHDW_SZ_MUL));
-    CVector2D perpVec(rotatedLightDir.x * shdwSz * 1.25f, rotatedLightDir.y * shdwSz * 1.25f);
+    CVector2D perpVec(rotatedLightDir.x * shdwSz, rotatedLightDir.y * shdwSz);
     CVector2D shdwSide = GetPerpRight(perpVec);
 
     RwTexture* pTex = TextureMgr::Get(shadwTexName, gGlobalShadowIntensity);
