@@ -70,7 +70,7 @@ void RenderUtil::RegisterCorona(CEntity *pEntity, int coronaID, CVector pos, CRG
     }
 
     CCoronas::RegisterCorona(coronaID, pEntity, col.r, col.g, col.b, col.a, pos,
-                             size * CORONA_SZ_MUL, 260.0f, CORONATYPE_HEADLIGHT, FLARETYPE_NONE, false, false, 0, 0.0f, false, 0.3f, 0, 30.0f, false, false);
+                             size * CORONA_SZ_MUL, 260.0f, CORONATYPE_SHINYSTAR, FLARETYPE_NONE, true, false, 0, 0.0f, false, 0.3f, 0, 30.0f, false, false);
 };
 
 void RenderUtil::RegisterCoronaDirectional(const VehicleDummyConfig *pConfig, float angle, float radius, float szMul, bool checks, bool inversed) {
@@ -136,7 +136,7 @@ void RenderUtil::RegisterShadowDirectional(const VehicleDummyConfig* pConfig, co
 
     float heading = pConfig->pVeh->GetHeading();
     CMatrix mat = *(CMatrix*)&pConfig->frame->ltm;
-    if (IsShadowTowardVehicle((CMatrix*)&pConfig->frame->ltm, pConfig->pVeh->GetPosition())) {
+    if (pConfig->shadow.rotationChecks && IsShadowTowardVehicle((CMatrix*)&pConfig->frame->ltm, pConfig->pVeh->GetPosition())) {
         RotateMatrix180Z(mat);
     }
 

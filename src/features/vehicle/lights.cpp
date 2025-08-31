@@ -712,10 +712,10 @@ void Lights::RenderLight(CVehicle *pVeh, eLightType state, bool shadows, std::st
 void Lights::RenderLights(CVehicle *pControlVeh, CVehicle *pTowedVeh, eLightType state, bool shadows, std::string texture, float sz, bool highlight)
 {	
 	int model = pControlVeh->m_nModelIndex;
-	if (CModelInfo::IsHeliModel(model) || CModelInfo::IsPlaneModel(model)) {
-		sz = 1.0f;
-		texture = "pointlight";
-	}
+	// if (CModelInfo::IsHeliModel(model) || CModelInfo::IsPlaneModel(model)) {
+	// 	sz = 1.0f;
+	// 	texture = "pointlight";
+	// }
 
 	if (GetLightState(pControlVeh, state)) {
 		RenderLight(pControlVeh, state, shadows, texture, sz, highlight);
