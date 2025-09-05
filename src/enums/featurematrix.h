@@ -35,5 +35,10 @@ enum class eFeatureMatrix {
     // Weapon Features
     BodyStateVariation,
     CustomSounds,
+
+    // Ped Features
+    GangHands,
+    PedCols,
+
     FeatureCount
 };

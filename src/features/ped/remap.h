@@ -42,6 +42,10 @@ private:
     static inline RwTexDictionary* pedstxdArray[4];
     static inline int pedstxdIndexArray[4];
     static inline bool anyAdditionalPedsTxd;
+	static inline int gangHandsTxdIndex = 0;
+	static inline RwTexDictionary* handsDict;
+	static inline RwTexture* handsBlack;
+	static inline RwTexture* handsWhite;
 
     static void FindRemaps(CPed* ped);
     static void CustomAssignRemapTxd(const char* txdName, uint16_t txdId);

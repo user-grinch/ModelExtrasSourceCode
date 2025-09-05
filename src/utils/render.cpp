@@ -11,10 +11,6 @@
 #include "vehicle/core/dummy.h"
 #include <CPointLights.h>
 
-inline float DotProduct(const CVector& a, const CVector& b) {
-    return a.x * b.x + a.y * b.y + a.z * b.z;
-}
-
 inline CVector2D GetPerpRight(const CVector2D& vec) {
     return { vec.y, -vec.x };
 }

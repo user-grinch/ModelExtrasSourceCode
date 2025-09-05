@@ -31,6 +31,8 @@
 #include <CMessages.h>
 #include "slidedoor.h"
 #include "rotatedoor.h"
+#include "ped/ganghands.h"
+#include "ped/pedcols.h"
 
 void InitLogFile();
 
@@ -78,8 +80,7 @@ void FeatureMgr::Initialize()
 
         // jetpack
         CTaskSimpleJetPack *pTask = pPed->m_pIntelligence->GetTaskJetPack();
-        if (pTask && pTask->m_pJetPackClump)
-        {
+        if (pTask && pTask->m_pJetPackClump) {
             Add(static_cast<void *>(&pPed->m_aWeapons[pPed->m_nSelectedWepSlot]), (RwFrame *)pTask->m_pJetPackClump->object.parent, eModelEntityType::Jetpack);
             Process(static_cast<void *>(&pPed->m_aWeapons[pPed->m_nSelectedWepSlot]), eModelEntityType::Jetpack);
         }
@@ -162,6 +163,22 @@ void FeatureMgr::Initialize()
         m_FunctionTable["x_randomizer"] = Randomizer::Process;
         m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::ModelRandomizer)));
         LOG_NO_LEVEL("  ModelRandomizer");
+    }
+
+    // Bikes Section
+    LOG_NO_LEVEL("\nPed Features->");
+    if (gConfig.ReadBoolean("PED_FEATURES", "HDGangHands", false))
+    {
+        GangHands::Initialize();
+        m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::GangHands)));
+        LOG_NO_LEVEL("  HDGangHands");
+    }
+
+    if (gConfig.ReadBoolean("PED_FEATURES", "PedCols", false))
+    {
+        PedColors::Initialize();
+        m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::PedCols)));
+        LOG_NO_LEVEL("  PedCols");
     }
 
     // Bikes Section
