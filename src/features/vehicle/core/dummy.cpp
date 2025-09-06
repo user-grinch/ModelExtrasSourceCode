@@ -120,6 +120,10 @@ VehicleDummy::VehicleDummy(const VehicleDummyConfig& config)
             {
                 float shadowValue = static_cast<float>(name[prmPos + 12] - '0') / 7.5f;
                 data.shadow.size = std::max(shadowValue, 0.0f);
+
+                if (data.shadow.size > 0.0f) {
+                    data.shadow.render = true;
+                }
             }
             else
             {

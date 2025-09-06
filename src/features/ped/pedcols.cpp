@@ -69,7 +69,6 @@ void PedData::Init(CPed *pPed) {
 }
 
 void PedColors::Initialize() {
-
 	plugin::Events::pedSetModelEvent.after += [](CPed *pPed, int model) {
 		auto &data = m_PedData.Get(pPed);
 		if (!data.m_bInitialized) {
