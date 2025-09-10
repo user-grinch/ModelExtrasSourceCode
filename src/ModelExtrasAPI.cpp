@@ -13,6 +13,10 @@ extern "C" {
     }
 
     bool ME_IsFeatureAvail(ME_FeatureID featureId) {
-        return FeatureMgr::m_bEnabledFeatures.test(featureId);
+        auto idx = static_cast<int>(featureId);
+        if (idx < 0 || idx >= static_cast<int>(eFeatureMatrix::FeatureCount)) {
+            return false;
+        }
+        return FeatureMgr::m_bEnabledFeatures.test(idx);
     }
 }

@@ -543,16 +543,20 @@ void Sirens::Initialize()
 			return eLightType::UnknownLight;
 		}
 		CRGBA col = *reinterpret_cast<CRGBA *>(RpMaterialGetColor(pMat));
-		if (modelData.contains(pVeh->m_nModelIndex)
-			&& (col.b == 255 || col.g == 255 || modelData[pVeh->m_nModelIndex]->isImVehFtSiren)) {
-			if (modelData[pVeh->m_nModelIndex]->isImVehFtSiren && pMat->texture) {
-				if ((std::string(pMat->texture->name).find("siren", 0) != 0 || std::string(pMat->texture->name).find("vehiclelights128", 0) != 0)
-				&& (col.r >= 240 && col.g == 0 && col.b == 0)) {
+
+		if (pMat && pMat->texture && modelData.contains(pVeh->m_nModelIndex)) {
+			bool isSirenTex = std::string(pMat->texture->name).find("siren", 0) != 0 
+								|| std::string(pMat->texture->name).find("vehiclelights128", 0) != 0;
+			bool isIVFSiren = modelData[pVeh->m_nModelIndex]->isImVehFtSiren;
+
+			if (isIVFSiren) {
+				if (isSirenTex && (col.r >= 240 && col.g == 0 && col.b == 0)) {
 					return eLightType::SirenLight;
 				}
-			}
-			else if (col.r > 0 && col.g == 255 && col.b == 255) {
-				return eLightType::SirenLight;
+			} else {
+				if (col.r > 0 && col.g == 255 && col.b == 255) {
+					return eLightType::SirenLight;
+				}
 			}
 		}
 		return eLightType::UnknownLight;
