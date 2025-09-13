@@ -689,11 +689,10 @@ void Lights::RenderLight(CVehicle *pVeh, eLightType state, bool shadows, std::st
 					continue;
 				}
 			}
-
 			EnableDummy((int)pVeh + 42 + id++, e, pVeh, highlight ? 1.75f : 1.0f);
 
 			// Skip front shadows on bike wheelie
-			if ( c.dummyType == eDummyPos::Front && Util::IsVehicleDoingWheelie(pVeh)) {
+			if (c.dummyType == eDummyPos::Front && Util::IsVehicleDoingWheelie(pVeh)) {
 				continue;
 			}
 
@@ -733,6 +732,10 @@ void Lights::RenderHeadlights(CVehicle *pControlVeh, bool isLeftOn, bool isRight
 
 	if (pControlVeh->m_pTrailer) {
 		pTowedVeh = pControlVeh->m_pTrailer;
+	}
+
+	if (CModelInfo::IsTrailerModel(pControlVeh->m_nModelIndex)) {
+		return;
 	}
 
 	if (pControlVeh->bLightsOn) {

@@ -47,3 +47,8 @@ enum eLightType
     IndicatorLightRightMiddle, \
     IndicatorLightRightRear \
 }
+
+#define INDICATOR_LIGHTS_TYPE_REAR { \
+    IndicatorLightLeftRear, \
+    IndicatorLightRightRear \
+}

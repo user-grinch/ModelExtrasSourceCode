@@ -107,7 +107,10 @@ void RenderUtil::RegisterCoronaDirectional(const VehicleDummyConfig *pConfig, fl
         if (IsShadowTowardVehicle(&mat, pConfig->pVeh->GetPosition())) {
             RotateMatrix180Z(mat);
         }
-        CPointLights::AddLight(PLTYPE_SPOTLIGHT, mat.pos, mat.up, 10.0f, col.r/255.0, col.g/255.0, col.b/255.0, 0, 0, 0);
+
+        if (pConfig->lightType == eLightType::HeadLightLeft || pConfig->lightType == eLightType::HeadLightRight) {
+            CPointLights::AddLight(PLTYPE_POINTLIGHT, mat.pos, mat.up, 10.0f, col.r/255.0, col.g/255.0, col.b/255.0, 0, 0, 0);
+        }
     }
     RegisterCorona(pConfig->pVeh, reinterpret_cast<int32_t>(pConfig), pConfig->position, col, sz);
 }
