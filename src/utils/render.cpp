@@ -76,10 +76,6 @@ void RenderUtil::RegisterCoronaDirectional(const VehicleDummyConfig *pConfig, fl
 
     CMatrix mat = *(CMatrix*)&pConfig->frame->ltm;
     if (!IsDummyPointingUp(mat)) {
-        if (checks && IsShadowTowardVehicle((CMatrix*)&pConfig->frame->ltm, pConfig->pVeh->GetPosition())) {
-            angle += 180.0f;
-        }
-
         if (inversed) {
             angle += 180.0f;
         }
@@ -102,10 +98,6 @@ void RenderUtil::RegisterCoronaDirectional(const VehicleDummyConfig *pConfig, fl
             float adjustedAngle = FADE_RANGE - (diffAngle - (360.0f - cutoff - FADE_RANGE));
             float mul = std::fabs(adjustedAngle / FADE_RANGE);
             col.a *= mul;
-        }
-
-        if (IsShadowTowardVehicle(&mat, pConfig->pVeh->GetPosition())) {
-            RotateMatrix180Z(mat);
         }
 
         if (pConfig->lightType == eLightType::HeadLightLeft || pConfig->lightType == eLightType::HeadLightRight) {

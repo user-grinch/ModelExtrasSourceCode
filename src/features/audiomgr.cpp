@@ -62,11 +62,17 @@ void AudioMgr::Initialize()
 
 void AudioMgr::PlayClickSound()
 {
+    if (!ShouldPlaySound()) {
+        return;
+    }
     AudioEngine.ReportFrontendAudioEvent(AE_FRONTEND_RADIO_CLICK_ON, 10.0, 1.0);
 }
 
 void AudioMgr::PlaySwitchSound(CEntity *pEntity)
 {
+    if (!ShouldPlaySound()) {
+        return;
+    }
     static std::string path = MOD_DATA_PATH("audio/effects/switch_toggle.wav");
     PlayFileSound(path, pEntity, 1.0f, true);
 }
@@ -99,8 +105,16 @@ StreamHandle AudioMgr::Load(const std::string &path)
     return handle;
 }
 
+bool AudioMgr::ShouldPlaySound() {
+    return gConfig.ReadBoolean("VEHICLE_FEATURES", "SoundEffects", false);
+}
+
 void AudioMgr::PlayFileSound(const std::string &path, CEntity *pEntity, float volume, bool cached)
 {
+    if (!ShouldPlaySound()) {
+        return;
+    }
+
     StreamHandle handle = NULL;
 
     if (cached)

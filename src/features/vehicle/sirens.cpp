@@ -888,6 +888,8 @@ void Sirens::Initialize()
 	Events::initGameEvent += []
 	{
 		injector::MakeCALL((void *)0x6ABA60, hkRegisterCorona, true);
+		injector::MakeCALL((void *)0x6ABB35, hkRegisterCorona, true);
+		injector::MakeCALL((void *)0x6ABC69, hkRegisterCorona, true);
 		injector::MakeCALL((void *)0x6BD4DD, hkRegisterCorona, true);
 		injector::MakeCALL((void *)0x6BD531, hkRegisterCorona, true);
 	};

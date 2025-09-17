@@ -20,7 +20,8 @@ private:
 
     static StreamHandle Load(const std::string &path);
     static void SetVolume(StreamHandle handle, float volume);
-
+    static bool ShouldPlaySound();
+    
 public:
     static void Initialize();
     static void PlayFileSound(const std::string &path, CEntity *pEntity, float volume = 1.0f, bool cached = false);
