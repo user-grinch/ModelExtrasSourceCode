@@ -19,6 +19,7 @@ struct VehicleDummyConfig {
     eDummyPos dummyType = eDummyPos::None;
     eLightType lightType = eLightType::UnknownLight;
     bool mirroredX = false;
+    bool isParentDummy = false;
     float angleOffset = 0.0f;
 
     struct {

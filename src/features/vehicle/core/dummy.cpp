@@ -28,6 +28,11 @@ VehicleDummy::VehicleDummy(const VehicleDummyConfig& config)
     auto &jsonData = DataMgr::Get(data.pVeh->m_nModelIndex);
     std::string name = GetFrameNodeName(data.frame);
 
+    std::string parentName = GetFrameNodeName(RwFrameGetParent(data.frame));
+    if (parentName.ends_with("_dummy")) {
+        data.isParentDummy = true;
+    }
+
     if (jsonData.contains("lights"))
     {
         std::string newName = name.substr(0, name.find("_prm"));

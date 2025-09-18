@@ -616,24 +616,20 @@ void Lights::Initialize()
 				}
 			} else {
 				if (indState == eIndicatorState::BothOn || indState == eIndicatorState::LeftOn) {
-					if (isLeftFrontOk) {
-						RenderLights(pControlVeh, pTowedVeh, eLightType::IndicatorLightLeftFront, true, "indicator", 1.0f);
-					}
+					RenderLights(pControlVeh, pTowedVeh, eLightType::IndicatorLightLeftFront, true, "indicator", 1.0f, false, isLeftFrontOk);
 					RenderLights(pControlVeh, pTowedVeh, eLightType::IndicatorLightLeftMiddle, true, "indicator", 1.0f);
+					RenderLights(pControlVeh, pTowedVeh, eLightType::IndicatorLightLeftRear, true, "indicator", 1.0f, false, isLeftRearOk);
 					if (isLeftRearOk) {
-						RenderLights(pControlVeh, pTowedVeh, eLightType::IndicatorLightLeftRear, true, "indicator", 1.0f);
 						RenderLights(pControlVeh, pTowedVeh, eLightType::STTLightLeft, true, shdwName, shdwSz, true);
 					}
 				}
 
 				if (indState == eIndicatorState::BothOn || indState == eIndicatorState::RightOn) {
-					if (isRightFrontOk) {
-						RenderLights(pControlVeh, pTowedVeh, eLightType::IndicatorLightRightFront, true, "indicator", 1.0f);
-					}
+					RenderLights(pControlVeh, pTowedVeh, eLightType::IndicatorLightRightFront, true, "indicator", 1.0f, false, isRightFrontOk);
 					RenderLights(pControlVeh, pTowedVeh, eLightType::IndicatorLightRightMiddle, true, "indicator", 1.0f);
+					RenderLights(pControlVeh, pTowedVeh, eLightType::IndicatorLightRightRear, true, "indicator", 1.0f, false, isRightRearOk);
 					if (isRightRearOk) {
-						RenderLights(pControlVeh, pTowedVeh, eLightType::IndicatorLightRightRear, true, "indicator", 1.0f);
-						RenderLights(pControlVeh, pTowedVeh, eLightType::STTLightRight, true, shdwName, shdwSz, true);
+						RenderLights(pControlVeh, pTowedVeh, eLightType::STTLightRight, true, shdwName, shdwSz, true, isRightRearOk);
 					}
 				}
 			}
@@ -652,7 +648,7 @@ void Lights::Initialize()
 	);
 };
 
-void Lights::RenderLight(CVehicle *pVeh, eLightType state, bool shadows, std::string texture, float sz, bool highlight)
+void Lights::RenderLight(CVehicle *pVeh, eLightType state, bool shadows, std::string texture, float sz, bool highlight, bool isDummyOk)
 {
 	int id = static_cast<int>(state) * 1000;
 	bool litMats = true;
@@ -668,7 +664,7 @@ void Lights::RenderLight(CVehicle *pVeh, eLightType state, bool shadows, std::st
 								&& type != eLightType::HeadLightRight 
 								&& !FrameUtil::IsOkAtomicVisible(parent);
 
-			if (atomicCheck || (c.dummyType == eDummyPos::Rear && pVeh->m_pTrailer)) {
+			if (atomicCheck || (c.dummyType == eDummyPos::Rear && pVeh->m_pTrailer) || (!c.isParentDummy && !isDummyOk)) {
 				litMats = false;
 				break;
 			}
@@ -709,7 +705,7 @@ void Lights::RenderLight(CVehicle *pVeh, eLightType state, bool shadows, std::st
 	}
 }
 
-void Lights::RenderLights(CVehicle *pControlVeh, CVehicle *pTowedVeh, eLightType state, bool shadows, std::string texture, float sz, bool highlight)
+void Lights::RenderLights(CVehicle *pControlVeh, CVehicle *pTowedVeh, eLightType state, bool shadows, std::string texture, float sz, bool highlight, bool isDummyOk)
 {	
 	int model = pControlVeh->m_nModelIndex;
 	// if (CModelInfo::IsHeliModel(model) || CModelInfo::IsPlaneModel(model)) {
@@ -718,11 +714,11 @@ void Lights::RenderLights(CVehicle *pControlVeh, CVehicle *pTowedVeh, eLightType
 	// }
 
 	if (GetLightState(pControlVeh, state)) {
-		RenderLight(pControlVeh, state, shadows, texture, sz, highlight);
+		RenderLight(pControlVeh, state, shadows, texture, sz, highlight, isDummyOk);
 	}
 
 	if (pControlVeh != pTowedVeh && GetLightState(pTowedVeh, state)) {
-		RenderLight(pTowedVeh, state, shadows, texture, sz, highlight);
+		RenderLight(pTowedVeh, state, shadows, texture, sz, highlight, isDummyOk);
 	}
 }
 
