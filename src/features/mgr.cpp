@@ -33,6 +33,7 @@
 #include "rotatedoor.h"
 #include "ped/ganghands.h"
 #include "ped/pedcols.h"
+#include "vehicle/exhausts.h"
 
 void InitLogFile();
 
@@ -214,7 +215,6 @@ void FeatureMgr::Initialize()
 
     // Vehicle Section
     LOG_NO_LEVEL("\nVehicle Features->");
-
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "AnimatedChain", false))
     {
         ChainFeature::Initialize();
@@ -291,6 +291,13 @@ void FeatureMgr::Initialize()
         DirtFx::Initialize();
         m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::DirtFX)));
         LOG_NO_LEVEL("  DirtFX");
+    }
+
+    if (gConfig.ReadBoolean("VEHICLE_FEATURES", "ExhaustFx", false))
+    {
+        ExhaustFx::Initialize();
+        m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::ExhaustFx)));
+        LOG_NO_LEVEL("  ExhaustFx");
     }
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "HDLicensePlate", false))
@@ -380,6 +387,7 @@ void FeatureMgr::Reload(CVehicle *pVeh)
     Lights::Reload(pVeh);
     Sirens::Reload(pVeh);
     ModelInfoMgr::Reload(pVeh);
+    ExhaustFx::Reload();
     CHud::SetHelpMessage("Config reloaded", false, false, true);
 }
 

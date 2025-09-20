@@ -40,5 +40,7 @@ enum class eFeatureMatrix {
     GangHands,
     PedCols,
 
+    ExhaustFx,
+
     FeatureCount
 };
