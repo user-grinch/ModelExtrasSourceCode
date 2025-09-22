@@ -21,17 +21,24 @@ private:
     };
 
     struct VehData {
+        bool isUsed = false;
         size_t reloadCount = 0;
         std::unordered_map<std::string, FrameData> m_pDummies;
-        VehData(CVehicle *pVeh) {}
+        VehData(CVehicle *pVeh) {
+            isUsed = false;
+        }
         ~VehData() {}
     };
 
-    static inline VehicleExtendedData<VehData> xData;
     static void RenderParticles(CVehicle *pVeh, const FrameData &info);
     static FrameData LoadData(CVehicle *pVeh, RwFrame *pFrame);
+    static inline VehicleExtendedData<VehData> xData;
+
+    template<uintptr_t addr>
+    static void hkAddExhaustParticles();
 
 public:
+
 	static void Initialize();
     static void Reload();
 };

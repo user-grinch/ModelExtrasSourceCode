@@ -11,6 +11,17 @@
 
 #define NODE_NAME "x_exhaust"
 
+template<uintptr_t addr>
+void ExhaustFx::hkAddExhaustParticles() {
+	using func_hook = injector::function_hooker_thiscall<injector::scoped_call, addr, void(CVehicle *)>;
+	injector::make_static_hook<func_hook>([](func_hook::func_type ogFunc, CVehicle *pVeh) {
+		auto &data = xData.Get(pVeh); 
+        if (!data.isUsed) {
+            ogFunc(pVeh);
+        }
+	});
+}
+
 void ExhaustFx::Initialize() {
     m_bEnabled = true;
 
@@ -18,6 +29,7 @@ void ExhaustFx::Initialize() {
         std::string name = GetFrameNodeName(pFrame);
         if (name.starts_with(NODE_NAME)) {
             auto &data = xData.Get(pVeh); 
+            data.isUsed = true;
             data.m_pDummies[std::move(name)] = std::move(LoadData(pVeh, pFrame));
         }
     });
@@ -28,11 +40,13 @@ void ExhaustFx::Initialize() {
         }
 
         VehData &data = xData.Get(pVeh); 
-        
         for (auto& e : data.m_pDummies) {
             RenderParticles(pVeh, e.second);
         }
     });
+
+    hkAddExhaustParticles<0x6AB344>();
+    hkAddExhaustParticles<0x6BD3FF>();
 }
 
 ExhaustFx::FrameData ExhaustFx::LoadData(CVehicle *pVeh, RwFrame *pFrame) {
