@@ -8,6 +8,7 @@ void UpdateRotation(CVehicle *pVeh, RwFrame *ori, RwFrame *tar)
     {
         float oriRot = MatrixUtil::GetRotationZ(&ori->modelling);
         MatrixUtil::SetRotationZ(&tar->modelling, oriRot);
+        tar->modelling.pos.z = ori->modelling.pos.z;
         pVeh->UpdateRwFrame();
     }
 }
