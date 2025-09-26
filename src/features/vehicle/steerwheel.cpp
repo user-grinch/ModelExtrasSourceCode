@@ -5,8 +5,7 @@
 
 void SteerWheel::Initialize()
 {
-    ModelInfoMgr::RegisterDummy([](CVehicle *pVeh, RwFrame *pFrame)
-                               {
+    ModelInfoMgr::RegisterDummy([](CVehicle *pVeh, RwFrame *pFrame) {
         auto& data = xData.Get(pVeh);
 
         // VehFuncs
@@ -34,10 +33,10 @@ void SteerWheel::Initialize()
         } else if (name.starts_with("steering_dummy")) {
             data.factor = ROTATION_VAL;
             data.pFrame = pFrame;
-        } });
+        } 
+    });
 
-    ModelInfoMgr::RegisterRender([](CVehicle *pVeh)
-                                {
+    ModelInfoMgr::RegisterRender([](CVehicle *pVeh) {
         if (!pVeh || !pVeh->GetIsOnScreen())
         {
             return;
@@ -51,5 +50,6 @@ void SteerWheel::Initialize()
         float angle = pVeh->m_fSteerAngle * (1.666666f);
         MatrixUtil::ResetRotation(&data.pFrame->modelling);
         MatrixUtil::SetRotationY(&data.pFrame->modelling, angle*data.factor); 
-        pVeh->UpdateRwFrame(); });
+        pVeh->UpdateRwMatrix();
+    });
 }
