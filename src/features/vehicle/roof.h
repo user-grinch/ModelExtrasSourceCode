@@ -2,7 +2,7 @@
 #include <plugin.h>
 #include <vector>
 
-class ConvertableRoof {
+class ConvertibleRoof {
 protected:
     struct RoofConfig {
       RwFrame* pFrame = nullptr;

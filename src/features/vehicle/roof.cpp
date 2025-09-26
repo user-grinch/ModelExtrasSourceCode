@@ -6,7 +6,7 @@
 #include "util.h"
 #include "CWeather.h"
 
-void ConvertableRoof::Initialize() {
+void ConvertibleRoof::Initialize() {
     ModelInfoMgr::RegisterDummy([](CVehicle* pVeh, RwFrame* pFrame) {
         std::string name = GetFrameNodeName(pFrame);
         if (!name.starts_with("x_convertable_roof"))  {
