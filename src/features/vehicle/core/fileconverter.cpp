@@ -168,7 +168,7 @@ int Convert_EmlToJsonc(const std::string &emlPath)
         state["state"] = starting;
         state["pattern"] = pattern;
         state["shadow"]["angleoffset"] = type == 1 ? 180.0f : 0.0f;
-        state["shadow"]["size"] = shadow / 2;
+        state["shadow"]["size"] = shadow / 1.5f;
         state["inertia"] = flash / 100.0f;
         state["shadow"]["type"] = type == 2 ? "pointlight" :  "round";
         state["type"] = type == 0 ? "directional" : (type == 1 ? "inversed-directional" : "non-directional");
