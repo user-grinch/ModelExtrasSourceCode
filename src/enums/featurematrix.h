@@ -41,6 +41,7 @@ enum class eFeatureMatrix {
     PedCols,
 
     ExhaustFx,
+    ConvertableRoof,
 
     FeatureCount
 };

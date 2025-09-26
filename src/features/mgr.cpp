@@ -34,6 +34,7 @@
 #include "ped/ganghands.h"
 #include "ped/pedcols.h"
 #include "vehicle/exhausts.h"
+#include "vehicle/roof.h"
 
 void InitLogFile();
 
@@ -281,9 +282,16 @@ void FeatureMgr::Initialize()
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "BackfireEffect", false))
     {
-        BackFireEffect::Initialize(NULL, NULL);
+        BackFireEffect::Initialize();
         m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::BackfireEffect)));
         LOG_NO_LEVEL("  BackfireEffect");
+    }
+
+    if (gConfig.ReadBoolean("VEHICLE_FEATURES", "ConvertableRoof", false))
+    {
+        ConvertableRoof::Initialize();
+        m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::ConvertableRoof)));
+        LOG_NO_LEVEL("  ConvertableRoof");
     }
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "DirtFX", false))
