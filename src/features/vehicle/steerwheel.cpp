@@ -48,8 +48,6 @@ void SteerWheel::Initialize()
         }
 
         float angle = pVeh->m_fSteerAngle * (1.666666f);
-        MatrixUtil::ResetRotation(&data.pFrame->modelling);
         MatrixUtil::SetRotationY(&data.pFrame->modelling, angle*data.factor); 
-        pVeh->UpdateRwMatrix();
     });
 }
