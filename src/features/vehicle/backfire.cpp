@@ -82,7 +82,7 @@ void BackFireEffect::BackFireMulti(CVehicle *pVeh)
 std::vector<int> ValidModels = {};
 bool onlySelected = false;
 
-void BackFireEffect::Initialize(RwFrame *frame, CEntity *pVeh)
+void BackFireEffect::Initialize()
 {
     plugin::Events::initGameEvent += []()
     {

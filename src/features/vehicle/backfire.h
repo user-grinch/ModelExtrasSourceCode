@@ -20,5 +20,5 @@ protected:
   static void Process(CVehicle *pVeh);
 
 public:
-  static void Initialize(RwFrame *frame, CEntity *pVeh);
+  static void Initialize();
 };
