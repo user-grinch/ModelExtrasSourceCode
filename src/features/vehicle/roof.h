@@ -4,6 +4,13 @@
 
 class ConvertibleRoof {
 protected:
+    enum class RoofAnimPhase {
+        Idle,
+        OpeningBoots,
+        MovingRoof,
+        ClosingBoots
+    };
+
     struct RoofConfig {
       RwFrame* pFrame = nullptr;
       float speed = 1.0f;
@@ -13,8 +20,10 @@ protected:
 
     struct VehData {
         bool m_bInit = false;
-        std::vector<RoofConfig> m_Roofs;    
+        std::vector<RoofConfig> m_Roofs, m_Boots;    
         bool m_bRoofTargetExpanded = true;
+        bool m_bPrevTarget = true;
+        RoofAnimPhase m_phase = RoofAnimPhase::Idle;
 
         VehData(CVehicle* pVeh) {
             m_bRoofTargetExpanded = RandomNumberInRange(0, 1);
@@ -23,6 +32,7 @@ protected:
     };
 
     static inline VehicleExtendedData<VehData> xData;
+    static bool UpdateRotation(RoofConfig& config, CVehicle *pVeh, bool closed);
 public:
     static void Initialize();
 };

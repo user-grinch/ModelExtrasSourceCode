@@ -6,10 +6,30 @@
 #include "util.h"
 #include "CWeather.h"
 
+bool ConvertibleRoof::UpdateRotation(RoofConfig& config, CVehicle *pVeh, bool closed) {
+    if (config.pFrame) {
+        VehData& data = xData.Get(pVeh);
+        MatrixUtil::SetRotationX(&config.pFrame->modelling, config.currentRot);
+        float target = closed ? 0.0f : config.targetRot;
+        float delta = target - config.currentRot;
+        float step = CTimer::ms_fTimeStep * std::abs(config.targetRot) / 360.0f * config.speed;
+
+        if (std::abs(delta) > step) {
+            config.currentRot += step * (delta > 0.0f ? 1.0f : -1.0f);
+        } else {
+            config.currentRot = target;
+            return true;
+        }
+    }
+    return false;
+}
+
 void ConvertibleRoof::Initialize() {
     ModelInfoMgr::RegisterDummy([](CVehicle* pVeh, RwFrame* pFrame) {
         std::string name = GetFrameNodeName(pFrame);
-        if (!name.starts_with("x_convertable_roof"))  {
+        bool isBoot = name.starts_with("x_convertible_boot");
+        bool isRoof = name.starts_with("x_convertible_roof");
+        if (!isRoof && !isBoot)  {
             return;
         }
 
@@ -23,16 +43,21 @@ void ConvertibleRoof::Initialize() {
         }
 
         VehData& data = xData.Get(pVeh);
+        data.m_bInit = true;
 
         // Randomly open the roofs
-        if (!data.m_bRoofTargetExpanded 
-            && CWeather::NewWeatherType != eWeatherType::WEATHER_RAINY_SF && CWeather::OldWeatherType != eWeatherType::WEATHER_RAINY_SF
-            && CWeather::NewWeatherType != eWeatherType::WEATHER_RAINY_COUNTRYSIDE  && CWeather::OldWeatherType != eWeatherType::WEATHER_RAINY_COUNTRYSIDE) {
-            MatrixUtil::SetRotationX(&pFrame->modelling, c.targetRot);
-            c.currentRot = c.targetRot;
+        if (isRoof) {
+            if (!data.m_bRoofTargetExpanded 
+                && CWeather::NewWeatherType != eWeatherType::WEATHER_RAINY_SF && CWeather::OldWeatherType != eWeatherType::WEATHER_RAINY_SF
+                && CWeather::NewWeatherType != eWeatherType::WEATHER_RAINY_COUNTRYSIDE  && CWeather::OldWeatherType != eWeatherType::WEATHER_RAINY_COUNTRYSIDE) {
+                MatrixUtil::SetRotationX(&pFrame->modelling, c.targetRot);
+                c.currentRot = c.targetRot;
+            }
+            data.m_Roofs.push_back(std::move(c));
+        } else {
+            data.m_Boots.push_back(std::move(c));
         }
-        data.m_bInit = true;
-        data.m_Roofs.push_back(std::move(c));
+
     });
 
     plugin::Events::vehicleRenderEvent += [](CVehicle *pVeh) {
@@ -53,24 +78,59 @@ void ConvertibleRoof::Initialize() {
         }
 
         VehData& data = xData.Get(pVeh);
-        for (auto& e : data.m_Roofs) {
-            if (!e.pFrame) {
-                continue;
-            }
-            
-            MatrixUtil::SetRotationX(&e.pFrame->modelling, e.currentRot);
-            float target = data.m_bRoofTargetExpanded ? 0.0f : e.targetRot;
-            float delta = target - e.currentRot;
-            float step = CTimer::ms_fTimeStep * std::abs(e.targetRot) / 360.0f * e.speed;
+        if (!data.m_bInit)  {
+            return;
+        }
 
-            if (std::abs(delta) > step) {
-                e.currentRot += step * (delta > 0.0f ? 1.0f : -1.0f);
-            } else {
-                e.currentRot = target;
+        if (data.m_bRoofTargetExpanded != data.m_bPrevTarget && data.m_phase == RoofAnimPhase::Idle) {
+            data.m_phase = RoofAnimPhase::OpeningBoots;
+        }
+
+        switch (data.m_phase) {
+            case RoofAnimPhase::OpeningBoots: {
+                bool allOpened = true;
+                for (auto& panel : data.m_Boots) {
+                    if (!UpdateRotation(panel, pVeh, false)) {
+                        allOpened = false;
+                    }
+                }
+                if (allOpened) {
+                    data.m_phase = RoofAnimPhase::MovingRoof;
+                }
+                break;
             }
 
+            case RoofAnimPhase::MovingRoof: {
+                bool allMoved = true;
+                for (auto& roof : data.m_Roofs) {
+                    if (!UpdateRotation(roof, pVeh, data.m_bRoofTargetExpanded)) {
+                        allMoved = false;
+                    }
+                }
+                if (allMoved) {
+                    data.m_phase = RoofAnimPhase::ClosingBoots;
+                }
+                break;
+            }
+
+            case RoofAnimPhase::ClosingBoots: {
+                bool allClosed = true;
+                for (auto& panel : data.m_Boots) {
+                    if (!UpdateRotation(panel, pVeh, true)) {
+                        allClosed = false;
+                    }
+                }
+                if (allClosed) {
+                    data.m_phase = RoofAnimPhase::Idle;
+                    data.m_bPrevTarget = data.m_bRoofTargetExpanded;
+                }
+                break;
+            }
+            default:
+                break;
         }
     });
+
 
     plugin::Events::processScriptsEvent += []() {
         size_t now = CTimer::m_snTimeInMilliseconds;
