@@ -289,7 +289,7 @@ void FeatureMgr::Initialize()
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "ConvertableRoof", false))
     {
-        ConvertableRoof::Initialize();
+        ConvertibleRoof::Initialize();
         m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::ConvertableRoof)));
         LOG_NO_LEVEL("  ConvertableRoof");
     }
