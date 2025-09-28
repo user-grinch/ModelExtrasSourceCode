@@ -103,6 +103,11 @@ void ExhaustFx::RenderParticles(CVehicle* pVeh, const FrameData &info) {
     float alpha = std::max(info.col.a / 255.0f - moveSpeed, 0.0f);
 
     CVector particleDir = info.pFrame->ltm.up; // forward is up in psdk
+
+    // rotate by 180
+    particleDir.x *= -1;
+    particleDir.y *= -1;
+
     CVector parVelocity;
     if (DotProduct(particleDir, pVeh->m_vecMoveSpeed) >= 0.05f) {
         parVelocity = pVeh->m_vecMoveSpeed * 30.0f;

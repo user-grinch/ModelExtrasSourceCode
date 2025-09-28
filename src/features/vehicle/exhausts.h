@@ -17,7 +17,7 @@ private:
         CRGBA col {230, 230, 230, 64};
         float speedMul = 0.5f;
         float lifetime = 0.2f;
-        float sizeMul = 1.0f;
+        float sizeMul = 0.5f;
     };
 
     struct VehData {

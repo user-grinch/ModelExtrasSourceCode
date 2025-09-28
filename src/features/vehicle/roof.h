@@ -4,7 +4,7 @@
 
 class ConvertibleRoof {
 protected:
-    enum class RoofAnimPhase {
+    enum class AnimPhase {
         Idle,
         OpeningBoots,
         MovingRoof,
@@ -23,7 +23,7 @@ protected:
         std::vector<RoofConfig> m_Roofs, m_Boots;    
         bool m_bRoofTargetExpanded = true;
         bool m_bPrevTarget = true;
-        RoofAnimPhase m_phase = RoofAnimPhase::Idle;
+        AnimPhase m_phase = AnimPhase::Idle;
 
         VehData(CVehicle* pVeh) {
             m_bRoofTargetExpanded = RandomNumberInRange(0, 1);

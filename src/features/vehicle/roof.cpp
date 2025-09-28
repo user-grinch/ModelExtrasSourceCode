@@ -82,12 +82,12 @@ void ConvertibleRoof::Initialize() {
             return;
         }
 
-        if (data.m_bRoofTargetExpanded != data.m_bPrevTarget && data.m_phase == RoofAnimPhase::Idle) {
-            data.m_phase = RoofAnimPhase::OpeningBoots;
+        if (data.m_bRoofTargetExpanded != data.m_bPrevTarget && data.m_phase == AnimPhase::Idle) {
+            data.m_phase = AnimPhase::OpeningBoots;
         }
 
         switch (data.m_phase) {
-            case RoofAnimPhase::OpeningBoots: {
+            case AnimPhase::OpeningBoots: {
                 bool allOpened = true;
                 for (auto& panel : data.m_Boots) {
                     if (!UpdateRotation(panel, pVeh, false)) {
@@ -95,12 +95,12 @@ void ConvertibleRoof::Initialize() {
                     }
                 }
                 if (allOpened) {
-                    data.m_phase = RoofAnimPhase::MovingRoof;
+                    data.m_phase = AnimPhase::MovingRoof;
                 }
                 break;
             }
 
-            case RoofAnimPhase::MovingRoof: {
+            case AnimPhase::MovingRoof: {
                 bool allMoved = true;
                 for (auto& roof : data.m_Roofs) {
                     if (!UpdateRotation(roof, pVeh, data.m_bRoofTargetExpanded)) {
@@ -108,12 +108,12 @@ void ConvertibleRoof::Initialize() {
                     }
                 }
                 if (allMoved) {
-                    data.m_phase = RoofAnimPhase::ClosingBoots;
+                    data.m_phase = AnimPhase::ClosingBoots;
                 }
                 break;
             }
 
-            case RoofAnimPhase::ClosingBoots: {
+            case AnimPhase::ClosingBoots: {
                 bool allClosed = true;
                 for (auto& panel : data.m_Boots) {
                     if (!UpdateRotation(panel, pVeh, true)) {
@@ -121,7 +121,7 @@ void ConvertibleRoof::Initialize() {
                     }
                 }
                 if (allClosed) {
-                    data.m_phase = RoofAnimPhase::Idle;
+                    data.m_phase = AnimPhase::Idle;
                     data.m_bPrevTarget = data.m_bRoofTargetExpanded;
                 }
                 break;
