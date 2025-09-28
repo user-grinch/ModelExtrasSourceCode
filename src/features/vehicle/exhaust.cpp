@@ -8,6 +8,7 @@
 
 #include "modelinfomgr.h"
 #include "datamgr.h"
+#include "ModelExtrasAPI.h"
 
 #define NODE_NAME "x_exhaust"
 
@@ -38,7 +39,7 @@ void ExhaustFx::hkDoNitroEffect() {
 }
 
 void ExhaustFx::Initialize() {
-    m_bEnabled = true;
+    bEnabled = true;
 
     ModelInfoMgr::RegisterDummy([](CVehicle *pVeh, RwFrame *pFrame) { 
         std::string name = GetFrameNodeName(pFrame);
@@ -67,31 +68,31 @@ void ExhaustFx::Initialize() {
     hkDoNitroEffect<0x6A40E1>();
 }
 
-ExhaustFx::FrameData ExhaustFx::LoadData(CVehicle *pVeh, RwFrame *pFrame) {
-    FrameData f;
-    f.name = GetFrameNodeName(pFrame);
+ExhaustData ExhaustFx::LoadData(CVehicle *pVeh, RwFrame *pFrame) {
+    ExhaustData f;
+    f.sName = GetFrameNodeName(pFrame);
     f.pFrame = pFrame;
     
     auto &jsonData = DataMgr::Get(pVeh->m_nModelIndex);
-    if (jsonData.contains("exhausts") && jsonData["exhausts"].contains(f.name)) {
-        auto& data = jsonData["exhausts"][f.name];
-        f.lifetime = data.value("lifetime", f.lifetime);
-        f.speedMul *= data.value("speed", 1.0f);
-        f.sizeMul = data.value("size", f.sizeMul);
-        f.supportsNitro = data.value("nitro_effect", f.supportsNitro);
+    if (jsonData.contains("exhausts") && jsonData["exhausts"].contains(f.sName)) {
+        auto& data = jsonData["exhausts"][f.sName];
+        f.fLifeTime = data.value("lifetime", f.fLifeTime);
+        f.fSpeedMul *= data.value("speed", 1.0f);
+        f.fSizeMul = data.value("size", f.fSizeMul);
+        f.bNitroEffect = data.value("nitro_effect", f.bNitroEffect);
 
         if (data.contains("color")) {
-            f.col.r = data["color"].value("red", f.col.r);
-            f.col.g = data["color"].value("green", f.col.g);
-            f.col.b = data["color"].value("blue", f.col.b);
-            f.col.a = data["color"].value("alpha", f.col.a);
+            f.Color.r = data["color"].value("red", f.Color.r);
+            f.Color.g = data["color"].value("green", f.Color.g);
+            f.Color.b = data["color"].value("blue", f.Color.b);
+            f.Color.a = data["color"].value("alpha", f.Color.a);
         }
     }
 
     return f;
 }
 
-void ExhaustFx::RenderSmokeFx(CVehicle* pVeh, const FrameData &info) {
+void ExhaustFx::RenderSmokeFx(CVehicle* pVeh, const ExhaustData &info) {
     if (!pVeh || !pVeh->GetIsOnScreen()) {
         return;
     }
@@ -109,7 +110,7 @@ void ExhaustFx::RenderSmokeFx(CVehicle* pVeh, const FrameData &info) {
     }
 
     auto& data = xData.Get(pVeh);
-    if (data.reloadCount < reloadCount) {
+    if (data.reloadCount < nReloadCount) {
         for (auto& e : data.m_pDummies) {
             e.second = LoadData(pVeh, e.second.pFrame);
         }
@@ -117,9 +118,9 @@ void ExhaustFx::RenderSmokeFx(CVehicle* pVeh, const FrameData &info) {
     }
 
     // properties
-    float moveSpeed = pVeh->m_vecMoveSpeed.Magnitude() * info.speedMul;
-    float life      = std::max(info.lifetime - moveSpeed, 0.0f);
-    float alpha = std::max(info.col.a / 255.0f - moveSpeed, 0.0f);
+    float moveSpeed = pVeh->m_vecMoveSpeed.Magnitude() * info.fSpeedMul;
+    float life      = std::max(info.fLifeTime - moveSpeed, 0.0f);
+    float alpha = std::max(info.Color.a / 255.0f - moveSpeed, 0.0f);
 
     CVector particleDir = info.pFrame->ltm.up; // forward is up in psdk
     particleDir.x *= -1;
@@ -146,14 +147,14 @@ void ExhaustFx::RenderSmokeFx(CVehicle* pVeh, const FrameData &info) {
         return;
     }
 
-    FxPrtMult_c fxPrt(info.col.r / 255.0f, info.col.g / 255.0f, info.col.b / 255.0f, alpha, 0.2f * info.sizeMul, 1.0f, life);
+    FxPrtMult_c fxPrt(info.Color.r / 255.0f, info.Color.g / 255.0f, info.Color.b / 255.0f, alpha, 0.2f * info.fSizeMul, 1.0f, life);
 
     for (int i = 0; i < 2; i++) {
         FxSystem_c* fxSystem = isExhaustSubmerged ? g_fx.m_pPrtBubble : g_fx.m_pPrtSmokeII3expand;
 
         if (isExhaustSubmerged) {
             fxPrt.m_color.alpha = alpha * 0.5f;
-            fxPrt.m_fSize       = 0.6f * info.sizeMul;
+            fxPrt.m_fSize       = 0.6f * info.fSizeMul;
         }
 
         fxSystem->AddParticle(
@@ -173,7 +174,7 @@ void ExhaustFx::RenderSmokeFx(CVehicle* pVeh, const FrameData &info) {
 
             if (isExhaustSubmerged) {
                 fxPrt.m_color.alpha = alpha * 0.5f;
-                fxPrt.m_fSize       = 0.6f * info.sizeMul;
+                fxPrt.m_fSize       = 0.6f * info.fSizeMul;
             }
 
             secondaryFxSystem->AddParticle(
@@ -200,7 +201,7 @@ void ExhaustFx::RenderNitroFx(CVehicle *pVeh, float power) {
     }
 
     for (auto& e : data.m_pDummies) {
-        if (!e.second.supportsNitro) {
+        if (!e.second.bNitroEffect) {
             continue;
         }
 
@@ -217,13 +218,13 @@ void ExhaustFx::RenderNitroFx(CVehicle *pVeh, float power) {
             }
         }
 
-        if (e.second.fxSystem) {
-            e.second.fxSystem->SetConstTime(1, std::fabs(power));
-            if (e.second.fxSystem->m_nPlayStatus == eFxSystemPlayStatus::FX_PLAYING && isExhaustSubmerged) {
-                e.second.fxSystem->Stop();
+        if (e.second.pFxSysem) {
+            e.second.pFxSysem->SetConstTime(1, std::fabs(power));
+            if (e.second.pFxSysem->m_nPlayStatus == eFxSystemPlayStatus::FX_PLAYING && isExhaustSubmerged) {
+                e.second.pFxSysem->Stop();
             }
-            else if (e.second.fxSystem->m_nPlayStatus == eFxSystemPlayStatus::FX_STOPPED && !isExhaustSubmerged) {
-                e.second.fxSystem->Play();
+            else if (e.second.pFxSysem->m_nPlayStatus == eFxSystemPlayStatus::FX_STOPPED && !isExhaustSubmerged) {
+                e.second.pFxSysem->Play();
             }
         }
         else if (!isExhaustSubmerged && dummyMatrix) {
@@ -238,15 +239,78 @@ void ExhaustFx::RenderNitroFx(CVehicle *pVeh, float power) {
                 0
             };
 
-            e.second.fxSystem = g_fxMan.CreateFxSystem((char*)"nitro", &gFlipForward, dummyMatrix, true);
-            if (e.second.fxSystem) {
-                e.second.fxSystem->SetLocalParticles(true);
-                e.second.fxSystem->Play();
+            e.second.pFxSysem = g_fxMan.CreateFxSystem((char*)"nitro", &gFlipForward, dummyMatrix, true);
+            if (e.second.pFxSysem) {
+                e.second.pFxSysem->SetLocalParticles(true);
+                e.second.pFxSysem->Play();
             }
         }
     }
 }
 
 void ExhaustFx::Reload() {
-    reloadCount++;
+    nReloadCount++;
 }
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+    unsigned int ME_GetExhaustCount(CVehicle* pVeh) {
+        if (!pVeh) return 0;
+
+        VehData& data = ExhaustFx::xData.Get(pVeh);
+        if (!data.isUsed) return 0;
+
+        return static_cast<unsigned int>(data.m_pDummies.size());
+    }
+
+    ME_ExhaustInfo ME_GetExhaustData(CVehicle* pVeh, int index) {
+        ME_ExhaustInfo info{};
+        if (!pVeh) return info;
+
+        VehData& data = ExhaustFx::xData.Get(pVeh);
+        if (!data.isUsed || index < 0 || index >= static_cast<int>(data.m_pDummies.size())) return info;
+
+        int i = 0;
+        for (const auto& pair : data.m_pDummies) {
+            if (i == index) {
+                const ExhaustData& e = pair.second;
+				info.pFrame = e.pFrame;
+                info.Color = e.Color;
+                info.fSpeedMul = e.fSpeedMul;
+                info.fLifeTime = e.fLifeTime;
+                info.fSizeMul = e.fSizeMul;
+                info.bNitroEffect = e.bNitroEffect;
+                break;
+            }
+            ++i;
+        }
+
+        return info;
+    }
+
+    void ME_SetExhaustData(CVehicle* pVeh, int index, ME_ExhaustInfo& data) {
+        if (!pVeh) return;
+
+        VehData& vData = ExhaustFx::xData.Get(pVeh);
+        if (!vData.isUsed || index < 0 || index >= static_cast<int>(vData.m_pDummies.size())) return;
+
+        int i = 0;
+        for (auto& pair : vData.m_pDummies) {
+            if (i == index) {
+                ExhaustData& e = pair.second;
+				data.pFrame = e.pFrame;
+                data.Color = e.Color;
+                data.fSpeedMul = e.fSpeedMul;
+                data.fLifeTime = e.fLifeTime;
+                data.fSizeMul = e.fSizeMul;
+                data.bNitroEffect = e.bNitroEffect;
+                break;
+            }
+            ++i;
+        }
+    }
+
+#ifdef __cplusplus
+}
+#endif

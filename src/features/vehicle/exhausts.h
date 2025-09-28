@@ -4,39 +4,40 @@
 
 using namespace plugin;
 
+extern struct ME_ExhaustInfo;
+
+struct ExhaustData {
+public:
+    RwFrame* pFrame = nullptr;
+    std::string sName = "";
+    CRGBA Color{ 230, 230, 230, 64 };
+    float fSpeedMul = 0.5f;
+    float fLifeTime = 0.2f;
+    float fSizeMul = 0.5f;
+    bool bNitroEffect = true;
+    FxSystem_c* pFxSysem = nullptr;
+};
+
+struct VehData {
+    bool isUsed = false;
+    size_t reloadCount = 0;
+    std::unordered_map<std::string, ExhaustData> m_pDummies;
+    VehData(CVehicle* pVeh) {
+        isUsed = false;
+    }
+    ~VehData() {}
+};
+
 class ExhaustFx
 {
 private:
-	static inline bool m_bEnabled = false;
-    static inline size_t reloadCount = 0;
+	static inline bool bEnabled = false;
+    static inline size_t nReloadCount = 0;
 
-    struct FrameData {
-        RwFrame *pFrame = nullptr;
-        std::string name;
-        
-        CRGBA col {230, 230, 230, 64};
-        float speedMul = 0.5f;
-        float lifetime = 0.2f;
-        float sizeMul = 0.5f;
-        bool supportsNitro = true;
-        FxSystem_c *fxSystem = nullptr;
-    };
-
-    struct VehData {
-        bool isUsed = false;
-        size_t reloadCount = 0;
-        std::unordered_map<std::string, FrameData> m_pDummies;
-        VehData(CVehicle *pVeh) {
-            isUsed = false;
-        }
-        ~VehData() {}
-    };
-
-    static void RenderSmokeFx(CVehicle *pVeh, const FrameData &info);
+    static void RenderSmokeFx(CVehicle *pVeh, const ExhaustData &info);
     static void RenderNitroFx(CVehicle* pVeh, float power);
 
-    static FrameData LoadData(CVehicle *pVeh, RwFrame *pFrame);
-    static inline VehicleExtendedData<VehData> xData;
+    static ExhaustData LoadData(CVehicle *pVeh, RwFrame *pFrame);
 
     template<uintptr_t addr>
     static void hkAddExhaustParticles();
@@ -44,6 +45,7 @@ private:
     static void hkDoNitroEffect();
 
 public:
+    static inline VehicleExtendedData<VehData> xData;
 
 	static void Initialize();
     static void Reload();
