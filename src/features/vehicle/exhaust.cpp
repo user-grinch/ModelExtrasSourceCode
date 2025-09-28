@@ -22,6 +22,21 @@ void ExhaustFx::hkAddExhaustParticles() {
 	});
 }
 
+template<uintptr_t addr>
+void ExhaustFx::hkDoNitroEffect() {
+    using func_hook = injector::function_hooker_thiscall<injector::scoped_call, addr, char(CAutomobile*, float)>;
+    injector::make_static_hook<func_hook>([](func_hook::func_type ogFunc, CAutomobile* pVeh, float power) {
+        auto& data = xData.Get(pVeh);
+        if (data.isUsed) {
+			RenderNitroFx(pVeh, power);
+        }
+        else {
+            ogFunc(pVeh, power);
+        }
+        return 1;
+    });
+}
+
 void ExhaustFx::Initialize() {
     m_bEnabled = true;
 
@@ -41,12 +56,15 @@ void ExhaustFx::Initialize() {
 
         VehData &data = xData.Get(pVeh); 
         for (auto& e : data.m_pDummies) {
-            RenderParticles(pVeh, e.second);
+            RenderSmokeFx(pVeh, e.second);
         }
     });
 
     hkAddExhaustParticles<0x6AB344>();
     hkAddExhaustParticles<0x6BD3FF>();
+    hkDoNitroEffect<0x6A405A>();
+    hkDoNitroEffect<0x6A406B>();
+    hkDoNitroEffect<0x6A40E1>();
 }
 
 ExhaustFx::FrameData ExhaustFx::LoadData(CVehicle *pVeh, RwFrame *pFrame) {
@@ -60,6 +78,7 @@ ExhaustFx::FrameData ExhaustFx::LoadData(CVehicle *pVeh, RwFrame *pFrame) {
         f.lifetime = data.value("lifetime", f.lifetime);
         f.speedMul *= data.value("speed", 1.0f);
         f.sizeMul = data.value("size", f.sizeMul);
+        f.supportsNitro = data.value("nitro_effect", f.supportsNitro);
 
         if (data.contains("color")) {
             f.col.r = data["color"].value("red", f.col.r);
@@ -72,7 +91,7 @@ ExhaustFx::FrameData ExhaustFx::LoadData(CVehicle *pVeh, RwFrame *pFrame) {
     return f;
 }
 
-void ExhaustFx::RenderParticles(CVehicle* pVeh, const FrameData &info) {
+void ExhaustFx::RenderSmokeFx(CVehicle* pVeh, const FrameData &info) {
     if (!pVeh || !pVeh->GetIsOnScreen()) {
         return;
     }
@@ -103,8 +122,6 @@ void ExhaustFx::RenderParticles(CVehicle* pVeh, const FrameData &info) {
     float alpha = std::max(info.col.a / 255.0f - moveSpeed, 0.0f);
 
     CVector particleDir = info.pFrame->ltm.up; // forward is up in psdk
-
-    // rotate by 180
     particleDir.x *= -1;
     particleDir.y *= -1;
 
@@ -169,6 +186,63 @@ void ExhaustFx::RenderParticles(CVehicle* pVeh, const FrameData &info) {
                 0.6f,
                 0
             );
+        }
+    }
+}
+
+void ExhaustFx::RenderNitroFx(CVehicle *pVeh, float power) {
+	const auto& mi = CModelInfo::GetModelInfo(pVeh->m_nModelIndex);
+
+    auto& data = xData.Get(pVeh);
+
+    if (!data.isUsed) {
+        return;
+    }
+
+    for (auto& e : data.m_pDummies) {
+        if (!e.second.supportsNitro) {
+            continue;
+        }
+
+        RwMatrix* dummyMatrix = &e.second.pFrame->ltm;
+
+        bool isExhaustSubmerged = false;
+        if (pVeh->bTouchingWater) {
+            float level = 0.0f;
+            CVector pos = dummyMatrix->pos;
+            if (CWaterLevel::GetWaterLevel(pos.x, pos.y, pos.z, &level, true, nullptr)) {
+                if (level >= pos.z) {
+                    isExhaustSubmerged = true;
+                }
+            }
+        }
+
+        if (e.second.fxSystem) {
+            e.second.fxSystem->SetConstTime(1, std::fabs(power));
+            if (e.second.fxSystem->m_nPlayStatus == eFxSystemPlayStatus::FX_PLAYING && isExhaustSubmerged) {
+                e.second.fxSystem->Stop();
+            }
+            else if (e.second.fxSystem->m_nPlayStatus == eFxSystemPlayStatus::FX_STOPPED && !isExhaustSubmerged) {
+                e.second.fxSystem->Play();
+            }
+        }
+        else if (!isExhaustSubmerged && dummyMatrix) {
+            static RwMatrixTag gFlipForward = {
+                { 1.0f, 0.0f, 0.0f },   // right (X)
+                0,                       // flags
+                { 0.0f, -1.0f, 0.0f },   // up (forward flipped)
+                0,
+                { 0.0f, 0.0f, 1.0f },  // at 
+                0,
+                { 0.0f, 0.0f, 0.0f },   // pos
+                0
+            };
+
+            e.second.fxSystem = g_fxMan.CreateFxSystem((char*)"nitro", &gFlipForward, dummyMatrix, true);
+            if (e.second.fxSystem) {
+                e.second.fxSystem->SetLocalParticles(true);
+                e.second.fxSystem->Play();
+            }
         }
     }
 }

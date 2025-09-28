@@ -18,6 +18,8 @@ private:
         float speedMul = 0.5f;
         float lifetime = 0.2f;
         float sizeMul = 0.5f;
+        bool supportsNitro = true;
+        FxSystem_c *fxSystem = nullptr;
     };
 
     struct VehData {
@@ -30,12 +32,16 @@ private:
         ~VehData() {}
     };
 
-    static void RenderParticles(CVehicle *pVeh, const FrameData &info);
+    static void RenderSmokeFx(CVehicle *pVeh, const FrameData &info);
+    static void RenderNitroFx(CVehicle* pVeh, float power);
+
     static FrameData LoadData(CVehicle *pVeh, RwFrame *pFrame);
     static inline VehicleExtendedData<VehData> xData;
 
     template<uintptr_t addr>
     static void hkAddExhaustParticles();
+    template<uintptr_t addr>
+    static void hkDoNitroEffect();
 
 public:
 
