@@ -1,5 +1,5 @@
 /*
-* API provided for ModelExtras v2.0 Release
+* API provided for ModelExtras v2.1 Release
 */
 
 #pragma once
@@ -49,6 +49,10 @@ enum ME_FeatureID {
     SpotLights,
     BodyStateVariation,
     CustomSounds,
+    GangHands,
+    PedCols,
+    ExhaustFx,
+    ConvertableRoof,
     FeatureCount
 };
 
