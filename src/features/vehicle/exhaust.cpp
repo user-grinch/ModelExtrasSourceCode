@@ -123,9 +123,7 @@ void ExhaustFx::RenderSmokeFx(CVehicle* pVeh, const ExhaustData &info) {
     float alpha = std::max(info.Color.a / 255.0f - moveSpeed, 0.0f);
 
     CVector particleDir = info.pFrame->ltm.up; // forward is up in psdk
-    particleDir.x *= -1;
-    particleDir.y *= -1;
-    particleDir.z *= -1;
+    particleDir *= -1;
 
     CVector parVelocity;
     if (DotProduct(particleDir, pVeh->m_vecMoveSpeed) >= 0.05f) {
