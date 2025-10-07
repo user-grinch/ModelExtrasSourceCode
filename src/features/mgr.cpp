@@ -35,6 +35,7 @@
 #include "ped/pedcols.h"
 #include "vehicle/exhausts.h"
 #include "vehicle/roof.h"
+#include "vehicle/leds.h"
 
 void InitLogFile();
 
@@ -292,6 +293,13 @@ void FeatureMgr::Initialize()
         ConvertibleRoof::Initialize();
         m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::ConvertableRoof)));
         LOG_NO_LEVEL("  ConvertableRoof");
+    }
+
+    if (gConfig.ReadBoolean("VEHICLE_FEATURES", "DashboardLED", false))
+    {
+        DashboardLEDs::Initialize();
+        m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::DashboardLED)));
+        LOG_NO_LEVEL("  DashboardLED");
     }
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "DirtFX", false))

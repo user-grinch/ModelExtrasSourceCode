@@ -35,4 +35,8 @@ protected:
     static bool UpdateRotation(RoofConfig& config, CVehicle *pVeh, bool closed);
 public:
     static void Initialize();
+
+    static bool IsRoofOpen(CVehicle *pVeh) {
+        return xData.Get(pVeh).m_bRoofTargetExpanded;
+    }
 };

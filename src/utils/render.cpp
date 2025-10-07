@@ -100,7 +100,7 @@ void RenderUtil::RegisterCoronaDirectional(const VehicleDummyConfig *pConfig, fl
             col.a *= mul;
         }
 
-        if (pConfig->lightType == eLightType::HeadLightLeft || pConfig->lightType == eLightType::HeadLightRight) {
+        if (pConfig->lightType == eMaterialType::HeadLightLeft || pConfig->lightType == eMaterialType::HeadLightRight) {
             CPointLights::AddLight(PLTYPE_POINTLIGHT, mat.pos, mat.up, 10.0f, col.r/255.0, col.g/255.0, col.b/255.0, 0, 0, 0);
         }
     }

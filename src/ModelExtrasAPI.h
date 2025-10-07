@@ -3,7 +3,7 @@
 */
 
 #pragma once
-#define ME_API_VERSION 10100
+#define ME_API_VERSION 11000
 
 #ifdef MODELEXTRAS_DEV
 #define ME_WRAPPER __declspec(dllexport)
@@ -53,10 +53,11 @@ enum ME_FeatureID {
     PedCols,
     ExhaustFx,
     ConvertableRoof,
+    DashboardLEDs,
     FeatureCount
 };
 
-enum ME_LightID {
+enum ME_MaterialID {
     ME_HeadLightLeft,
     ME_HeadLightRight,
     ME_TailLightLeft,
@@ -85,6 +86,18 @@ enum ME_LightID {
     ME_IndicatorLightRightFront,
     ME_IndicatorLightRightMiddle,
     ME_IndicatorLightRightRear,
+    ME_EngineOnLed,
+    ME_EngineBrokenLed,
+    ME_FogLightLed,
+    ME_HighBeamLed,
+    ME_LowBeamLed,
+    ME_IndicatorLeftLed,
+    ME_IndicatorRightLed,
+    ME_SirenLed,
+    ME_BootOpenLed,
+    ME_BonnetOpenLed,
+    ME_DoorOpenLed,
+    ME_RoofOpenLed,
     ME_LightCount,
 };
 
@@ -98,8 +111,11 @@ extern "C" {
     ME_WRAPPER bool ME_IsFeatureAvail(ME_FeatureID featureId);
 
     // Vehicle
-    ME_WRAPPER bool ME_GetVehicleLightState(CVehicle *pVeh, ME_LightID lightId);
-    ME_WRAPPER void ME_SetVehicleLightState(CVehicle *pVeh, ME_LightID lightId, bool state);
+    ME_WRAPPER bool ME_GetVehicleLEDState(CVehicle *pVeh, ME_MaterialID ledID);
+    ME_WRAPPER void ME_SetVehicleLEDState(CVehicle *pVeh, ME_MaterialID ledID, bool state);
+    
+    ME_WRAPPER bool ME_GetVehicleLightState(CVehicle *pVeh, ME_MaterialID lightId);
+    ME_WRAPPER void ME_SetVehicleLightState(CVehicle *pVeh, ME_MaterialID lightId, bool state);
 
 	ME_WRAPPER unsigned int ME_GetExhaustCount(CVehicle* pVeh);
 	ME_WRAPPER ME_ExhaustInfo ME_GetExhaustData(CVehicle* pVeh, int index);

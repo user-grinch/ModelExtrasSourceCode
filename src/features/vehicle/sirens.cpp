@@ -10,7 +10,7 @@
 #include "audiomgr.h"
 #include "util.h"
 #include "datamgr.h"
-#include "enums/lighttype.h"
+#include "enums/materialtype.h"
 
 bool VehicleSiren::GetSirenState()
 {
@@ -540,7 +540,7 @@ void Sirens::Initialize()
 	ModelInfoMgr::RegisterMaterial([](CVehicle *pVeh, RpMaterial *pMat)
 						  {
 		if (!m_bEnabled) {
-			return eLightType::UnknownLight;
+			return eMaterialType::UnknownMaterial;
 		}
 		CRGBA col = *reinterpret_cast<CRGBA *>(RpMaterialGetColor(pMat));
 
@@ -551,19 +551,19 @@ void Sirens::Initialize()
 
 			if (isIVFSiren) {
 				if (isSirenTex && (col.r >= 240 && col.g == 0 && col.b == 0)) {
-					return eLightType::SirenLight;
+					return eMaterialType::SirenLight;
 				}
 			} else {
 				if (col.r > 0 && col.g == 255 && col.b == 255) {
-					return eLightType::SirenLight;
+					return eMaterialType::SirenLight;
 				}
 			}
 		}
-		return eLightType::UnknownLight;
+		return eMaterialType::UnknownMaterial;
 	 });
 
-	 ModelInfoMgr::RegisterMaterialColProvider([](CVehicle *pVeh, RpMaterial* pMat, eLightType type) {
-		if (type == eLightType::SirenLight) {
+	 ModelInfoMgr::RegisterMaterialColProvider([](CVehicle *pVeh, RpMaterial* pMat, eMaterialType type) {
+		if (type == eMaterialType::SirenLight) {
 			int matIdx = GetSirenIndex(pVeh, pMat);
 
 			if (matIdx != - 1) {

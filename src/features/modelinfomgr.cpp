@@ -63,9 +63,9 @@ void ModelInfoMgr::RegisterDummy(DummyCallback_t function)
 	dummy.push_back(function);
 };
 
-void ModelInfoMgr::EnableLightMaterial(CVehicle *pVeh, eLightType type) {
+void ModelInfoMgr::EnableMaterial(CVehicle *pVeh, eMaterialType type) {
 	auto& data = m_VehData.Get(pVeh);
-	data.m_LightStatus[type] = true;
+	data.m_MatStatus[type] = true;
 }
 
 void ModelInfoMgr::EnableSirenMaterial(CVehicle *pVeh, int idx) {
@@ -130,8 +130,8 @@ void ModelInfoMgr::SetupRender(CVehicle *ptr)
 	pCurVeh = ptr;
 	auto& data = m_VehData.Get(pCurVeh);
 	ptr->SetupRender();
-	for (int i = 0; i < eLightType::TotalLight; i++) {
-		data.m_LightStatus[i] = false;
+	for (int i = 0; i < eMaterialType::TotalMaterial; i++) {
+		data.m_MatStatus[i] = false;
 	}
 
 	for (int i = 0; i < MAX_LIGHTS; i++) {
@@ -149,7 +149,7 @@ struct tRestoreEntry
 	void *m_pValue;
 };
 
-MatStateColor ModelInfoMgr::FetchMaterialCol(CVehicle *pVeh, RpMaterial *pMat, eLightType type) {
+MatStateColor ModelInfoMgr::FetchMaterialCol(CVehicle *pVeh, RpMaterial *pMat, eMaterialType type) {
 	MatStateColor col = {DEFAULT_MAT_COL, DEFAULT_MAT_COL};
 	for (auto& e : matColProviders) {
 		col = e(pVeh, pMat, type);
@@ -160,12 +160,12 @@ MatStateColor ModelInfoMgr::FetchMaterialCol(CVehicle *pVeh, RpMaterial *pMat, e
 	return col;
 }
 
-eLightType ModelInfoMgr::FetchMaterialType(CVehicle *pVeh, RpMaterial *pMat) {
-	eLightType matType = eLightType::UnknownLight;
+eMaterialType ModelInfoMgr::FetchMaterialType(CVehicle *pVeh, RpMaterial *pMat) {
+	eMaterialType matType = eMaterialType::UnknownMaterial;
 
 	for (auto& e : materials) {
-		eLightType type = e(pVeh, pMat);
-		if (type != eLightType::UnknownLight) {
+		eMaterialType type = e(pVeh, pMat);
+		if (type != eMaterialType::UnknownMaterial) {
 			matType = type;
 			break;
 		}
@@ -196,19 +196,19 @@ RpMaterial *ModelInfoMgr::SetEditableMaterialsCB(RpMaterial *material, void *dat
 		}
 	}
 
-	eLightType iLightIndex = FetchMaterialType(pCurVeh, material);
-	if (iLightIndex != eLightType::UnknownLight)
+	eMaterialType iLightIndex = FetchMaterialType(pCurVeh, material);
+	if (iLightIndex != eMaterialType::UnknownMaterial)
 	{
 		auto& data = m_VehData.Get(pCurVeh);
 		bool lightOn = false;
 		data.m_MatAvail[iLightIndex] = true;
 
-		if (iLightIndex == eLightType::SirenLight) {
+		if (iLightIndex == eMaterialType::SirenLight) {
 			lightOn = data.m_SirenStatus[GetSirenIndex(pCurVeh, material)];
-		} else if (iLightIndex == eLightType::StrobeLight){
+		} else if (iLightIndex == eMaterialType::StrobeLight){
 			lightOn = data.m_StrobeStatus[GetStrobeIndex(pCurVeh, material)];
-		} else if (iLightIndex != eLightType::UnknownLight) {
-			lightOn = data.m_LightStatus[iLightIndex];
+		} else if (iLightIndex != eMaterialType::UnknownMaterial) {
+			lightOn = data.m_MatStatus[iLightIndex];
 		}
 		
 		MatStateColor matCol = FetchMaterialCol(pCurVeh, material, iLightIndex);
@@ -263,7 +263,7 @@ RpMaterial *ModelInfoMgr::SetEditableMaterialsCB(RpMaterial *material, void *dat
 	return material;
 }
 
-bool ModelInfoMgr::IsMaterialAvailable(CVehicle *pVeh, eLightType type) {
+bool ModelInfoMgr::IsMaterialAvailable(CVehicle *pVeh, eMaterialType type) {
 	auto& data = m_VehData.Get(pVeh);
 	return data.m_MatAvail[type];
 }

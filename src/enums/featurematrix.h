@@ -42,6 +42,7 @@ enum class eFeatureMatrix {
 
     ExhaustFx,
     ConvertableRoof,
+    DashboardLED,
 
     FeatureCount
 };

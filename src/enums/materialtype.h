@@ -1,10 +1,10 @@
 #pragma once
 
-enum eLightType
+enum eMaterialType
 {
     // Order can't be changed
     // Game internally uses them
-    UnknownLight = -1,
+    UnknownMaterial = -1,
     HeadLightLeft,
     HeadLightRight,
     TailLightLeft,
@@ -36,7 +36,21 @@ enum eLightType
     IndicatorLightRightFront,
     IndicatorLightRightMiddle,
     IndicatorLightRightRear,
-    TotalLight,
+
+    EngineOnLed,
+    EngineBrokenLed,
+    FogLightLed,
+    HighBeamLed,
+    LowBeamLed,
+    IndicatorLeftLed,
+    IndicatorRightLed,
+    SirenLed,
+    BootOpenLed,
+    BonnetOpenLed,
+    DoorOpenLed,
+    RoofOpenLed,
+
+    TotalMaterial,
 };
 
 #define INDICATOR_LIGHTS_TYPE { \
