@@ -32,7 +32,7 @@ void FrontBrake::Initialize()
         if (deltaTime > data.m_nWaitTime)
         {
             float temp;
-            if (pVeh->bIsHandbrakeOn && data.m_nCurRotation != data.m_nMaxRotation)
+            if (pVeh->m_fBreakPedal && data.m_nCurRotation != data.m_nMaxRotation)
             {
                 if (data.m_nMaxRotation < data.m_nCurRotation)
                 {
@@ -100,7 +100,7 @@ void RearBrake::Initialize() {
         if (deltaTime > data.m_nWaitTime)
         {
             float temp;
-            if (pVeh->m_fBreakPedal && data.m_nCurRotation != data.m_nMaxRotation)
+            if (pVeh->bIsHandbrakeOn && data.m_nCurRotation != data.m_nMaxRotation)
             {
                 if (data.m_nMaxRotation < data.m_nCurRotation)
                 {
