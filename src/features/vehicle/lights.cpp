@@ -22,22 +22,26 @@ int gGlobalCoronaIntensity = 80;
 int gGlobalShadowIntensity = 80;
 float headlightSz = 5.0f;
 
-int GetStrobeIndex(CVehicle *pVeh, RpMaterial *pMat) {
+int GetStrobeIndex(CVehicle *pVeh, RpMaterial *pMat)
+{
 	return pMat->color.blue;
 }
 
 // Indicator lights
 static uint64_t delay;
 
-CVector2D GetCarPathLinkPosition(CCarPathLinkAddress &address) {
-	if (address.m_nAreaId != -1 && address.m_nCarPathLinkId != -1 && ThePaths.m_pPathNodes[address.m_nAreaId]) {
+CVector2D GetCarPathLinkPosition(CCarPathLinkAddress &address)
+{
+	if (address.m_nAreaId != -1 && address.m_nCarPathLinkId != -1 && ThePaths.m_pPathNodes[address.m_nAreaId])
+	{
 		return CVector2D(static_cast<float>(ThePaths.m_pNaviNodes[address.m_nAreaId][address.m_nCarPathLinkId].m_vecPosn.x) / 8.0f,
 						 static_cast<float>(ThePaths.m_pNaviNodes[address.m_nAreaId][address.m_nCarPathLinkId].m_vecPosn.y) / 8.0f);
 	}
 	return CVector2D(0.0f, 0.0f);
 }
 
-inline float GetZAngleForPoint(CVector2D const &point) {
+inline float GetZAngleForPoint(CVector2D const &point)
+{
 	float angle = CGeneral::GetATanOfXY(point.x, point.y) * 57.295776f - 90.0f;
 	while (angle < 0.0f)
 		angle += 360.0f;
@@ -51,7 +55,8 @@ void Lights::Initialize()
 	patch::SetUChar(0x6E1A22, 0); // CVehicle::DoTailLightEffect
 
 	// NOP CVehicle::DoHeadLightBeam
-	if (!gConfig.ReadBoolean("TWEAKS", "HeadLightBeams", false)) {
+	if (!gConfig.ReadBoolean("TWEAKS", "HeadLightBeams", false))
+	{
 		patch::Nop(0x6A2E9F, 0x58);
 		patch::Nop(0x6BDE73, 0x12);
 	}
@@ -59,7 +64,7 @@ void Lights::Initialize()
 	plugin::Events::initGameEvent += []()
 	{
 		gbGlobalIndicatorLights = gConfig.ReadBoolean("VEHICLE_FEATURES", "StandardLights_GlobalIndicatorLights", false);
-		
+
 		gfGlobalCoronaSize = gConfig.ReadFloat("VISUAL", "LightCoronaSize", 0.3f);
 		gGlobalShadowIntensity = gConfig.ReadInteger("VISUAL", "LightShadowIntensity", 220);
 		gGlobalCoronaIntensity = gConfig.ReadInteger("VISUAL", "LightCoronaIntensity", 250);
@@ -70,7 +75,8 @@ void Lights::Initialize()
 		m_Dummies.erase(pVeh);
 	};
 
-	ModelInfoMgr::RegisterMaterial([](CVehicle *pVeh, RpMaterial *pMat){
+	ModelInfoMgr::RegisterMaterial([](CVehicle *pVeh, RpMaterial *pMat)
+								   {
 		if (!m_bEnabled) {
 			return eMaterialType::UnknownMaterial;
 		}
@@ -166,10 +172,10 @@ void Lights::Initialize()
 			return eMaterialType::IndicatorLightRightFront;
 		}
 		// If no match is found
-		return eMaterialType::UnknownMaterial;
-	});
+		return eMaterialType::UnknownMaterial; });
 
-	ModelInfoMgr::RegisterDummy([](CVehicle *pVeh, RwFrame *frame) {
+	ModelInfoMgr::RegisterDummy([](CVehicle *pVeh, RwFrame *frame)
+								{
 		std::string name = GetFrameNodeName(frame);
 		VehicleDummyConfig c = {
 			.pVeh = pVeh,
@@ -290,14 +296,13 @@ void Lights::Initialize()
 			return;
 		}
 
-		dummies[c.lightType].push_back(new VehicleDummy(c));
-	});
-
+		dummies[c.lightType].push_back(new VehicleDummy(c)); });
 
 	Events::processScriptsEvent += []()
 	{
 		size_t timestamp = CTimer::m_snTimeInMilliseconds;
-		if ((timestamp - delay) > 500) {
+		if ((timestamp - delay) > 500)
+		{
 			delay = timestamp;
 			indicatorsDelay = !indicatorsDelay;
 		}
@@ -307,7 +312,10 @@ void Lights::Initialize()
 		{
 			static size_t prev = 0;
 			static uint32_t fogLightKey = gConfig.ReadInteger("KEYS", "FogLightKey", VK_J);
-			if (KeyPressed(fogLightKey) && IsMatAvail(pVeh, {eMaterialType::FogLightLeft, eMaterialType::FogLightRight}))
+
+			static bool foglightTiedtoHeadlight = gConfig.ReadBoolean("TWEAKS", "FoglightTiedToHeadlight", true);
+			bool headlightStatus = !foglightTiedtoHeadlight || pVeh->bLightsOn;
+			if (KeyPressed(fogLightKey) && IsMatAvail(pVeh, {eMaterialType::FogLightLeft, eMaterialType::FogLightRight}) && headlightStatus)
 			{
 				size_t now = CTimer::m_snTimeInMilliseconds;
 				if (now - prev > 500.0f)
@@ -334,16 +342,17 @@ void Lights::Initialize()
 		}
 	};
 
-	Events::processScriptsEvent += []() {
-		for (CVehicle *pVeh : CPools::ms_pVehiclePool) {
-			if (pVeh->m_pDriver == FindPlayerPed() 
-			|| pVeh->m_nVehicleSubClass == VEHICLE_BMX
-			|| pVeh->m_nVehicleSubClass == VEHICLE_BOAT 
-			|| pVeh->m_nVehicleSubClass == VEHICLE_TRAILER || Util::IsEngineOff(pVeh)) {
+	Events::processScriptsEvent += []()
+	{
+		for (CVehicle *pVeh : CPools::ms_pVehiclePool)
+		{
+			if (pVeh->m_pDriver == FindPlayerPed() || pVeh->m_nVehicleSubClass == VEHICLE_BMX || pVeh->m_nVehicleSubClass == VEHICLE_BOAT || pVeh->m_nVehicleSubClass == VEHICLE_TRAILER || Util::IsEngineOff(pVeh))
+			{
 				continue;
 			}
 
-			if (DistanceBetweenPoints(pVeh->GetPosition(), TheCamera.GetPosition()) < 150.0f || pVeh->GetIsOnScreen()) {
+			if (DistanceBetweenPoints(pVeh->GetPosition(), TheCamera.GetPosition()) < 150.0f || pVeh->GetIsOnScreen())
+			{
 				bool isLeftFrontOk = !Util::IsLightDamaged(pVeh, eLights::LIGHT_FRONT_LEFT);
 				bool isRightFrontOk = !Util::IsLightDamaged(pVeh, eLights::LIGHT_FRONT_RIGHT);
 				bool isHeadlightLeftOn = pVeh->m_renderLights.m_bLeftFront && isLeftFrontOk;
@@ -353,7 +362,8 @@ void Lights::Initialize()
 		}
 	};
 
-	ModelInfoMgr::RegisterRender([](CVehicle *pControlVeh) {
+	ModelInfoMgr::RegisterRender([](CVehicle *pControlVeh)
+								 {
 		int model = pControlVeh->m_nModelIndex;
 
 		// skip directly processing trailers
@@ -366,22 +376,6 @@ void Lights::Initialize()
 		if (pControlVeh->m_pTrailer)
 		{
 			pTowedVeh = pControlVeh->m_pTrailer;
-		}
-
-		if (pControlVeh->m_nOverrideLights == eLightOverride::ForceLightsOff || pControlVeh->ms_forceVehicleLightsOff )
-		{
-			return;
-		}
-
-		if (pControlVeh->m_nOverrideLights == eLightOverride::ForceLightsOn) {
-			pControlVeh->bLightsOn = true;
-			pControlVeh->m_renderLights.m_bLeftFront = true;
-			pControlVeh->m_renderLights.m_bRightFront = true;
-			if (pTowedVeh) {
-				pTowedVeh->bLightsOn = true;
-				pTowedVeh->m_renderLights.m_bLeftRear = true;
-				pTowedVeh->m_renderLights.m_bRightRear = true;
-			}
 		}
 
 		VehLightData &data = m_VehData.Get(pControlVeh);
@@ -643,9 +637,7 @@ void Lights::Initialize()
 				if (isRightRearOk) {
 					RenderLights(pControlVeh, pTowedVeh, eMaterialType::NABrakeLightRight, true, "indicator", 1.0f);
 				}
-			} 
-		}
-	);
+			} });
 };
 
 void Lights::RenderLight(CVehicle *pVeh, eMaterialType state, bool shadows, std::string texture, float sz, bool highlight, bool isDummyOk)
@@ -656,15 +648,14 @@ void Lights::RenderLight(CVehicle *pVeh, eMaterialType state, bool shadows, std:
 	{
 		for (auto e : m_Dummies[pVeh][state])
 		{
-			const VehicleDummyConfig& c = e->GetRef();
+			const VehicleDummyConfig &c = e->GetRef();
 			e->Update();
 			RwFrame *parent = RwFrameGetParent(e->Get().frame);
 			eMaterialType type = e->GetRef().lightType;
-			bool atomicCheck = type != eMaterialType::HeadLightLeft 
-								&& type != eMaterialType::HeadLightRight 
-								&& !FrameUtil::IsOkAtomicVisible(parent);
+			bool atomicCheck = type != eMaterialType::HeadLightLeft && type != eMaterialType::HeadLightRight && !FrameUtil::IsOkAtomicVisible(parent);
 
-			if (atomicCheck || (c.dummyType == eDummyPos::Rear && pVeh->m_pTrailer) || (!c.isParentDummy && !isDummyOk)) {
+			if (atomicCheck || (c.dummyType == eDummyPos::Rear && pVeh->m_pTrailer) || (!c.isParentDummy && !isDummyOk))
+			{
 				litMats = false;
 				break;
 			}
@@ -681,14 +672,17 @@ void Lights::RenderLight(CVehicle *pVeh, eMaterialType state, bool shadows, std:
 				if (c.strobe.enabled)
 				{
 					ModelInfoMgr::EnableStrobeMaterial(pVeh, c.dummyIdx);
-				} else {
+				}
+				else
+				{
 					continue;
 				}
 			}
 			EnableDummy((int)pVeh + 42 + id++, e, pVeh, highlight ? 1.75f : 1.0f);
 
 			// Skip front shadows on bike wheelie
-			if (c.dummyType == eDummyPos::Front && Util::IsVehicleDoingWheelie(pVeh)) {
+			if (c.dummyType == eDummyPos::Front && Util::IsVehicleDoingWheelie(pVeh))
+			{
 				continue;
 			}
 
@@ -700,49 +694,59 @@ void Lights::RenderLight(CVehicle *pVeh, eMaterialType state, bool shadows, std:
 		}
 	}
 
-	if (litMats) {
+	if (litMats)
+	{
 		ModelInfoMgr::EnableMaterial(pVeh, state);
 	}
 }
 
 void Lights::RenderLights(CVehicle *pControlVeh, CVehicle *pTowedVeh, eMaterialType state, bool shadows, std::string texture, float sz, bool highlight, bool isDummyOk)
-{	
+{
 	int model = pControlVeh->m_nModelIndex;
 	// if (CModelInfo::IsHeliModel(model) || CModelInfo::IsPlaneModel(model)) {
 	// 	sz = 1.0f;
 	// 	texture = "pointlight";
 	// }
 
-	if (GetLightState(pControlVeh, state)) {
+	if (GetLightState(pControlVeh, state))
+	{
 		RenderLight(pControlVeh, state, shadows, texture, sz, highlight, isDummyOk);
 	}
 
-	if (pControlVeh != pTowedVeh && GetLightState(pTowedVeh, state)) {
+	if (pControlVeh != pTowedVeh && GetLightState(pTowedVeh, state))
+	{
 		RenderLight(pTowedVeh, state, shadows, texture, sz, highlight, isDummyOk);
 	}
 }
 
-void Lights::RenderHeadlights(CVehicle *pControlVeh, bool isLeftOn, bool isRightOn, bool realTime) {
+void Lights::RenderHeadlights(CVehicle *pControlVeh, bool isLeftOn, bool isRightOn, bool realTime)
+{
 	CVehicle *pTowedVeh = pControlVeh;
 	VehLightData &data = m_VehData.Get(pControlVeh);
 
-	if (pControlVeh->m_pTrailer) {
+	if (pControlVeh->m_pTrailer)
+	{
 		pTowedVeh = pControlVeh->m_pTrailer;
 	}
 
-	if (CModelInfo::IsTrailerModel(pControlVeh->m_nModelIndex)) {
+	if (CModelInfo::IsTrailerModel(pControlVeh->m_nModelIndex))
+	{
 		return;
 	}
 
-	if (pControlVeh->bLightsOn) {
+	if (pControlVeh->bLightsOn)
+	{
 		bool isFoggy = (CWeather::NewWeatherType == WEATHER_FOGGY_SF || CWeather::NewWeatherType == WEATHER_SANDSTORM_DESERT || CWeather::OldWeatherType == WEATHER_FOGGY_SF || CWeather::OldWeatherType == WEATHER_SANDSTORM_DESERT);
 		std::string texName = data.m_bLongLightsOn ? "headlight_long" : "headlight_short";
-		
-		if (isLeftOn || isRightOn) {
-			if (isLeftOn && GetLightState(pControlVeh, eMaterialType::HeadLightLeft)) {
+
+		if (isLeftOn || isRightOn)
+		{
+			if (isLeftOn && GetLightState(pControlVeh, eMaterialType::HeadLightLeft))
+			{
 				RenderLights(pControlVeh, pTowedVeh, eMaterialType::HeadLightLeft, true, texName, headlightSz, isFoggy || data.m_bLongLightsOn);
 			}
-			if (isRightOn && GetLightState(pControlVeh, eMaterialType::HeadLightRight)) {
+			if (isRightOn && GetLightState(pControlVeh, eMaterialType::HeadLightRight))
+			{
 				RenderLights(pControlVeh, pTowedVeh, eMaterialType::HeadLightRight, true, texName, headlightSz, isFoggy || data.m_bLongLightsOn);
 			}
 		}
@@ -753,7 +757,7 @@ void Lights::EnableDummy(int id, VehicleDummy *dummy, CVehicle *pVeh, float szMu
 {
 	if (gConfig.ReadBoolean("VEHICLE_FEATURES", "LightCoronas", false))
 	{
-		const VehicleDummyConfig& c = dummy->GetRef();
+		const VehicleDummyConfig &c = dummy->GetRef();
 		if (c.corona.lightingType == eLightingMode::NonDirectional)
 		{
 			RenderUtil::RegisterCorona(pVeh, (reinterpret_cast<unsigned int>(pVeh) * 255) + 255 + id, c.position, c.corona.color, c.corona.size * szMul);
@@ -776,10 +780,12 @@ bool Lights::IsDummyAvail(CVehicle *pVeh, eMaterialType state)
 	return m_Dummies[pVeh][state].size() != 0;
 }
 
-bool Lights::IsDummyAvail(CVehicle* pVeh, std::initializer_list<eMaterialType> states)
+bool Lights::IsDummyAvail(CVehicle *pVeh, std::initializer_list<eMaterialType> states)
 {
-	for (eMaterialType state : states) {
-		if (IsDummyAvail(pVeh, state)) {
+	for (eMaterialType state : states)
+	{
+		if (IsDummyAvail(pVeh, state))
+		{
 			return true;
 		}
 	}
@@ -791,40 +797,49 @@ bool Lights::IsMatAvail(CVehicle *pVeh, eMaterialType type)
 	return ModelInfoMgr::IsMaterialAvailable(pVeh, type);
 }
 
-bool Lights::IsMatAvail(CVehicle* pVeh, std::initializer_list<eMaterialType> states)
+bool Lights::IsMatAvail(CVehicle *pVeh, std::initializer_list<eMaterialType> states)
 {
-	for (eMaterialType type : states) {
-		if (IsMatAvail(pVeh, type)) {
+	for (eMaterialType type : states)
+	{
+		if (IsMatAvail(pVeh, type))
+		{
 			return true;
 		}
 	}
 	return false;
 }
 
-bool Lights::IsIndicatorOn(CVehicle *pVeh) {
+bool Lights::IsIndicatorOn(CVehicle *pVeh)
+{
 	return !Util::IsEngineOff(pVeh) && (pVeh->m_nVehicleSubClass == VEHICLE_AUTOMOBILE || pVeh->m_nVehicleSubClass == VEHICLE_BIKE) && indicatorsDelay && m_VehData.Get(pVeh).m_nIndicatorState != eIndicatorState::Off && pVeh->m_nOverrideLights != eLightOverride::ForceLightsOff;
 }
 
-VehLightData Lights::GetVehicleData(CVehicle *pVeh) {
+VehLightData Lights::GetVehicleData(CVehicle *pVeh)
+{
 	return m_VehData.Get(pVeh);
 }
 
-bool Lights::GetLightState(CVehicle *pVeh, eMaterialType lightId) {
+bool Lights::GetLightState(CVehicle *pVeh, eMaterialType lightId)
+{
 	return m_VehData.Get(pVeh).m_bLightStates[lightId];
 }
 
-void Lights::SetLightState(CVehicle *pVeh, eMaterialType lightId, bool state) {
+void Lights::SetLightState(CVehicle *pVeh, eMaterialType lightId, bool state)
+{
 	m_VehData.Get(pVeh).m_bLightStates[lightId] = state;
 }
 
 extern enum ME_MaterialID;
 
-extern "C" {
-	bool ME_GetVehicleLightState(CVehicle *pVeh, ME_MaterialID lightId) {
+extern "C"
+{
+	bool ME_GetVehicleLightState(CVehicle *pVeh, ME_MaterialID lightId)
+	{
 		return Lights::GetLightState(pVeh, static_cast<eMaterialType>(lightId));
 	}
-    
-	void ME_SetVehicleLightState(CVehicle *pVeh, ME_MaterialID lightId, bool state) {
+
+	void ME_SetVehicleLightState(CVehicle *pVeh, ME_MaterialID lightId, bool state)
+	{
 		Lights::SetLightState(pVeh, static_cast<eMaterialType>(lightId), state);
 	}
 }
