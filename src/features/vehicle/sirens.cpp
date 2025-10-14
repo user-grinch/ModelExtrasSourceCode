@@ -19,7 +19,8 @@ bool VehicleSiren::GetSirenState()
 
 char __fastcall Sirens::hkUsesSiren(CVehicle *ptr)
 {
-	if (Util::IsEngineOff(ptr)) {
+	if (Util::IsEngineOff(ptr))
+	{
 		ptr->bSirenOrAlarm = false;
 		return false;
 	}
@@ -327,7 +328,7 @@ VehicleSirenMaterial::VehicleSirenMaterial(std::string state, int material, nloh
 			{
 				if (json["shadow"]["angleoffset"].is_number())
 				{
-					Shadow.AngleOffset= json["shadow"]["angleoffset"];
+					Shadow.AngleOffset = json["shadow"]["angleoffset"];
 				}
 				else
 				{
@@ -522,12 +523,17 @@ void Sirens::EventCtor(CVehicle *pVeh)
 	}
 }
 
-int GetSirenIndex(CVehicle *pVeh, RpMaterial *pMat) {
+int GetSirenIndex(CVehicle *pVeh, RpMaterial *pMat)
+{
 	int model = pVeh->m_nModelIndex;
-	if (Sirens::modelData.contains(model)) {
-		if (Sirens::modelData[model]->isImVehFtSiren) {
+	if (Sirens::modelData.contains(model))
+	{
+		if (Sirens::modelData[model]->isImVehFtSiren)
+		{
 			return 256 - pMat->color.red; // 256 is correct, not 255
-		} else {
+		}
+		else
+		{
 			return pMat->color.red;
 		}
 	}
@@ -538,7 +544,7 @@ void Sirens::Initialize()
 {
 	m_bEnabled = true;
 	ModelInfoMgr::RegisterMaterial([](CVehicle *pVeh, RpMaterial *pMat)
-						  {
+								   {
 		if (!m_bEnabled) {
 			return eMaterialType::UnknownMaterial;
 		}
@@ -559,10 +565,10 @@ void Sirens::Initialize()
 				}
 			}
 		}
-		return eMaterialType::UnknownMaterial;
-	 });
+		return eMaterialType::UnknownMaterial; });
 
-	 ModelInfoMgr::RegisterMaterialColProvider([](CVehicle *pVeh, RpMaterial* pMat, eMaterialType type) {
+	ModelInfoMgr::RegisterMaterialColProvider([](CVehicle *pVeh, RpMaterial *pMat, eMaterialType type)
+											  {
 		if (type == eMaterialType::SirenLight) {
 			int matIdx = GetSirenIndex(pVeh, pMat);
 
@@ -578,11 +584,10 @@ void Sirens::Initialize()
 				}
 			}
 		}
-		return MatStateColor{DEFAULT_MAT_COL, DEFAULT_MAT_COL};
-	 });
+		return MatStateColor{DEFAULT_MAT_COL, DEFAULT_MAT_COL}; });
 
 	ModelInfoMgr::RegisterDummy([](CVehicle *vehicle, RwFrame *frame)
-							   {
+								{
 		std::string name = GetFrameNodeName(frame);
 		if (!modelData.contains(vehicle->m_nModelIndex)) {
 			return;
@@ -732,7 +737,7 @@ void Sirens::Initialize()
 	};
 
 	ModelInfoMgr::RegisterRender([](CVehicle *vehicle)
-								{
+								 {
 		int model = vehicle->m_nModelIndex;
 
 		if (!vehicle->GetIsOnScreen() || !modelData.contains(model) || vehicle->m_nOverrideLights == eLightOverride::ForceLightsOff || vehicle->ms_forceVehicleLightsOff) {
@@ -929,8 +934,10 @@ void Sirens::EnableDummy(int id, VehicleDummy *dummy, CVehicle *vehicle, Vehicle
 	pDummyConfig->corona.size = material->Size;
 	float dummyAngle = Util::NormalizeAngle(pDummyConfig->rotation.angle + material->Shadow.AngleOffset);
 
-	if (material->Type != eLightingMode::NonDirectional) {
-		if (material->Type == eLightingMode::Rotator) {
+	if (material->Type != eLightingMode::NonDirectional)
+	{
+		if (material->Type == eLightingMode::Rotator)
+		{
 			uint64_t elapsed = time - material->Rotator->TimeElapse;
 
 			float angle = ((elapsed / ((float)material->Rotator->Time)) * material->Rotator->Radius);
@@ -956,13 +963,18 @@ void Sirens::EnableDummy(int id, VehicleDummy *dummy, CVehicle *vehicle, Vehicle
 			dummyAngle = Util::NormalizeAngle(dummyAngle);
 		}
 		RenderUtil::RegisterCoronaDirectional(pDummyConfig, dummyAngle, material->Radius, 1.0f, material->Type == eLightingMode::Inversed);
-	} else {
+	}
+	else
+	{
 		RenderUtil::RegisterCorona(vehicle, (reinterpret_cast<unsigned int>(vehicle) * 255) + 255 + id, pDummyConfig->position, material->Color, material->Size);
 	}
 
-	if (material->Type == eLightingMode::Directional) {
+	if (material->Type == eLightingMode::Directional)
+	{
 		RenderUtil::RegisterShadowDirectional(pDummyConfig, material->Shadow.Type, material->Shadow.Size);
-	} else {
+	}
+	else
+	{
 		RenderUtil::RegisterShadow(vehicle, pDummyConfig->position, *(CRGBA *)&material->Color, dummyAngle + pDummyConfig->rotation.currentAngle, pDummyConfig->dummyType, material->Shadow.Type, {material->Shadow.Size, material->Shadow.Size}, {material->Shadow.Offset, material->Shadow.Offset}, nullptr);
 	}
 };
