@@ -308,7 +308,7 @@ void Lights::Initialize()
 		}
 
 		CVehicle *pVeh = FindPlayerVehicle(-1, false);
-		if (pVeh && pVeh->IsDriver(FindPlayerPed()) && pVeh->m_nOverrideLights != eLightOverride::ForceLightsOff && !Util::IsEngineOff(pVeh))
+		if (pVeh && pVeh->IsDriver(FindPlayerPed()) && !Util::IsEngineOff(pVeh))
 		{
 			static size_t prev = 0;
 			static uint32_t fogLightKey = gConfig.ReadInteger("KEYS", "FogLightKey", VK_J);
@@ -328,7 +328,7 @@ void Lights::Initialize()
 			}
 
 			static uint32_t longLightKey = gConfig.ReadInteger("KEYS", "LongLightKey", VK_G);
-			if (KeyPressed(longLightKey) && pVeh->bLightsOn)
+			if (KeyPressed(longLightKey) && pVeh->bLightsOn && pVeh->m_nOverrideLights != eLightOverride::ForceLightsOff)
 			{
 				size_t now = CTimer::m_snTimeInMilliseconds;
 				if (now - prev > 500.0f)
@@ -734,7 +734,7 @@ void Lights::RenderHeadlights(CVehicle *pControlVeh, bool isLeftOn, bool isRight
 		return;
 	}
 
-	if (pControlVeh->bLightsOn)
+	if (pControlVeh->bLightsOn || pControlVeh->m_nOverrideLights == eLightOverride::ForceLightsOn)
 	{
 		bool isFoggy = (CWeather::NewWeatherType == WEATHER_FOGGY_SF || CWeather::NewWeatherType == WEATHER_SANDSTORM_DESERT || CWeather::OldWeatherType == WEATHER_FOGGY_SF || CWeather::OldWeatherType == WEATHER_SANDSTORM_DESERT);
 		std::string texName = data.m_bLongLightsOn ? "headlight_long" : "headlight_short";

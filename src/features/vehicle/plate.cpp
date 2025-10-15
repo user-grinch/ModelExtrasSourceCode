@@ -11,7 +11,7 @@
 #include "texmgr.h"
 
 static CVehicle *pCurrentVeh = nullptr;
-extern RwSurfaceProperties& gLightSurfProps;
+extern RwSurfaceProperties &gLightSurfProps;
 extern RwSurfaceProperties gLightSurfPropsOff;
 
 void LicensePlate::Initialize()
@@ -24,13 +24,15 @@ void LicensePlate::Initialize()
     plugin::patch::ReplaceFunction(0x6FDEA0, CCustomCarPlateMgr_CreatePlateTexture);
 }
 
-void LicensePlate::ProcessTextures(CVehicle *pVeh, RpMaterial *pMat) {
-    if (!m_bEnabled || !pMat || !pMat->texture) {
+void LicensePlate::ProcessTextures(CVehicle *pVeh, RpMaterial *pMat)
+{
+    if (!m_bEnabled || !pMat || !pMat->texture)
+    {
         return;
     }
-    
+
     pCurrentVeh = pVeh;
-    if ( !_stricmp("carpback", pMat->texture->name))
+    if (!_stricmp("carpback", pMat->texture->name))
     {
         CCustomCarPlateMgr_SetupMaterialPlatebackTexture(pMat, -1);
     }
@@ -107,10 +109,13 @@ RpMaterial *__cdecl LicensePlate::CCustomCarPlateMgr_SetupMaterialPlatebackTextu
         }
     }
 
-    if (Util::IsNightTime() && !Util::IsEngineOff(pCurrentVeh) && pCurrentVeh->m_nOverrideLights != eLightOverride::ForceLightsOff || pCurrentVeh->m_nOverrideLights == eLightOverride::ForceLightsOn) {
+    if (Util::IsNightTime() && !Util::IsEngineOff(pCurrentVeh) && pCurrentVeh->m_nOverrideLights == eLightOverride::ForceLightsOn)
+    {
         material->surfaceProps.ambient = gLightSurfProps.ambient;
         RpMaterialSetTexture(material, m_Plates[plateType + 4]);
-    } else {
+    }
+    else
+    {
         material->surfaceProps.ambient = gLightSurfPropsOff.ambient;
         RpMaterialSetTexture(material, m_Plates[plateType]);
     }
