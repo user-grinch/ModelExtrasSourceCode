@@ -12,21 +12,24 @@
 
 #define NODE_NAME "x_exhaust"
 
-template<uintptr_t addr>
-void ExhaustFx::hkAddExhaustParticles() {
-	using func_hook = injector::function_hooker_thiscall<injector::scoped_call, addr, void(CVehicle *)>;
-	injector::make_static_hook<func_hook>([](func_hook::func_type ogFunc, CVehicle *pVeh) {
+template <uintptr_t addr>
+void ExhaustFx::hkAddExhaustParticles()
+{
+    using func_hook = injector::function_hooker_thiscall<injector::scoped_call, addr, void(CVehicle *)>;
+    injector::make_static_hook<func_hook>([](func_hook::func_type ogFunc, CVehicle *pVeh)
+                                          {
 		auto &data = xData.Get(pVeh); 
         if (!data.isUsed) {
             ogFunc(pVeh);
-        }
-	});
+        } });
 }
 
-template<uintptr_t addr>
-void ExhaustFx::hkDoNitroEffect() {
-    using func_hook = injector::function_hooker_thiscall<injector::scoped_call, addr, char(CAutomobile*, float)>;
-    injector::make_static_hook<func_hook>([](func_hook::func_type ogFunc, CAutomobile* pVeh, float power) {
+template <uintptr_t addr>
+void ExhaustFx::hkDoNitroEffect()
+{
+    using func_hook = injector::function_hooker_thiscall<injector::scoped_call, addr, char(CAutomobile *, float)>;
+    injector::make_static_hook<func_hook>([](func_hook::func_type ogFunc, CAutomobile *pVeh, float power)
+                                          {
         auto& data = xData.Get(pVeh);
         if (data.isUsed) {
 			RenderNitroFx(pVeh, power);
@@ -34,23 +37,24 @@ void ExhaustFx::hkDoNitroEffect() {
         else {
             ogFunc(pVeh, power);
         }
-        return 1;
-    });
+        return 1; });
 }
 
-void ExhaustFx::Initialize() {
+void ExhaustFx::Initialize()
+{
     bEnabled = true;
 
-    ModelInfoMgr::RegisterDummy([](CVehicle *pVeh, RwFrame *pFrame) { 
+    ModelInfoMgr::RegisterDummy([](CVehicle *pVeh, RwFrame *pFrame)
+                                { 
         std::string name = GetFrameNodeName(pFrame);
         if (name.starts_with(NODE_NAME)) {
             auto &data = xData.Get(pVeh); 
             data.isUsed = true;
             data.m_pDummies[std::move(name)] = std::move(LoadData(pVeh, pFrame));
-        }
-    });
+        } });
 
-    ModelInfoMgr::RegisterRender([](CVehicle *pVeh) {
+    ModelInfoMgr::RegisterRender([](CVehicle *pVeh)
+                                 {
         if (!pVeh || !pVeh->GetIsOnScreen()) {
             return;
         }
@@ -58,8 +62,7 @@ void ExhaustFx::Initialize() {
         VehData &data = xData.Get(pVeh); 
         for (auto& e : data.m_pDummies) {
             RenderSmokeFx(pVeh, e.second);
-        }
-    });
+        } });
 
     hkAddExhaustParticles<0x6AB344>();
     hkAddExhaustParticles<0x6BD3FF>();
@@ -68,20 +71,23 @@ void ExhaustFx::Initialize() {
     hkDoNitroEffect<0x6A40E1>();
 }
 
-ExhaustData ExhaustFx::LoadData(CVehicle *pVeh, RwFrame *pFrame) {
+ExhaustData ExhaustFx::LoadData(CVehicle *pVeh, RwFrame *pFrame)
+{
     ExhaustData f;
     f.sName = GetFrameNodeName(pFrame);
     f.pFrame = pFrame;
-    
+
     auto &jsonData = DataMgr::Get(pVeh->m_nModelIndex);
-    if (jsonData.contains("exhausts") && jsonData["exhausts"].contains(f.sName)) {
-        auto& data = jsonData["exhausts"][f.sName];
+    if (jsonData.contains("exhausts") && jsonData["exhausts"].contains(f.sName))
+    {
+        auto &data = jsonData["exhausts"][f.sName];
         f.fLifeTime = data.value("lifetime", f.fLifeTime);
         f.fSpeedMul *= data.value("speed", 1.0f);
         f.fSizeMul = data.value("size", f.fSizeMul);
         f.bNitroEffect = data.value("nitro_effect", f.bNitroEffect);
 
-        if (data.contains("color")) {
+        if (data.contains("color"))
+        {
             f.Color.r = data["color"].value("red", f.Color.r);
             f.Color.g = data["color"].value("green", f.Color.g);
             f.Color.b = data["color"].value("blue", f.Color.b);
@@ -92,26 +98,32 @@ ExhaustData ExhaustFx::LoadData(CVehicle *pVeh, RwFrame *pFrame) {
     return f;
 }
 
-void ExhaustFx::RenderSmokeFx(CVehicle* pVeh, const ExhaustData &info) {
-    if (!pVeh || !pVeh->GetIsOnScreen()) {
+void ExhaustFx::RenderSmokeFx(CVehicle *pVeh, const ExhaustData &info)
+{
+    if (!pVeh || !pVeh->GetIsOnScreen() || !pVeh->bEngineOn || pVeh->bEngineBroken)
+    {
         return;
     }
 
     float dist = DistanceBetweenPoints(pVeh->GetPosition(), TheCamera.GetPosition());
     dist *= dist;
 
-    if (dist > 256.0f || (dist > 64.0f && !((CTimer::m_FrameCounter + pVeh->m_nModelIndex) & 1))) {
+    if (dist > 256.0f || (dist > 64.0f && !((CTimer::m_FrameCounter + pVeh->m_nModelIndex) & 1)))
+    {
         return;
     }
 
     CVector exhaustPos = info.pFrame->ltm.pos;
-    if (exhaustPos.IsZero()) {
+    if (exhaustPos.IsZero())
+    {
         return;
     }
 
-    auto& data = xData.Get(pVeh);
-    if (data.reloadCount < nReloadCount) {
-        for (auto& e : data.m_pDummies) {
+    auto &data = xData.Get(pVeh);
+    if (data.reloadCount < nReloadCount)
+    {
+        for (auto &e : data.m_pDummies)
+        {
             e.second = LoadData(pVeh, e.second.pFrame);
         }
         data.reloadCount++;
@@ -119,16 +131,19 @@ void ExhaustFx::RenderSmokeFx(CVehicle* pVeh, const ExhaustData &info) {
 
     // properties
     float moveSpeed = pVeh->m_vecMoveSpeed.Magnitude() * info.fSpeedMul;
-    float life      = std::max(info.fLifeTime - moveSpeed, 0.0f);
+    float life = std::max(info.fLifeTime - moveSpeed, 0.0f);
     float alpha = std::max(info.Color.a / 255.0f - moveSpeed, 0.0f);
 
     CVector particleDir = info.pFrame->ltm.up; // forward is up in psdk
     particleDir *= -1;
 
     CVector parVelocity;
-    if (DotProduct(particleDir, pVeh->m_vecMoveSpeed) >= 0.05f) {
+    if (DotProduct(particleDir, pVeh->m_vecMoveSpeed) >= 0.05f)
+    {
         parVelocity = pVeh->m_vecMoveSpeed * 30.0f;
-    } else {
+    }
+    else
+    {
         static float randomFactor = CGeneral::GetRandomNumberInRange(-1.8f, -0.9f);
         parVelocity = randomFactor * particleDir;
     }
@@ -137,109 +152,124 @@ void ExhaustFx::RenderSmokeFx(CVehicle* pVeh, const ExhaustData &info) {
     float waterLevel = 0.0f;
     if (pVeh->bTouchingWater &&
         CWaterLevel::GetWaterLevel(exhaustPos.x, exhaustPos.y, exhaustPos.z, &waterLevel, true, nullptr) &&
-        waterLevel >= exhaustPos.z) {
+        waterLevel >= exhaustPos.z)
+    {
         isExhaustSubmerged = true;
     }
 
     float randomFactor = CGeneral::GetRandomNumberInRange(1.0f, 3.0f);
-    if (randomFactor * (pVeh->m_fGasPedal + 1.1f) <= 2.5f) {
+    if (randomFactor * (pVeh->m_fGasPedal + 1.1f) <= 2.5f)
+    {
         return;
     }
 
     FxPrtMult_c fxPrt(info.Color.r / 255.0f, info.Color.g / 255.0f, info.Color.b / 255.0f, alpha, 0.2f * info.fSizeMul, 1.0f, life);
 
-    for (int i = 0; i < 2; i++) {
-        FxSystem_c* fxSystem = isExhaustSubmerged ? g_fx.m_pPrtBubble : g_fx.m_pPrtSmokeII3expand;
+    for (int i = 0; i < 2; i++)
+    {
+        FxSystem_c *fxSystem = isExhaustSubmerged ? g_fx.m_pPrtBubble : g_fx.m_pPrtSmokeII3expand;
 
-        if (isExhaustSubmerged) {
+        if (isExhaustSubmerged)
+        {
             fxPrt.m_color.alpha = alpha * 0.5f;
-            fxPrt.m_fSize       = 0.6f * info.fSizeMul;
+            fxPrt.m_fSize = 0.6f * info.fSizeMul;
         }
 
         fxSystem->AddParticle(
-            (RwV3d*)&exhaustPos,
-            (RwV3d*)&parVelocity,
+            (RwV3d *)&exhaustPos,
+            (RwV3d *)&parVelocity,
             0.0f,
             &fxPrt,
             -1.0f,
             pVeh->m_fContactSurfaceBrightness,
             0.6f,
-            0
-        );
+            0);
 
         // secondary emission
-        if (pVeh->m_fGasPedal > 0.5f && pVeh->m_nCurrentGear < 3 && (CGeneral::GetRandomNumber() % 2)) {
-            FxSystem_c* secondaryFxSystem = isExhaustSubmerged ? g_fx.m_pPrtBubble : g_fx.m_pPrtSmokeII3expand;
+        if (pVeh->m_fGasPedal > 0.5f && pVeh->m_nCurrentGear < 3 && (CGeneral::GetRandomNumber() % 2))
+        {
+            FxSystem_c *secondaryFxSystem = isExhaustSubmerged ? g_fx.m_pPrtBubble : g_fx.m_pPrtSmokeII3expand;
 
-            if (isExhaustSubmerged) {
+            if (isExhaustSubmerged)
+            {
                 fxPrt.m_color.alpha = alpha * 0.5f;
-                fxPrt.m_fSize       = 0.6f * info.fSizeMul;
+                fxPrt.m_fSize = 0.6f * info.fSizeMul;
             }
 
             secondaryFxSystem->AddParticle(
-                (RwV3d*)&exhaustPos,
-                (RwV3d*)&parVelocity,
+                (RwV3d *)&exhaustPos,
+                (RwV3d *)&parVelocity,
                 0.0f,
                 &fxPrt,
                 -1.0f,
                 pVeh->m_fContactSurfaceBrightness,
                 0.6f,
-                0
-            );
+                0);
         }
     }
 }
 
-void ExhaustFx::RenderNitroFx(CVehicle *pVeh, float power) {
-	const auto& mi = CModelInfo::GetModelInfo(pVeh->m_nModelIndex);
+void ExhaustFx::RenderNitroFx(CVehicle *pVeh, float power)
+{
+    const auto &mi = CModelInfo::GetModelInfo(pVeh->m_nModelIndex);
 
-    auto& data = xData.Get(pVeh);
+    auto &data = xData.Get(pVeh);
 
-    if (!data.isUsed) {
+    if (!data.isUsed || !pVeh->bEngineOn || pVeh->bEngineBroken)
+    {
         return;
     }
 
-    for (auto& e : data.m_pDummies) {
-        if (!e.second.bNitroEffect) {
+    for (auto &e : data.m_pDummies)
+    {
+        if (!e.second.bNitroEffect)
+        {
             continue;
         }
 
-        RwMatrix* dummyMatrix = &e.second.pFrame->ltm;
+        RwMatrix *dummyMatrix = &e.second.pFrame->ltm;
 
         bool isExhaustSubmerged = false;
-        if (pVeh->bTouchingWater) {
+        if (pVeh->bTouchingWater)
+        {
             float level = 0.0f;
             CVector pos = dummyMatrix->pos;
-            if (CWaterLevel::GetWaterLevel(pos.x, pos.y, pos.z, &level, true, nullptr)) {
-                if (level >= pos.z) {
+            if (CWaterLevel::GetWaterLevel(pos.x, pos.y, pos.z, &level, true, nullptr))
+            {
+                if (level >= pos.z)
+                {
                     isExhaustSubmerged = true;
                 }
             }
         }
 
-        if (e.second.pFxSysem) {
+        if (e.second.pFxSysem)
+        {
             e.second.pFxSysem->SetConstTime(1, std::fabs(power));
-            if (e.second.pFxSysem->m_nPlayStatus == eFxSystemPlayStatus::FX_PLAYING && isExhaustSubmerged) {
+            if (e.second.pFxSysem->m_nPlayStatus == eFxSystemPlayStatus::FX_PLAYING && isExhaustSubmerged)
+            {
                 e.second.pFxSysem->Stop();
             }
-            else if (e.second.pFxSysem->m_nPlayStatus == eFxSystemPlayStatus::FX_STOPPED && !isExhaustSubmerged) {
+            else if (e.second.pFxSysem->m_nPlayStatus == eFxSystemPlayStatus::FX_STOPPED && !isExhaustSubmerged)
+            {
                 e.second.pFxSysem->Play();
             }
         }
-        else if (!isExhaustSubmerged && dummyMatrix) {
+        else if (!isExhaustSubmerged && dummyMatrix)
+        {
             static RwMatrixTag gFlipForward = {
-                { 1.0f, 0.0f, 0.0f },   // right (X)
-                0,                       // flags
-                { 0.0f, -1.0f, 0.0f },   // up (forward flipped)
+                {1.0f, 0.0f, 0.0f},  // right (X)
+                0,                   // flags
+                {0.0f, -1.0f, 0.0f}, // up (forward flipped)
                 0,
-                { 0.0f, 0.0f, 1.0f },  // at 
+                {0.0f, 0.0f, 1.0f}, // at
                 0,
-                { 0.0f, 0.0f, 0.0f },   // pos
-                0
-            };
+                {0.0f, 0.0f, 0.0f}, // pos
+                0};
 
-            e.second.pFxSysem = g_fxMan.CreateFxSystem((char*)"nitro", &gFlipForward, dummyMatrix, true);
-            if (e.second.pFxSysem) {
+            e.second.pFxSysem = g_fxMan.CreateFxSystem((char *)"nitro", &gFlipForward, dummyMatrix, true);
+            if (e.second.pFxSysem)
+            {
                 e.second.pFxSysem->SetLocalParticles(true);
                 e.second.pFxSysem->Play();
             }
@@ -247,34 +277,44 @@ void ExhaustFx::RenderNitroFx(CVehicle *pVeh, float power) {
     }
 }
 
-void ExhaustFx::Reload() {
+void ExhaustFx::Reload()
+{
     nReloadCount++;
 }
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
-    unsigned int ME_GetExhaustCount(CVehicle* pVeh) {
-        if (!pVeh) return 0;
+    unsigned int ME_GetExhaustCount(CVehicle *pVeh)
+    {
+        if (!pVeh)
+            return 0;
 
-        VehData& data = ExhaustFx::xData.Get(pVeh);
-        if (!data.isUsed) return 0;
+        VehData &data = ExhaustFx::xData.Get(pVeh);
+        if (!data.isUsed)
+            return 0;
 
         return static_cast<unsigned int>(data.m_pDummies.size());
     }
 
-    ME_ExhaustInfo ME_GetExhaustData(CVehicle* pVeh, int index) {
+    ME_ExhaustInfo ME_GetExhaustData(CVehicle *pVeh, int index)
+    {
         ME_ExhaustInfo info{};
-        if (!pVeh) return info;
+        if (!pVeh)
+            return info;
 
-        VehData& data = ExhaustFx::xData.Get(pVeh);
-        if (!data.isUsed || index < 0 || index >= static_cast<int>(data.m_pDummies.size())) return info;
+        VehData &data = ExhaustFx::xData.Get(pVeh);
+        if (!data.isUsed || index < 0 || index >= static_cast<int>(data.m_pDummies.size()))
+            return info;
 
         int i = 0;
-        for (const auto& pair : data.m_pDummies) {
-            if (i == index) {
-                const ExhaustData& e = pair.second;
-				info.pFrame = e.pFrame;
+        for (const auto &pair : data.m_pDummies)
+        {
+            if (i == index)
+            {
+                const ExhaustData &e = pair.second;
+                info.pFrame = e.pFrame;
                 info.Color = e.Color;
                 info.fSpeedMul = e.fSpeedMul;
                 info.fLifeTime = e.fLifeTime;
@@ -288,17 +328,22 @@ extern "C" {
         return info;
     }
 
-    void ME_SetExhaustData(CVehicle* pVeh, int index, ME_ExhaustInfo& data) {
-        if (!pVeh) return;
+    void ME_SetExhaustData(CVehicle *pVeh, int index, ME_ExhaustInfo &data)
+    {
+        if (!pVeh)
+            return;
 
-        VehData& vData = ExhaustFx::xData.Get(pVeh);
-        if (!vData.isUsed || index < 0 || index >= static_cast<int>(vData.m_pDummies.size())) return;
+        VehData &vData = ExhaustFx::xData.Get(pVeh);
+        if (!vData.isUsed || index < 0 || index >= static_cast<int>(vData.m_pDummies.size()))
+            return;
 
         int i = 0;
-        for (auto& pair : vData.m_pDummies) {
-            if (i == index) {
-                ExhaustData& e = pair.second;
-				data.pFrame = e.pFrame;
+        for (auto &pair : vData.m_pDummies)
+        {
+            if (i == index)
+            {
+                ExhaustData &e = pair.second;
+                data.pFrame = e.pFrame;
                 data.Color = e.Color;
                 data.fSpeedMul = e.fSpeedMul;
                 data.fLifeTime = e.fLifeTime;
