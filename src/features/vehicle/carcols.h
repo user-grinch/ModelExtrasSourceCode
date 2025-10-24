@@ -21,6 +21,7 @@ private:
     {
         bool m_bPri = false, m_bSec = false, m_bTer = false, m_bQuat = false;
         ColorSet m_Colors;
+        int randId = -1;
         VehData(CVehicle *pVeh) {}
         ~VehData() {}
     };
