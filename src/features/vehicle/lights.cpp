@@ -842,4 +842,10 @@ extern "C"
 	{
 		Lights::SetLightState(pVeh, static_cast<eMaterialType>(lightId), state);
 	}
+
+	// Dummy function to show on crash logs
+	int __declspec(dllexport) ignore4(int i)
+	{
+		return 1;
+	}
 }

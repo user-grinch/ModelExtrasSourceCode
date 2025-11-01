@@ -375,4 +375,10 @@ extern "C"
 		}
 		LOG_VERBOSE("MEAPI: {} called with num: {}", __func__, num);
 	}
+
+	// Dummy function to show on crash logs
+	int __declspec(dllexport) ignore2(int i)
+	{
+		return 1;
+	}
 }

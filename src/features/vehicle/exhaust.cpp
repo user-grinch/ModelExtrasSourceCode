@@ -362,6 +362,12 @@ extern "C"
         }
     }
 
+    // Dummy function to show on crash logs
+    int __declspec(dllexport) ignore3(int i)
+    {
+        return 1;
+    }
+
 #ifdef __cplusplus
 }
 #endif
