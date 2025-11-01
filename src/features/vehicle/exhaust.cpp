@@ -9,6 +9,9 @@
 #include "modelinfomgr.h"
 #include "datamgr.h"
 #include "ModelExtrasAPI.h"
+#include "backfire.h"
+#include <rwcore.h>
+#include <rwplcore.h>
 
 #define NODE_NAME "x_exhaust"
 
@@ -44,22 +47,26 @@ void ExhaustFx::Initialize()
 {
     bEnabled = true;
 
-    ModelInfoMgr::RegisterDummy([](CVehicle *pVeh, RwFrame *pFrame)
-                                { 
-        std::string name = GetFrameNodeName(pFrame);
-        if (name.starts_with(NODE_NAME)) {
-            auto &data = xData.Get(pVeh); 
-            data.isUsed = true;
-            data.m_pDummies[std::move(name)] = std::move(LoadData(pVeh, pFrame));
-        } });
-
     ModelInfoMgr::RegisterRender([](CVehicle *pVeh)
                                  {
+                                    
         if (!pVeh || !pVeh->GetIsOnScreen()) {
             return;
         }
 
         VehData &data = xData.Get(pVeh); 
+        
+        // Must be here to work with VehFuncs recursive extras
+        if (!data.isUsed) {
+            RwFrame *pFrame = (RwFrame*)pVeh->m_pRwClump->object.parent;
+            std::string name = GetFrameNodeName(pFrame);
+            if (name.starts_with(NODE_NAME)) {
+                auto &data = xData.Get(pVeh); 
+                data.isUsed = true;
+                data.m_pDummies[std::move(name)] = std::move(LoadData(pVeh, pFrame));
+            } 
+        }
+
         for (auto& e : data.m_pDummies) {
             RenderSmokeFx(pVeh, e.second);
         } });

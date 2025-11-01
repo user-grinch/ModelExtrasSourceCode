@@ -25,29 +25,24 @@ void BackFireEffect::BackFireFX(CVehicle *pVeh, float x, float y, float z)
     CVector camPos = TheCamera.GetPosition();
     static std::string audioPath = MOD_DATA_PATH("audio/effects/backfire.wav");
     AudioMgr::PlayFileSound(audioPath, pVeh, 1.5f, true);
-    // if (DistanceBetweenPoints(vehPos, camPos) < 80.0f)
-    // {
-    //     plugin::Command<Commands::ADD_ONE_OFF_SOUND>(0.0f, 0.0f, 0.0f, 1131);
-    // }
 }
 
 void BackFireEffect::BackFireSingle(CVehicle *pVeh)
 {
+
     size_t count = ME_GetExhaustCount(pVeh);
     if (count <= 0)
     {
         // https://github.com/multitheftauto/mtasa-blue/blob/16769b8d1c94e2b9fe6323dcba46d1305f87a190/Client/game_sa/CModelInfoSA.h#L213
         CVehicleModelInfo *pInfo = static_cast<CVehicleModelInfo *>(CModelInfo::GetModelInfo(pVeh->m_nModelIndex));
-        int handlingID = patch::Get<WORD>((int)pInfo + 74, false);                                               //  CBaseModelInfo + 74 = handlingID
-        tHandlingData *pHandlingData = reinterpret_cast<tHandlingData *>(*(int *)0x4C8E7F + (handlingID * 224)); // sizeof(tHandlingData) = 224
         float vx = 0;
         CVector pos = pInfo->m_pVehicleStruct->m_avDummyPos[eVehicleDummies::EXHAUST];
-        if (pHandlingData->m_bDoubleExhaust)
+        if (pVeh->m_pHandlingData->m_bDoubleExhaust)
         {
             vx = pos.x * -1.0f;
         }
 
-        if (pHandlingData->m_bDoubleExhaust)
+        if (pVeh->m_pHandlingData->m_bDoubleExhaust)
         {
             BackFireFX(pVeh, vx, pos.y, pos.z);
         }
@@ -57,12 +52,12 @@ void BackFireEffect::BackFireSingle(CVehicle *pVeh)
         pos = pInfo->m_pVehicleStruct->m_avDummyPos[eVehicleDummies::EXHAUST_SECONDARY];
         if (!pos.IsZero())
         {
-            if (pHandlingData->m_bDoubleExhaust)
+            if (pVeh->m_pHandlingData->m_bDoubleExhaust)
             {
                 vx = pos.x * -1.0f;
             }
 
-            if (pHandlingData->m_bDoubleExhaust)
+            if (pVeh->m_pHandlingData->m_bDoubleExhaust)
             {
                 BackFireFX(pVeh, vx, pos.y, pos.z);
             }
