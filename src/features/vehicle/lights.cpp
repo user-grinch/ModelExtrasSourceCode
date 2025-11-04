@@ -57,8 +57,9 @@ void Lights::Initialize()
 	// NOP CVehicle::DoHeadLightBeam
 	if (!gConfig.ReadBoolean("TWEAKS", "HeadLightBeams", false))
 	{
-		patch::Nop(0x6A2E9F, 0x58);
-		patch::Nop(0x6BDE73, 0x12);
+		// cmp ax, ax
+		patch::SetRaw(0x6A2EA5, (void *)"\x66\x39\xC0\x90", 4);
+		patch::SetRaw(0x6BDE63, (void *)"\x66\x39\xC0\x90\x90\x90\x90", 7);
 	}
 
 	plugin::Events::initGameEvent += []()
@@ -381,8 +382,17 @@ void Lights::Initialize()
 		VehLightData &data = m_VehData.Get(pControlVeh);
 		eIndicatorState indState = data.m_nIndicatorState;
 
+		// Fix for UIF SAMP server https://github.com/user-grinch/ModelExtras/issues/112
+		if (Util::IsEngineOff(pControlVeh) || CarUtil::IsLightsForcedOff(pControlVeh)) {
+			pControlVeh->bLightsOn = false;
+			pControlVeh->m_renderLights.m_bLeftFront = false;
+			pControlVeh->m_renderLights.m_bRightFront = false;
+			pControlVeh->m_renderLights.m_bLeftRear = false;
+			pControlVeh->m_renderLights.m_bRightRear = false;
+		}
+
 		// Fix for park car alarm lights
-		if (pControlVeh->m_fHealth == 0 || (Util::IsEngineOff(pControlVeh) && pControlVeh->m_nOverrideLights != eLightOverride::ForceLightsOn)) {
+		if (pControlVeh->m_fHealth == 0 || (Util::IsEngineOff(pControlVeh) && !CarUtil::IsLightsForcedOn(pControlVeh))) {
 			return;
 		}
 
@@ -729,12 +739,12 @@ void Lights::RenderHeadlights(CVehicle *pControlVeh, bool isLeftOn, bool isRight
 		pTowedVeh = pControlVeh->m_pTrailer;
 	}
 
-	if (CModelInfo::IsTrailerModel(pControlVeh->m_nModelIndex))
+	if (CModelInfo::IsTrailerModel(pControlVeh->m_nModelIndex) || CarUtil::IsLightsForcedOff(pControlVeh))
 	{
 		return;
 	}
 
-	if (pControlVeh->bLightsOn || pControlVeh->m_nOverrideLights == eLightOverride::ForceLightsOn)
+	if (pControlVeh->bLightsOn || CarUtil::IsLightsForcedOn(pControlVeh))
 	{
 		bool isFoggy = (CWeather::NewWeatherType == WEATHER_FOGGY_SF || CWeather::NewWeatherType == WEATHER_SANDSTORM_DESERT || CWeather::OldWeatherType == WEATHER_FOGGY_SF || CWeather::OldWeatherType == WEATHER_SANDSTORM_DESERT);
 		std::string texName = data.m_bLongLightsOn ? "headlight_long" : "headlight_short";

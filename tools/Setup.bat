@@ -4,8 +4,8 @@ set "PLUGIN_NAME="ModelExtras""
 
 :find_vs_path
 set "vs_path="
-for %%d in (Community Preview Professional) do (
-    for /d %%e in ("C:\Program Files\Microsoft Visual Studio\2022\%%d") do (
+for %%d in (Community Preview Professional Insiders) do (
+    for /d %%e in ("C:\Program Files\Microsoft Visual Studio\18\%%d") do (
         if exist "%%e\Common7\Tools\VsDevCmd.bat" (
             set "vs_path=%%e"
             goto :check_game_path

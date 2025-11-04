@@ -74,6 +74,7 @@ bool __cdecl LicensePlate::CCustomCarPlateMgr_Initialise()
 
     for (int i = 0; i < ePlateType::TOTAL_SZ; i++)
     {
+        strcpy(m_Plates[i]->name, "carpback\0");
         RwTextureSetAddressingU(m_Plates[i], rwFILTERMIPNEAREST);
         RwTextureSetAddressingV(m_Plates[i], rwFILTERMIPNEAREST);
         RwTextureSetFilterMode(m_Plates[i], rwFILTERLINEAR);
