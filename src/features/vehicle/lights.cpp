@@ -549,6 +549,8 @@ void Lights::Initialize()
 				return;
 			}
 
+			static bool bSAMP = GetModuleHandle("SAMP.asi") || GetModuleHandle("SAMP.dll");
+
 			if (pControlVeh->m_pDriver == FindPlayerPed() &&
 				(pControlVeh->m_nVehicleSubClass == VEHICLE_AUTOMOBILE || pControlVeh->m_nVehicleSubClass == VEHICLE_BIKE || pControlVeh->m_nVehicleSubClass == VEHICLE_QUAD || pControlVeh->m_nVehicleSubClass == VEHICLE_MTRUCK))
 			{
@@ -578,7 +580,7 @@ void Lights::Initialize()
 				{
 					data.m_nIndicatorState = eIndicatorState::BothOn;
 				}
-			} else if (pControlVeh->m_pDriver) {
+			} else if (pControlVeh->m_pDriver && !bSAMP) {
 				data.m_nIndicatorState = eIndicatorState::Off;
 				CVector2D prevPoint = GetCarPathLinkPosition(pControlVeh->m_autoPilot.m_nPreviousPathNodeInfo);
 				CVector2D currPoint = GetCarPathLinkPosition(pControlVeh->m_autoPilot.m_nCurrentPathNodeInfo);
