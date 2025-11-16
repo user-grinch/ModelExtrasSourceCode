@@ -62,7 +62,8 @@ void AudioMgr::Initialize()
 
 void AudioMgr::PlayClickSound()
 {
-    if (!ShouldPlaySound()) {
+    if (!ShouldPlaySound())
+    {
         return;
     }
     AudioEngine.ReportFrontendAudioEvent(AE_FRONTEND_RADIO_CLICK_ON, 10.0, 1.0);
@@ -70,7 +71,8 @@ void AudioMgr::PlayClickSound()
 
 void AudioMgr::PlaySwitchSound(CEntity *pEntity)
 {
-    if (!ShouldPlaySound()) {
+    if (!ShouldPlaySound())
+    {
         return;
     }
     static std::string path = MOD_DATA_PATH("audio/effects/switch_toggle.wav");
@@ -87,17 +89,24 @@ StreamHandle AudioMgr::Load(const std::string &path)
     }
 
     StreamHandle handle = NULL;
-    if (!is3DSupported.contains(path) || is3DSupported[path]) {
+    if (!is3DSupported.contains(path) || is3DSupported[path])
+    {
         plugin::Command<LOAD_3D_AUDIO_STREAM>(path.c_str(), &handle);
     }
-    
-    if (handle) {
+
+    if (handle)
+    {
         is3DSupported[path] = true;
-    } else {
+    }
+    else
+    {
         plugin::Command<LOAD_AUDIO_STREAM>(path.c_str(), &handle);
-        if (handle) {
+        if (handle)
+        {
             is3DSupported[path] = false;
-        } else {
+        }
+        else
+        {
             LOG_VERBOSE("Failed to load sound '{}'", path);
             return NULL;
         }
@@ -105,13 +114,15 @@ StreamHandle AudioMgr::Load(const std::string &path)
     return handle;
 }
 
-bool AudioMgr::ShouldPlaySound() {
+bool AudioMgr::ShouldPlaySound()
+{
     return gConfig.ReadBoolean("VEHICLE_FEATURES", "SoundEffects", false);
 }
 
 void AudioMgr::PlayFileSound(const std::string &path, CEntity *pEntity, float volume, bool cached)
 {
-    if (!ShouldPlaySound()) {
+    if (!ShouldPlaySound())
+    {
         return;
     }
 
@@ -136,7 +147,8 @@ void AudioMgr::PlayFileSound(const std::string &path, CEntity *pEntity, float vo
     else
     {
         handle = Load(path);
-        if (handle) {
+        if (handle)
+        {
             m_NeedToFree.push_back(handle);
         }
     }
@@ -190,8 +202,11 @@ void AudioMgr::PlayFileSound(const std::string &path, CEntity *pEntity, float vo
     }
 }
 
-void AudioMgr::SetVolume(StreamHandle handle, float volume) {
-    if (handle) {
-        plugin::Command<SET_AUDIO_STREAM_VOLUME>(handle, *(BYTE *)0xBA6797 / 64.0f * volume);
+void AudioMgr::SetVolume(StreamHandle handle, float volume)
+{
+    if (handle)
+    {
+        static float mult = gConfig.ReadFloat("TWEAKS", "SoundMult", 1.0f);
+        plugin::Command<SET_AUDIO_STREAM_VOLUME>(handle, *(BYTE *)0xBA6797 / 64.0f * volume * mult);
     }
 }

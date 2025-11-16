@@ -1,15 +1,17 @@
 #include "pch.h"
 #include "matrix.h"
 
-bool MatrixUtil::CreateBackup(RwFrame* frame) {
-    auto* backup = new RwMatrix();
-    if (!backup) {
+bool MatrixUtil::CreateBackup(RwFrame *frame)
+{
+    auto *backup = new RwMatrix();
+    if (!backup)
+    {
         gLogger->error("Failed to create matrix backup");
         FRAME_EXTENSION(frame)->pOrigMatrix = nullptr;
         return false;
     }
 
-    RwMatrix* origin = &frame->modelling;
+    RwMatrix *origin = &frame->modelling;
     backup->at = origin->at;
     backup->pos = origin->pos;
     backup->right = origin->right;
@@ -19,8 +21,10 @@ bool MatrixUtil::CreateBackup(RwFrame* frame) {
     return true;
 }
 
-void MatrixUtil::RestoreBackup(RwMatrix* dest, RwMatrix* backup) {
-    if (!backup) {
+void MatrixUtil::RestoreBackup(RwMatrix *dest, RwMatrix *backup)
+{
+    if (!backup)
+    {
         gLogger->error("Failed to restore matrix backup");
         return;
     }
@@ -33,7 +37,8 @@ void MatrixUtil::RestoreBackup(RwMatrix* dest, RwMatrix* backup) {
     RwMatrixUpdate(dest);
 }
 
-double MatrixUtil::GetRotationX(RwMatrix* matrix) {
+double MatrixUtil::GetRotationX(RwMatrix *matrix)
+{
     double y = matrix->up.y;
     double z = matrix->up.z;
     double angle = Util::RadToDeg(atan2(z, y));
@@ -41,7 +46,8 @@ double MatrixUtil::GetRotationX(RwMatrix* matrix) {
     return angle;
 }
 
-double MatrixUtil::GetRotationY(RwMatrix* matrix) {
+double MatrixUtil::GetRotationY(RwMatrix *matrix)
+{
     double x = matrix->at.x;
     double z = matrix->at.z;
     double angle = Util::RadToDeg(atan2(x, z));
@@ -49,7 +55,8 @@ double MatrixUtil::GetRotationY(RwMatrix* matrix) {
     return angle;
 }
 
-double MatrixUtil::GetRotationZ(RwMatrix* matrix) {
+double MatrixUtil::GetRotationZ(RwMatrix *matrix)
+{
     double x = matrix->right.x;
     double y = matrix->right.y;
     double angle = Util::RadToDeg(atan2(y, x));

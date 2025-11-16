@@ -6,17 +6,22 @@
 #include "util.h"
 #include "CWeather.h"
 
-bool ConvertibleRoof::UpdateRotation(RoofConfig& config, CVehicle *pVeh, bool closed) {
-    if (config.pFrame) {
-        VehData& data = xData.Get(pVeh);
+bool ConvertibleRoof::UpdateRotation(RoofConfig &config, CVehicle *pVeh, bool closed)
+{
+    if (config.pFrame)
+    {
+        VehData &data = xData.Get(pVeh);
         MatrixUtil::SetRotationX(&config.pFrame->modelling, config.currentRot);
         float target = closed ? 0.0f : config.targetRot;
         float delta = target - config.currentRot;
         float step = CTimer::ms_fTimeStep * std::abs(config.targetRot) / 360.0f * config.speed;
 
-        if (std::abs(delta) > step) {
+        if (std::abs(delta) > step)
+        {
             config.currentRot += step * (delta > 0.0f ? 1.0f : -1.0f);
-        } else {
+        }
+        else
+        {
             config.currentRot = target;
             return true;
         }
@@ -24,55 +29,62 @@ bool ConvertibleRoof::UpdateRotation(RoofConfig& config, CVehicle *pVeh, bool cl
     return false;
 }
 
-void ConvertibleRoof::Initialize() {
-    ModelInfoMgr::RegisterDummy([](CVehicle* pVeh, RwFrame* pFrame) {
-        std::string name = GetFrameNodeName(pFrame);
-        bool isBoot = name.starts_with("x_convertible_boot");
-        bool isRoof = name.starts_with("x_convertible_roof");
-        if (!isRoof && !isBoot)  {
+void ConvertibleRoof::Initialize()
+{
+    ModelInfoMgr::RegisterDummy([](CVehicle *pVeh, RwFrame *pFrame)
+                                {
+                                    std::string name = GetFrameNodeName(pFrame);
+                                    bool isBoot = name.starts_with("x_convertible_boot");
+                                    bool isRoof = name.starts_with("x_convertible_roof");
+                                    if (!isRoof && !isBoot)
+                                    {
+                                        return;
+                                    }
+
+                                    RoofConfig c;
+                                    c.pFrame = pFrame;
+                                    auto &jsonData = DataMgr::Get(pVeh->m_nModelIndex);
+                                    if (jsonData.contains("roofs") && jsonData["roofs"].contains(name))
+                                    {
+                                        auto &data = jsonData["roofs"][name];
+                                        c.targetRot = jsonData["roofs"][name].value("rotation", c.targetRot);
+                                        c.speed = jsonData["roofs"][name].value("speed", c.speed);
+                                    }
+
+                                    VehData &data = xData.Get(pVeh);
+                                    data.m_bInit = true;
+
+                                    // Randomly open the roofs
+                                    if (isRoof)
+                                    {
+                                        if (!data.m_bRoofTargetExpanded && CWeather::NewWeatherType != eWeatherType::WEATHER_RAINY_SF && CWeather::OldWeatherType != eWeatherType::WEATHER_RAINY_SF && CWeather::NewWeatherType != eWeatherType::WEATHER_RAINY_COUNTRYSIDE && CWeather::OldWeatherType != eWeatherType::WEATHER_RAINY_COUNTRYSIDE)
+                                        {
+                                            MatrixUtil::SetRotationX(&pFrame->modelling, c.targetRot);
+                                            c.currentRot = c.targetRot;
+                                        }
+                                        data.m_Roofs.push_back(std::move(c));
+                                    }
+                                    else
+                                    {
+                                        data.m_Boots.push_back(std::move(c));
+                                    } });
+
+    plugin::Events::vehicleRenderEvent += [](CVehicle *pVeh)
+    {
+        if (CWeather::NewWeatherType != eWeatherType::WEATHER_RAINY_SF && CWeather::OldWeatherType != eWeatherType::WEATHER_RAINY_SF && CWeather::NewWeatherType != eWeatherType::WEATHER_RAINY_COUNTRYSIDE && CWeather::OldWeatherType != eWeatherType::WEATHER_RAINY_COUNTRYSIDE)
+        {
             return;
         }
 
-        RoofConfig c;
-        c.pFrame = pFrame;
-        auto& jsonData = DataMgr::Get(pVeh->m_nModelIndex);
-        if (jsonData.contains("roofs") && jsonData["roofs"].contains(name)) {
-            auto& data = jsonData["roofs"][name];
-            c.targetRot = jsonData["roofs"][name].value("rotation", c.targetRot);
-            c.speed = jsonData["roofs"][name].value("speed", c.speed);
-        }
-
-        VehData& data = xData.Get(pVeh);
-        data.m_bInit = true;
-
-        // Randomly open the roofs
-        if (isRoof) {
-            if (!data.m_bRoofTargetExpanded 
-                && CWeather::NewWeatherType != eWeatherType::WEATHER_RAINY_SF && CWeather::OldWeatherType != eWeatherType::WEATHER_RAINY_SF
-                && CWeather::NewWeatherType != eWeatherType::WEATHER_RAINY_COUNTRYSIDE  && CWeather::OldWeatherType != eWeatherType::WEATHER_RAINY_COUNTRYSIDE) {
-                MatrixUtil::SetRotationX(&pFrame->modelling, c.targetRot);
-                c.currentRot = c.targetRot;
-            }
-            data.m_Roofs.push_back(std::move(c));
-        } else {
-            data.m_Boots.push_back(std::move(c));
-        }
-
-    });
-
-    plugin::Events::vehicleRenderEvent += [](CVehicle *pVeh) {
-        if (CWeather::NewWeatherType != eWeatherType::WEATHER_RAINY_SF && CWeather::OldWeatherType != eWeatherType::WEATHER_RAINY_SF
-        && CWeather::NewWeatherType != eWeatherType::WEATHER_RAINY_COUNTRYSIDE  && CWeather::OldWeatherType != eWeatherType::WEATHER_RAINY_COUNTRYSIDE) {
-            return;
-        }
-
-        VehData& data = xData.Get(pVeh);
-        if (data.m_bInit && !data.m_bRoofTargetExpanded && pVeh->m_pDriver && !pVeh->IsDriver(FindPlayerPed())) {
+        VehData &data = xData.Get(pVeh);
+        if (data.m_bInit && !data.m_bRoofTargetExpanded && pVeh->m_pDriver && !pVeh->IsDriver(FindPlayerPed()))
+        {
             data.m_bRoofTargetExpanded = true;
         }
     };
 
-    ModelInfoMgr::RegisterRender([](CVehicle* pVeh) {
+    ModelInfoMgr::RegisterRender([](CVehicle *pVeh)
+                                 {
         if (!pVeh || !pVeh->GetIsOnScreen()) {
             return;
         }
@@ -128,22 +140,27 @@ void ConvertibleRoof::Initialize() {
             }
             default:
                 break;
-        }
-    });
+        } });
 
-
-    plugin::Events::processScriptsEvent += []() {
+    plugin::Events::processScriptsEvent += []()
+    {
         size_t now = CTimer::m_snTimeInMilliseconds;
         static size_t prev = 0;
         static uint32_t roofToggleKey = gConfig.ReadInteger("KEYS", "RoofToggleKey", VK_R);
 
-        if (KeyPressed(roofToggleKey) && now - prev > 500.0f) {
+        if (KeyPressed(roofToggleKey) && now - prev > 500.0f)
+        {
             CVehicle *pVeh = FindPlayerVehicle();
-            if (pVeh) {
-                VehData& data = xData.Get(pVeh);
-                data.m_bRoofTargetExpanded = !data.m_bRoofTargetExpanded;
-                prev = now;
-                AudioMgr::PlaySwitchSound(pVeh);
+            if (pVeh)
+            {
+                VehData &data = xData.Get(pVeh);
+
+                if (data.m_bInit)
+                {
+                    data.m_bRoofTargetExpanded = !data.m_bRoofTargetExpanded;
+                    prev = now;
+                    AudioMgr::PlaySwitchSound(pVeh);
+                }
             }
         }
     };

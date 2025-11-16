@@ -4,17 +4,19 @@
 #include <CBike.h>
 #include "modelinfomgr.h"
 
-void GearMeter::Initialize() {
-    ModelInfoMgr::RegisterDummy([](CVehicle* pVeh, RwFrame* pFrame) {
+void GearMeter::Initialize()
+{
+    ModelInfoMgr::RegisterDummy([](CVehicle *pVeh, RwFrame *pFrame)
+                                {
         std::string name = GetFrameNodeName(pFrame);
         if (name.starts_with("x_gearmeter") || name.starts_with("fc_gm")) {
             VehData &data = vehData.Get(pVeh);
             data.pRoot = pFrame;
             FrameUtil::StoreChilds(pFrame, data.m_FrameList);
-        }
-    });
+        } });
 
-    ModelInfoMgr::RegisterRender([](CVehicle* pVeh) {
+    ModelInfoMgr::RegisterRender([](CVehicle *pVeh)
+                                 {
         if (!pVeh || !pVeh->GetIsOnScreen()) return;
 
         VehData &data = vehData.Get(pVeh);
@@ -25,12 +27,13 @@ void GearMeter::Initialize() {
                 FrameUtil::ShowAllAtomics(data.m_FrameList[data.m_nCurrent]);
             }
             data.m_nCurrent = pVeh->m_nCurrentGear;
-        }
-    });
+        } });
 }
 
-void OdoMeter::Initialize() {
-    ModelInfoMgr::RegisterDummy([](CVehicle* pVeh, RwFrame* pFrame) {
+void OdoMeter::Initialize()
+{
+    ModelInfoMgr::RegisterDummy([](CVehicle *pVeh, RwFrame *pFrame)
+                                {
         std::string name = GetFrameNodeName(pFrame);
         if (name.starts_with("x_odometer") || name.starts_with("fc_om")) {
             VehData &data = vehData.Get(pVeh);
@@ -51,10 +54,10 @@ void OdoMeter::Initialize() {
             }
             data.pFrame = pFrame;
             data.m_bInitialized = true;
-        }
-    });
+        } });
 
-    ModelInfoMgr::RegisterRender([](CVehicle* pVeh) {
+    ModelInfoMgr::RegisterRender([](CVehicle *pVeh)
+                                 {
         if (!pVeh || !pVeh->GetIsOnScreen()) return;
 
         VehData &data = vehData.Get(pVeh);
@@ -87,12 +90,13 @@ void OdoMeter::Initialize() {
                 }
                 data.m_ScreenText = std::move(updatedText);
             }
-        }
-    });
+        } });
 }
 
-void RpmMeter::Initialize() {
-    ModelInfoMgr::RegisterDummy([](CVehicle* pVeh, RwFrame* pFrame) {
+void RpmMeter::Initialize()
+{
+    ModelInfoMgr::RegisterDummy([](CVehicle *pVeh, RwFrame *pFrame)
+                                {
         std::string name = GetFrameNodeName(pFrame);
         if (name.starts_with("x_rpm") || name.starts_with("fc_rpm") || name.starts_with("tahook")) {
             VehData &data = vehData.Get(pVeh);
@@ -110,10 +114,10 @@ void RpmMeter::Initialize() {
             }
             data.pFrame = pFrame;
             data.m_bInitialized = true;
-        }
-    });
+        } });
 
-    ModelInfoMgr::RegisterRender([](CVehicle* pVeh) {
+    ModelInfoMgr::RegisterRender([](CVehicle *pVeh)
+                                 {
         if (!pVeh || !pVeh->GetIsOnScreen()) return;
 
         VehData &data = vehData.Get(pVeh);
@@ -138,12 +142,13 @@ void RpmMeter::Initialize() {
             float change = (targetRotation - data.m_fCurRotation) * 0.25f * delta;
             FrameUtil::SetRotationY(data.pFrame, change);
             data.m_fCurRotation += change;
-        }
-    });
+        } });
 }
 
-void SpeedMeter::Initialize() {
-    ModelInfoMgr::RegisterDummy([](CVehicle* pVeh, RwFrame* pFrame) {
+void SpeedMeter::Initialize()
+{
+    ModelInfoMgr::RegisterDummy([](CVehicle *pVeh, RwFrame *pFrame)
+                                {
         std::string name = GetFrameNodeName(pFrame);
         if (name.starts_with("x_sm") || name.starts_with("fc_sm") || name.starts_with("speedook")) {
             VehData &data = vehData.Get(pVeh);
@@ -165,10 +170,10 @@ void SpeedMeter::Initialize() {
             }
             data.pFrame = pFrame;
             data.m_bInitialized = true;
-        }
-    });
+        } });
 
-    ModelInfoMgr::RegisterRender([](CVehicle* pVeh) {
+    ModelInfoMgr::RegisterRender([](CVehicle *pVeh)
+                                 {
         if (!pVeh || !pVeh->GetIsOnScreen()) return;
 
         VehData &data = vehData.Get(pVeh);
@@ -182,12 +187,13 @@ void SpeedMeter::Initialize() {
             float change = (newRot - data.m_fCurRotation) * 0.5f * delta;
             FrameUtil::SetRotationY(data.pFrame, change);
             data.m_fCurRotation += change;
-        }
-    });
+        } });
 }
 
-void TurboMeter::Initialize() {
-    ModelInfoMgr::RegisterDummy([](CVehicle* pVeh, RwFrame* pFrame) {
+void TurboMeter::Initialize()
+{
+    ModelInfoMgr::RegisterDummy([](CVehicle *pVeh, RwFrame *pFrame)
+                                {
         std::string name = GetFrameNodeName(pFrame);
         if (name.starts_with("x_tm")) {
             VehData &data = vehData.Get(pVeh);
@@ -205,10 +211,10 @@ void TurboMeter::Initialize() {
             }
             data.pFrame = pFrame;
             data.m_bInitialized = true;
-        }
-    });
+        } });
 
-    ModelInfoMgr::RegisterRender([](CVehicle* pVeh) {
+    ModelInfoMgr::RegisterRender([](CVehicle *pVeh)
+                                 {
         if (!pVeh || !pVeh->GetIsOnScreen()) return;
 
         VehData &data = vehData.Get(pVeh);
@@ -229,16 +235,15 @@ void TurboMeter::Initialize() {
             float change = (newRot - data.m_fCurRotation) * 0.25f * delta;
             FrameUtil::SetRotationY(data.pFrame, change);
             data.m_fCurRotation += change;
-        }
-    });
+        } });
 }
 
 void GasMeter::Initialize()
 {
-    ModelInfoMgr::RegisterDummy([](CVehicle* pVeh, RwFrame* pFrame) {
+    ModelInfoMgr::RegisterDummy([](CVehicle *pVeh, RwFrame *pFrame)
+                                {
         std::string name = GetFrameNodeName(pFrame);
         if (name == "x_gm" || name == "petrolok") {
             FrameUtil::SetRotationY(pFrame, RandomNumberInRange(20.0f, 70.0f));
-        }
-    });
+        } });
 }
