@@ -36,6 +36,7 @@
 #include "vehicle/exhausts.h"
 #include "vehicle/roof.h"
 #include "vehicle/leds.h"
+#include "vehicle/wheel.h"
 
 void InitLogFile();
 
@@ -61,7 +62,8 @@ void FeatureMgr::Initialize()
         };
     }
 
-    Events::attachRwPluginsEvent += []() {
+    Events::attachRwPluginsEvent += []()
+    {
         FramePluginOffset = RwFrameRegisterPlugin(sizeof(RwFrameExtension), PLUGIN_ID_STR, (RwPluginObjectConstructor)RwFrameExtension::Initialize, (RwPluginObjectDestructor)RwFrameExtension::Shutdown, (RwPluginObjectCopy)RwFrameExtension::Clone);
     };
 
@@ -83,7 +85,8 @@ void FeatureMgr::Initialize()
 
         // jetpack
         CTaskSimpleJetPack *pTask = pPed->m_pIntelligence->GetTaskJetPack();
-        if (pTask && pTask->m_pJetPackClump) {
+        if (pTask && pTask->m_pJetPackClump)
+        {
             Add(static_cast<void *>(&pPed->m_aWeapons[pPed->m_nSelectedWepSlot]), (RwFrame *)pTask->m_pJetPackClump->object.parent, eModelEntityType::Jetpack);
             Process(static_cast<void *>(&pPed->m_aWeapons[pPed->m_nSelectedWepSlot]), eModelEntityType::Jetpack);
         }
@@ -149,6 +152,8 @@ void FeatureMgr::Initialize()
         };
         LOG_NO_LEVEL("  ModelVersionCheck");
     }
+
+    ExtraWheel::Initialize();
 
     // Common Section
     LOG_NO_LEVEL("\nCommon Features->");

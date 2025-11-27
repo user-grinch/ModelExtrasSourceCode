@@ -47,6 +47,8 @@ private:
     template <uintptr_t addr>
     static void hkDoNitroEffect();
 
+    static void FindNodes(CVehicle *pVeh, RwFrame *frame);
+
 public:
     static inline VehicleExtendedData<VehData> xData;
 

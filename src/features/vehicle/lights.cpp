@@ -248,7 +248,7 @@ void Lights::Initialize()
 			c.lightType = eMaterialType::AllDayLight;
 			c.dummyType = eDummyPos::Front;
 		}
-		else if (name.starts_with("taillights")) {
+		else if (name == "taillights" || name == "taillights2") { // some models have dummies starting with taillights
 			c.dummyType = eDummyPos::Rear;
 			c.lightType = eMaterialType::TailLightRight;
 			c.corona.color = c.shadow.color = {250, 0, 0, static_cast<unsigned char>(gGlobalCoronaIntensity)};

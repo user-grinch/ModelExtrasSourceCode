@@ -43,6 +43,30 @@ void ExhaustFx::hkDoNitroEffect()
         return 1; });
 }
 
+void ExhaustFx::FindNodes(CVehicle *pVeh, RwFrame *pFrame)
+{
+    if (pFrame)
+    {
+        std::string name = GetFrameNodeName(pFrame);
+        if (name.starts_with(NODE_NAME))
+        {
+            auto &data = xData.Get(pVeh);
+            data.isUsed = true;
+            data.m_pDummies[std::move(name)] = std::move(LoadData(pVeh, pFrame));
+        }
+
+        if (RwFrame *newFrame = pFrame->child)
+        {
+            FindNodes(pVeh, newFrame);
+        }
+        if (RwFrame *newFrame = pFrame->next)
+        {
+            FindNodes(pVeh, newFrame);
+        }
+    }
+    return;
+}
+
 void ExhaustFx::Initialize()
 {
     bEnabled = true;
@@ -59,12 +83,7 @@ void ExhaustFx::Initialize()
         // Must be here to work with VehFuncs recursive extras
         if (!data.isUsed) {
             RwFrame *pFrame = (RwFrame*)pVeh->m_pRwClump->object.parent;
-            std::string name = GetFrameNodeName(pFrame);
-            if (name.starts_with(NODE_NAME)) {
-                auto &data = xData.Get(pVeh); 
-                data.isUsed = true;
-                data.m_pDummies[std::move(name)] = std::move(LoadData(pVeh, pFrame));
-            } 
+            FindNodes(pVeh, pFrame);
         }
 
         for (auto& e : data.m_pDummies) {
