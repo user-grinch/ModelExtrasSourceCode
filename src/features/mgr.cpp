@@ -293,11 +293,11 @@ void FeatureMgr::Initialize()
         LOG_NO_LEVEL("  BackfireEffect");
     }
 
-    if (gConfig.ReadBoolean("VEHICLE_FEATURES", "ConvertableRoof", false))
+    if (gConfig.ReadBoolean("VEHICLE_FEATURES", "ConvertibleRoof", false))
     {
         ConvertibleRoof::Initialize();
-        m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::ConvertableRoof)));
-        LOG_NO_LEVEL("  ConvertableRoof");
+        m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::ConvertibleRoof)));
+        LOG_NO_LEVEL("  ConvertibleRoof");
     }
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "DashboardLED", false))

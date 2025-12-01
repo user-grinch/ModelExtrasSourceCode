@@ -1,6 +1,7 @@
 #pragma once
 
-enum class eFeatureMatrix {
+enum class eFeatureMatrix
+{
     // Common Features
     TextureRemapper,
     ModelRandomizer,
@@ -41,7 +42,7 @@ enum class eFeatureMatrix {
     PedCols,
 
     ExhaustFx,
-    ConvertableRoof,
+    ConvertibleRoof,
     DashboardLED,
 
     FeatureCount
