@@ -44,6 +44,7 @@ enum class eFeatureMatrix
     ExhaustFx,
     ConvertibleRoof,
     DashboardLED,
+    RollbackBed,
 
     FeatureCount
 };

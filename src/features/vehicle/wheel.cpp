@@ -8,7 +8,7 @@ void UpdateWheelRotation(CVehicle *pVeh, RwFrame *ori, RwFrame *tar)
     {
         // MatrixUtil::SetRotationZ(&tar->modelling, MatrixUtil::GetRotationZ(&ori->modelling));
         // MatrixUtil::SetRotationY(&tar->modelling, MatrixUtil::GetRotationY(&ori->modelling));
-        MatrixUtil::SetRotationX(&tar->modelling, MatrixUtil::GetRotationX(&ori->modelling));
+        MatrixUtil::SetRotationXAbsolute(&tar->modelling, MatrixUtil::GetRotationX(&ori->modelling) - MatrixUtil::GetRotationX(&tar->modelling));
         pVeh->UpdateRwFrame();
     }
 }

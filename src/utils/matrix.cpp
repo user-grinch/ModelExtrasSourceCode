@@ -70,11 +70,8 @@ void MatrixUtil::ResetRotation(RwMatrix *matrix)
     matrix->at = {0.0f, 0.0f, 1.0f};
 }
 
-void MatrixUtil::SetRotationX(RwMatrix *matrix, double angle)
+void MatrixUtil::SetRotationXAbsolute(RwMatrix *matrix, double angle)
 {
-    angle -= GetRotationX(matrix);
-
-    angle = Util::NormalizeAngle(angle);
     double angleRad = Util::DegToRad(angle);
 
     // Calculate the sine and cosine of the angle
@@ -100,11 +97,8 @@ void MatrixUtil::SetRotationX(RwMatrix *matrix, double angle)
     RwMatrixUpdate(matrix);
 }
 
-void MatrixUtil::SetRotationY(RwMatrix *matrix, double angle)
+void MatrixUtil::SetRotationYAbsolute(RwMatrix *matrix, double angle)
 {
-    angle -= GetRotationY(matrix);
-
-    angle = Util::NormalizeAngle(angle);
     double angleRad = Util::DegToRad(angle);
 
     // Calculate the sine and cosine of the angle
@@ -130,11 +124,8 @@ void MatrixUtil::SetRotationY(RwMatrix *matrix, double angle)
     RwMatrixUpdate(matrix);
 }
 
-void MatrixUtil::SetRotationZ(RwMatrix *matrix, double angle)
+void MatrixUtil::SetRotationZAbsolute(RwMatrix *matrix, double angle)
 {
-    angle -= GetRotationZ(matrix);
-
-    angle = Util::NormalizeAngle(angle);
     double angleRad = Util::DegToRad(angle);
 
     // Calculate the sine and cosine of the angle

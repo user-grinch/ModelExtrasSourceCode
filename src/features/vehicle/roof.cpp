@@ -11,7 +11,9 @@ bool ConvertibleRoof::UpdateRotation(RoofConfig &config, CVehicle *pVeh, bool cl
     if (config.pFrame)
     {
         VehData &data = xData.Get(pVeh);
-        MatrixUtil::SetRotationX(&config.pFrame->modelling, config.currentRot);
+        MatrixUtil::SetRotationXAbsolute(&config.pFrame->modelling, config.currentRot - config.prevRot);
+        config.prevRot = config.currentRot;
+
         float target = closed ? 0.0f : config.targetRot;
         float delta = target - config.currentRot;
         float step = CTimer::ms_fTimeStep * std::abs(config.targetRot) / 360.0f * config.speed;
@@ -59,7 +61,8 @@ void ConvertibleRoof::Initialize()
                                     {
                                         if (!data.m_bRoofTargetExpanded && CWeather::NewWeatherType != eWeatherType::WEATHER_RAINY_SF && CWeather::OldWeatherType != eWeatherType::WEATHER_RAINY_SF && CWeather::NewWeatherType != eWeatherType::WEATHER_RAINY_COUNTRYSIDE && CWeather::OldWeatherType != eWeatherType::WEATHER_RAINY_COUNTRYSIDE)
                                         {
-                                            MatrixUtil::SetRotationX(&pFrame->modelling, c.targetRot);
+                                            MatrixUtil::SetRotationXAbsolute(&pFrame->modelling, c.targetRot - c.prevRot);
+                                            c.prevRot = c.targetRot;
                                             c.currentRot = c.targetRot;
                                         }
                                         data.m_Roofs.push_back(std::move(c));

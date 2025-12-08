@@ -10,7 +10,8 @@ void RotateDoor::UpdateRotatingDoor(CVehicle* pVeh, DoorConfig& config, eDoors d
     float ratio = pVeh->GetDooorAngleOpenRatio(doorID);
     float targetRot = ratio * (config.reverse ? 1.0f : -1.0f) * 90.0f;
 
-    MatrixUtil::SetRotationZ(&config.frame->modelling, targetRot);
+    MatrixUtil::SetRotationZAbsolute(&config.frame->modelling, targetRot - config.prevRot);
+    config.prevRot = targetRot;
 }
 
 void RotateDoor::Initialize()

@@ -70,10 +70,9 @@ void Spoiler::Initialize()
             // Smoothing
             float t = 1.0f - std::exp(-transitionSpeed * CTimer::ms_fTimeStep);
 
-            e.m_fCurrentRotation =
-            e.m_fCurrentRotation * (1.0f - t) + targetAngle * t;
+            e.m_fCurrentRotation *= (1.0f - t) + targetAngle * t;
 
-            MatrixUtil::SetRotationX(&e.m_pFrame->modelling, e.m_fCurrentRotation);
-            RwMatrixUpdate(&e.m_pFrame->modelling);
+            MatrixUtil::SetRotationXAbsolute(&e.m_pFrame->modelling, e.m_fCurrentRotation - e.m_fPrevRotation);
+            e.m_fPrevRotation = e.m_fCurrentRotation;
         } });
 }

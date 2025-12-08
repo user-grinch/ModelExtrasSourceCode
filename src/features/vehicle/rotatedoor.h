@@ -9,6 +9,7 @@ protected:
       RwFrame* frame = nullptr;
       float originalRot = 0.0f;
       bool reverse = false;
+      float prevRot = 0.0f;
     };
 
     struct VehData {

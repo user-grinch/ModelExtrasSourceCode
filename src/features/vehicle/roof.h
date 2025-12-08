@@ -15,6 +15,7 @@ protected:
       RwFrame* pFrame = nullptr;
       float speed = 1.0f;
       float currentRot = 0.0f;
+      float prevRot = 0.0f;
       float targetRot = 30.0f;
     };
 

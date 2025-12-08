@@ -11,21 +11,21 @@ extern void ShowDonationWindow();
 extern void TrainerInit();
 
 std::vector<std::string> donators = {
-    "Agha",
-    "berrymuffin",
-    "blackOS"
+    "Wei Woo",
+    "©Wishy",
+    "Alexander Alexander",
+    "Imad Fikri",
+    "ID_not4ound",
+    "Macc",
+    "lemaze93",
+    "XG417",
+    "Ruethy",
+    "Flaqko _GTA",
+    "MG45",
     "Boris Ilincic",
     "Damix",
-    "Dustin Eastwood",
-    "Dwolf98",
-    "Francisco Flores",
-    "KaiQ",
-    "MC Silver",
-    "Osama aj",
-    "Pol3 Million",
-    "Seemann",
     "spdfnpe",
-    "14todoeltiempoPATREON"};
+    "Pol3 Million"};
 
 void InitLogFile()
 {
@@ -58,7 +58,7 @@ BOOL WINAPI DllMain(HINSTANCE hDllHandle, DWORD nReason, LPVOID Reserved)
 {
     if (nReason == DLL_PROCESS_ATTACH)
     {
-        
+
 #if !PATRON_BUILD
         if (gConfig.ReadBoolean("CONFIG", "ShowDonationPopup", true))
         {
@@ -67,9 +67,11 @@ BOOL WINAPI DllMain(HINSTANCE hDllHandle, DWORD nReason, LPVOID Reserved)
         }
 #endif
         gVerboseLogging = gConfig.ReadBoolean("CONFIG", "VerboseLogging", false);
-        
-        Events::initScriptsEvent.after += []() {
-            if (!gVerboseLogging) {
+
+        Events::initScriptsEvent.after += []()
+        {
+            if (!gVerboseLogging)
+            {
                 gLogger->info("Enable 'VerboseLogging' in ModelExtras.ini to display model-related errors.");
             }
         };

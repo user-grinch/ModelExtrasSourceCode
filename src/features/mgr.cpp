@@ -37,6 +37,7 @@
 #include "vehicle/roof.h"
 #include "vehicle/leds.h"
 #include "vehicle/wheel.h"
+#include "vehicle/rollbackbed.h"
 
 void InitLogFile();
 
@@ -340,6 +341,13 @@ void FeatureMgr::Initialize()
             m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::IVFCarcols)));
             LOG_NO_LEVEL("  IVFCarcols");
         }
+    }
+
+    if (gConfig.ReadBoolean("VEHICLE_FEATURES", "RollbackBed", false))
+    {
+        RollbackBed::Initialize();
+        m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::RollbackBed)));
+        LOG_NO_LEVEL("  RollbackBed");
     }
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "RotatingSteeringWheel", false))

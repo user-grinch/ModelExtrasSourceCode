@@ -11,7 +11,8 @@ public:
     static double GetRotationY(RwMatrix *matrix);
     static double GetRotationZ(RwMatrix *matrix);
     static void ResetRotation(RwMatrix *matrix);
-    static void SetRotationX(RwMatrix *matrix, double angle);
-    static void SetRotationY(RwMatrix *matrix, double angle);
-    static void SetRotationZ(RwMatrix *matrix, double angle);
+
+    static void SetRotationXAbsolute(RwMatrix *matrix, double angle);
+    static void SetRotationYAbsolute(RwMatrix *matrix, double angle);
+    static void SetRotationZAbsolute(RwMatrix *matrix, double angle);
 };

@@ -2,12 +2,13 @@
 #include "wheelhub.h"
 #include "modelinfomgr.h"
 
-void UpdateRotation(CVehicle *pVeh, RwFrame *ori, RwFrame *tar)
+void UpdateRotation(CVehicle *pVeh, RwFrame *ori, RwFrame *tar, bool left = false)
 {
     if (ori && tar)
     {
         float oriRot = MatrixUtil::GetRotationZ(&ori->modelling);
-        MatrixUtil::SetRotationZ(&tar->modelling, oriRot);
+        float tarRot = MatrixUtil::GetRotationZ(&tar->modelling);
+        MatrixUtil::SetRotationZAbsolute(&tar->modelling, (oriRot - tarRot));
         tar->modelling.pos.z = ori->modelling.pos.z;
         pVeh->UpdateRwFrame();
     }
@@ -16,7 +17,7 @@ void UpdateRotation(CVehicle *pVeh, RwFrame *ori, RwFrame *tar)
 void WheelHub::Initialize()
 {
     ModelInfoMgr::RegisterDummy([](CVehicle *pVeh, RwFrame *pFrame)
-                                {
+    {
         VehData& data = xData.Get(pVeh);
         std::string name = GetFrameNodeName(pFrame);
         if (name == "wheel_rf_dummy") data.m_pWRF = pFrame;
@@ -30,10 +31,11 @@ void WheelHub::Initialize()
         else if (name == "hub_rb") data.m_pHRR = pFrame;
         else if (name == "hub_lf") data.m_pHLF = pFrame;
         else if (name == "hub_lm") data.m_pHLM = pFrame;
-        else if (name == "hub_lb") data.m_pHLR = pFrame; });
+        else if (name == "hub_lb") data.m_pHLR = pFrame; 
+    });
 
     ModelInfoMgr::RegisterRender([](CVehicle *pVeh)
-                                 {
+    {
         if (!pVeh || !pVeh->GetIsOnScreen())
         {
             return;
@@ -43,7 +45,8 @@ void WheelHub::Initialize()
         UpdateRotation(pVeh, data.m_pWRF, data.m_pHRF);
         UpdateRotation(pVeh, data.m_pWRM, data.m_pHRM);
         UpdateRotation(pVeh, data.m_pWRR, data.m_pHRR);
-        UpdateRotation(pVeh, data.m_pWLF, data.m_pHLF);
-        UpdateRotation(pVeh, data.m_pWLM, data.m_pHLM);
-        UpdateRotation(pVeh, data.m_pWLR, data.m_pHLR); });
+        UpdateRotation(pVeh, data.m_pWRF, data.m_pHLF, true);
+        UpdateRotation(pVeh, data.m_pWRM, data.m_pHLM, true);
+        UpdateRotation(pVeh, data.m_pWRR, data.m_pHLR, true); 
+    });
 }

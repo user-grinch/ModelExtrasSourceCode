@@ -1,7 +1,6 @@
 #include "pch.h"
 #include "steerwheel.h"
 #include "modelinfomgr.h"
-#define ROTATION_VAL 90.0f
 
 void SteerWheel::Initialize()
 {
@@ -15,23 +14,8 @@ void SteerWheel::Initialize()
             {
                 data.factor = (float)std::stoi(&name[7]) / 2;
             }
-            else
-            {
-                data.factor = ROTATION_VAL;
-            }
             data.pFrame = pFrame;
-        } // IVF
-        else if (name.starts_with("movsteer")) {
-            float maxAngle = 1.0f;
-            if (name[8] == '_') {
-                if (isdigit(name[9])) {
-                    maxAngle = std::stof(&name[9]);
-                }
-            }
-            data.factor = ROTATION_VAL * maxAngle;
-            data.pFrame = pFrame;
-        } else if (name.starts_with("steering_dummy")) {
-            data.factor = ROTATION_VAL;
+        } else if (name.starts_with("movsteer") ||name.starts_with("steering_dummy")) {
             data.pFrame = pFrame;
         } 
     });
@@ -47,7 +31,10 @@ void SteerWheel::Initialize()
             return;
         }
 
-        float angle = pVeh->m_fSteerAngle * (1.666666f);
-        MatrixUtil::SetRotationY(&data.pFrame->modelling, angle*data.factor); 
+        float angle = Util::RadToDeg(pVeh->m_fSteerAngle);
+        if (std::abs(angle) > 1.0f) {
+            MatrixUtil::SetRotationYAbsolute(&data.pFrame->modelling, (angle - data.prevAngle) * data.factor); 
+            data.prevAngle = angle;
+        }
     });
 }

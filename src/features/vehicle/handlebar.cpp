@@ -29,6 +29,7 @@ void HandleBar::Initialize()
         }
 
         float rot = MatrixUtil::GetRotationZ(&data.m_pOrigin->modelling);
-        MatrixUtil::SetRotationZ(&data.m_pTarget->modelling, rot); 
+        MatrixUtil::SetRotationZAbsolute(&data.m_pTarget->modelling, rot - data.prevAngle); 
+        data.prevAngle = rot;
     });
 }

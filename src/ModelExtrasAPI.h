@@ -1,6 +1,6 @@
 /*
-* API provided for ModelExtras v2.1 Release
-*/
+ * API provided for ModelExtras v2.1 Release
+ */
 
 #pragma once
 #define ME_API_VERSION 11000
@@ -11,9 +11,10 @@
 #define ME_WRAPPER __declspec(dllimport)
 #endif
 
-struct ME_ExhaustInfo {
+struct ME_ExhaustInfo
+{
 public:
-    RwFrame* pFrame;
+    RwFrame *pFrame;
     CRGBA Color;
     float fSpeedMul;
     float fLifeTime;
@@ -21,7 +22,8 @@ public:
     bool bNitroEffect;
 };
 
-enum ME_FeatureID {
+enum ME_FeatureID
+{
     TextureRemapper,
     ModelRandomizer,
     AnimatedBrakes,
@@ -54,10 +56,12 @@ enum ME_FeatureID {
     ExhaustFx,
     ConvertableRoof,
     DashboardLEDs,
+    RollbackBed,
     FeatureCount
 };
 
-enum ME_MaterialID {
+enum ME_MaterialID
+{
     ME_HeadLightLeft,
     ME_HeadLightRight,
     ME_TailLightLeft,
@@ -102,7 +106,8 @@ enum ME_MaterialID {
 };
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
     // Core
@@ -113,19 +118,19 @@ extern "C" {
     // Vehicle
     ME_WRAPPER bool ME_GetVehicleLEDState(CVehicle *pVeh, ME_MaterialID ledID);
     ME_WRAPPER void ME_SetVehicleLEDState(CVehicle *pVeh, ME_MaterialID ledID, bool state);
-    
+
     ME_WRAPPER bool ME_GetVehicleLightState(CVehicle *pVeh, ME_MaterialID lightId);
     ME_WRAPPER void ME_SetVehicleLightState(CVehicle *pVeh, ME_MaterialID lightId, bool state);
 
-	ME_WRAPPER unsigned int ME_GetExhaustCount(CVehicle* pVeh);
-	ME_WRAPPER ME_ExhaustInfo ME_GetExhaustData(CVehicle* pVeh, int index);
-	ME_WRAPPER void ME_SetExhaustData(CVehicle* pVeh, int index, ME_ExhaustInfo &data);
+    ME_WRAPPER unsigned int ME_GetExhaustCount(CVehicle *pVeh);
+    ME_WRAPPER ME_ExhaustInfo ME_GetExhaustData(CVehicle *pVeh, int index);
+    ME_WRAPPER void ME_SetExhaustData(CVehicle *pVeh, int index, ME_ExhaustInfo &data);
 
     // Ped
-    ME_WRAPPER int ME_GetPedRemap(CPed * ped, int index);
-    ME_WRAPPER void ME_SetPedRemap(CPed * ped, int index, int num);
-    ME_WRAPPER void ME_SetAllPedRemaps(CPed * ped, int num);
-    
+    ME_WRAPPER int ME_GetPedRemap(CPed *ped, int index);
+    ME_WRAPPER void ME_SetPedRemap(CPed *ped, int index, int num);
+    ME_WRAPPER void ME_SetAllPedRemaps(CPed *ped, int num);
+
 #ifdef __cplusplus
 }
 #endif

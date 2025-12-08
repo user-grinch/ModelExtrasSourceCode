@@ -9,7 +9,7 @@ protected:
   struct VehData
   {
     float prevAngle = 0.0f;
-    float factor = 1.0f;
+    float factor = 1.1f;
     RwFrame *pFrame = NULL;
     VehData(CVehicle *pVeh) {}
     ~VehData() {}
