@@ -1,0 +1,347 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="enums">
+      <UniqueIdentifier>{EDFC600F-5911-89C0-2293-2C208E6685F1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="features">
+      <UniqueIdentifier>{04AE61E7-F07A-BCF2-1994-AA9A05C0F180}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="features\common">
+      <UniqueIdentifier>{DC62EF30-48EE-5CF5-51FF-DFE9BD09B9F5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="features\ped">
+      <UniqueIdentifier>{ACBFECFC-9822-7CA1-41A8-B4572DEA4724}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="features\vehicle">
+      <UniqueIdentifier>{73CBBDED-5FC4-DC3F-88F6-C1C4744EBC4B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="features\vehicle\core">
+      <UniqueIdentifier>{CB9BE0A2-3708-9C9D-00FC-33FB6C27BE05}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="features\weapon">
+      <UniqueIdentifier>{9D12DB5E-099E-4823-12AF-CB177EB9A423}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="interface">
+      <UniqueIdentifier>{966DB512-02D8-6989-4B16-1B2FB7BF47DE}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="trainer">
+      <UniqueIdentifier>{9AFA25F6-06DA-A491-0FF2-2F687B500BF3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utils">
+      <UniqueIdentifier>{169C8510-82B0-ADC1-4B32-5121B705AAF2}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\ModelExtrasAPI.h" />
+    <ClInclude Include="src\defines.h" />
+    <ClInclude Include="src\enums\dummypos.h">
+      <Filter>enums</Filter>
+    </ClInclude>
+    <ClInclude Include="src\enums\featurematrix.h">
+      <Filter>enums</Filter>
+    </ClInclude>
+    <ClInclude Include="src\enums\indicatorstate.h">
+      <Filter>enums</Filter>
+    </ClInclude>
+    <ClInclude Include="src\enums\lightingmode.h">
+      <Filter>enums</Filter>
+    </ClInclude>
+    <ClInclude Include="src\enums\lightoverride.h">
+      <Filter>enums</Filter>
+    </ClInclude>
+    <ClInclude Include="src\enums\materialtype.h">
+      <Filter>enums</Filter>
+    </ClInclude>
+    <ClInclude Include="src\enums\vehdummy.h">
+      <Filter>enums</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\audiomgr.h">
+      <Filter>features</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\common\randomizer.h">
+      <Filter>features\common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\common\remap.h">
+      <Filter>features\common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\datamgr.h">
+      <Filter>features</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\extender.h">
+      <Filter>features</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\meevents.h">
+      <Filter>features</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\mgr.h">
+      <Filter>features</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\modelinfomgr.h">
+      <Filter>features</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\ped\ganghands.h">
+      <Filter>features\ped</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\ped\pedcols.h">
+      <Filter>features\ped</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\ped\remap.h">
+      <Filter>features\ped</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\texmgr.h">
+      <Filter>features</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\vehicle\backfire.h">
+      <Filter>features\vehicle</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\vehicle\brakes.h">
+      <Filter>features\vehicle</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\vehicle\carcols.h">
+      <Filter>features\vehicle</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\vehicle\chain.h">
+      <Filter>features\vehicle</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\vehicle\core\colors.h">
+      <Filter>features\vehicle\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\vehicle\core\dummy.h">
+      <Filter>features\vehicle\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\vehicle\core\dummyconfig.h">
+      <Filter>features\vehicle\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\vehicle\dirtfx.h">
+      <Filter>features\vehicle</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\vehicle\exhausts.h">
+      <Filter>features\vehicle</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\vehicle\gear.h">
+      <Filter>features\vehicle</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\vehicle\handlebar.h">
+      <Filter>features\vehicle</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\vehicle\leds.h">
+      <Filter>features\vehicle</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\vehicle\lights.h">
+      <Filter>features\vehicle</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\vehicle\meter.h">
+      <Filter>features\vehicle</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\vehicle\plate.h">
+      <Filter>features\vehicle</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\vehicle\rollbackbed.h">
+      <Filter>features\vehicle</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\vehicle\roof.h">
+      <Filter>features\vehicle</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\vehicle\rotatedoor.h">
+      <Filter>features\vehicle</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\vehicle\sirens.h">
+      <Filter>features\vehicle</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\vehicle\slidedoor.h">
+      <Filter>features\vehicle</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\vehicle\soundeffects.h">
+      <Filter>features\vehicle</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\vehicle\spoiler.h">
+      <Filter>features\vehicle</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\vehicle\spotlights.h">
+      <Filter>features\vehicle</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\vehicle\steerwheel.h">
+      <Filter>features\vehicle</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\vehicle\wheel.h">
+      <Filter>features\vehicle</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\vehicle\wheelhub.h">
+      <Filter>features\vehicle</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\weapon\bodystate.h">
+      <Filter>features\weapon</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\weapon\sound.h">
+      <Filter>features\weapon</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\weapon\weaponextender.h">
+      <Filter>features\weapon</Filter>
+    </ClInclude>
+    <ClInclude Include="src\interface\icore.hpp">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="src\interface\ifeature.hpp">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pch.h" />
+    <ClInclude Include="src\trainer\vehframeview.hpp">
+      <Filter>trainer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\car.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\frame.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\matrix.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\render.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\util.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\vkeys.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\ModelExtrasAPI.cpp" />
+    <ClCompile Include="src\dllmain.cpp" />
+    <ClCompile Include="src\donation.cpp" />
+    <ClCompile Include="src\features\audiomgr.cpp">
+      <Filter>features</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\common\randomizer.cpp">
+      <Filter>features\common</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\common\remap.cpp">
+      <Filter>features\common</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\datamgr.cpp">
+      <Filter>features</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\mgr.cpp">
+      <Filter>features</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\modelinfomgr.cpp">
+      <Filter>features</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\ped\ganghands.cpp">
+      <Filter>features\ped</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\ped\pedcols.cpp">
+      <Filter>features\ped</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\ped\remap.cpp">
+      <Filter>features\ped</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\texmgr.cpp">
+      <Filter>features</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\vehicle\backfire.cpp">
+      <Filter>features\vehicle</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\vehicle\brakes.cpp">
+      <Filter>features\vehicle</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\vehicle\carcols.cpp">
+      <Filter>features\vehicle</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\vehicle\chain.cpp">
+      <Filter>features\vehicle</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\vehicle\core\dummy.cpp">
+      <Filter>features\vehicle\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\vehicle\core\fileconverter.cpp">
+      <Filter>features\vehicle\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\vehicle\dirtfx.cpp">
+      <Filter>features\vehicle</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\vehicle\exhaust.cpp">
+      <Filter>features\vehicle</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\vehicle\gear.cpp">
+      <Filter>features\vehicle</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\vehicle\handlebar.cpp">
+      <Filter>features\vehicle</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\vehicle\leds.cpp">
+      <Filter>features\vehicle</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\vehicle\lights.cpp">
+      <Filter>features\vehicle</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\vehicle\meter.cpp">
+      <Filter>features\vehicle</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\vehicle\plate.cpp">
+      <Filter>features\vehicle</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\vehicle\rollbackbed.cpp">
+      <Filter>features\vehicle</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\vehicle\roof.cpp">
+      <Filter>features\vehicle</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\vehicle\rotatedoor.cpp">
+      <Filter>features\vehicle</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\vehicle\sirens.cpp">
+      <Filter>features\vehicle</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\vehicle\slidedoor.cpp">
+      <Filter>features\vehicle</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\vehicle\soundeffects.cpp">
+      <Filter>features\vehicle</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\vehicle\spoiler.cpp">
+      <Filter>features\vehicle</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\vehicle\spotlights.cpp">
+      <Filter>features\vehicle</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\vehicle\steerwheel.cpp">
+      <Filter>features\vehicle</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\vehicle\wheel.cpp">
+      <Filter>features\vehicle</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\vehicle\wheelhub.cpp">
+      <Filter>features\vehicle</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\weapon\bodystate.cpp">
+      <Filter>features\weapon</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\weapon\sound.cpp">
+      <Filter>features\weapon</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pch.cpp" />
+    <ClCompile Include="src\trainer\lightstab.cpp">
+      <Filter>trainer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\trainer\trainer.cpp">
+      <Filter>trainer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\car.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\frame.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\matrix.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\render.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\util.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

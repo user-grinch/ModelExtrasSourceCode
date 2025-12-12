@@ -1,6 +1,5 @@
 #pragma once
 #include <plugin.h>
-
 #define PATRON_BUILD 0
 
 #define CORONA_SZ_MUL 0.8f

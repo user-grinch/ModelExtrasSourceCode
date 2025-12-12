@@ -1,6 +1,6 @@
 #pragma once
 #include <map>
-#include <json.hpp>
+#include <nlohmann\json.hpp>
 
 class DataMgr
 {

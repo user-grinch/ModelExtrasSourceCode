@@ -8,7 +8,6 @@
 #define GET_SCRIPT_STRUCT_NAMED 0xAAA
 
 extern void ShowDonationWindow();
-extern void TrainerInit();
 
 std::vector<std::string> donators = {
     "Wei Woo",
@@ -164,7 +163,6 @@ BOOL WINAPI DllMain(HINSTANCE hDllHandle, DWORD nReason, LPVOID Reserved)
                 gLogger->info("GrinchTrainerSA found. Registering...");
                 Events::processScriptsEvent += []()
                 {
-                    TrainerInit();
                 };
             }
         };

@@ -1,0 +1,3 @@
+[submodule "coreutils"]
+	path = include/coreutils
+	url = https://github.com/user-grinch/coreutils
