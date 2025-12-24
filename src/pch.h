@@ -69,4 +69,6 @@ struct RwFrameExtension {
 	}
 };
 
+extern bool gbVehIKInstalled;
+
 static inline CBaseModelInfo **CModelInfo__ms_modelInfoPtrs = reinterpret_cast<CBaseModelInfo **>(plugin::patch::GetPointer(0x403DA7));

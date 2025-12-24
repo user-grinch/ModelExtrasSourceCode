@@ -7,18 +7,23 @@
 void HandleBar::Initialize()
 {
     ModelInfoMgr::RegisterDummy([](CVehicle *pVeh, RwFrame *pFrame)
-                               { 
+    { 
+        if (gbVehIKInstalled) {
+            return;
+		}
         auto &data = xData.Get(pVeh); 
         std::string name = GetFrameNodeName(pFrame);
         if (name == "forks_front") {
             data.m_pOrigin = pFrame;
         } else  if (name == "handlebars") {
             data.m_pTarget = pFrame;
-        } });
+        } 
+
+    });
 
     ModelInfoMgr::RegisterRender([](CVehicle *pVeh)
-                                {
-        if (!pVeh || !pVeh->GetIsOnScreen())
+    {
+        if (gbVehIKInstalled || !pVeh || !pVeh->GetIsOnScreen())
         {
             return;
         }

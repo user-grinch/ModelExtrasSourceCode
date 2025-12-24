@@ -5,6 +5,9 @@
 void SteerWheel::Initialize()
 {
     ModelInfoMgr::RegisterDummy([](CVehicle *pVeh, RwFrame *pFrame) {
+		if (gbVehIKInstalled) {
+            return;
+		}
         auto& data = xData.Get(pVeh);
 
         // VehFuncs
@@ -21,7 +24,7 @@ void SteerWheel::Initialize()
     });
 
     ModelInfoMgr::RegisterRender([](CVehicle *pVeh) {
-        if (!pVeh || !pVeh->GetIsOnScreen())
+        if (gbVehIKInstalled || !pVeh || !pVeh->GetIsOnScreen())
         {
             return;
         }

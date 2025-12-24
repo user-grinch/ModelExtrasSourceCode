@@ -10,7 +10,6 @@
 #include "vehicle/spotlights.h"
 #include "vehicle/wheelhub.h"
 #include "weapon/bodystate.h"
-#include "weapon/sound.h"
 #include "ped/remap.h"
 #include "common/remap.h"
 #include "common/randomizer.h"
@@ -49,6 +48,11 @@ void FeatureMgr::Initialize()
     plugin::Events::initGameEvent.after += []()
     {
         DataMgr::Init();
+		gbVehIKInstalled = GetModuleHandle("VehIK.asi") != NULL;
+
+        if (gbVehIKInstalled) {
+			gLogger->info("VehIK detected, disabling SteerWheel and HandleBar features.");
+        }
     };
 
     if (gConfig.ReadBoolean("CONFIG", "DeveloperMode", false))
@@ -399,13 +403,6 @@ void FeatureMgr::Initialize()
         m_FunctionTable["x_body_state"] = BodyState::Process;
         m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::BodyStateVariation)));
         LOG_NO_LEVEL("  BodyStateVariation");
-    }
-
-    if (gConfig.ReadBoolean("WEAPON_FEATURES", "CustomSounds", false))
-    {
-        WeaponSoundSystem::Initialize();
-        m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::CustomSounds)));
-        LOG_NO_LEVEL("  CustomSounds");
     }
 
     LOG_NO_LEVEL("");

@@ -173,9 +173,6 @@
     <ClInclude Include="src\features\weapon\bodystate.h">
       <Filter>features\weapon</Filter>
     </ClInclude>
-    <ClInclude Include="src\features\weapon\sound.h">
-      <Filter>features\weapon</Filter>
-    </ClInclude>
     <ClInclude Include="src\features\weapon\weaponextender.h">
       <Filter>features\weapon</Filter>
     </ClInclude>
@@ -186,7 +183,7 @@
       <Filter>interface</Filter>
     </ClInclude>
     <ClInclude Include="src\pch.h" />
-    <ClInclude Include="src\trainer\vehframeview.hpp">
+    <ClInclude Include="src\view\vehframeview.hpp">
       <Filter>trainer</Filter>
     </ClInclude>
     <ClInclude Include="src\utils\car.h">
@@ -205,6 +202,25 @@
       <Filter>utils</Filter>
     </ClInclude>
     <ClInclude Include="src\vkeys.h" />
+    <ClInclude Include="include\coreutils\db\dbmgr.hpp" />
+    <ClInclude Include="include\coreutils\db\ini.hpp" />
+    <ClInclude Include="include\coreutils\db\ini_parser.hpp" />
+    <ClInclude Include="include\coreutils\imgui\fonts\fontmgr.h" />
+    <ClInclude Include="include\coreutils\imgui\fonts\fonts.h" />
+    <ClInclude Include="include\coreutils\imgui\rw\imgui_impl_rw.h" />
+    <ClInclude Include="include\coreutils\imgui\rw\renderhook.h" />
+    <ClInclude Include="include\coreutils\imgui\widgets\extras.h" />
+    <ClInclude Include="include\coreutils\imgui\widgets\hotkeys.h" />
+    <ClInclude Include="include\coreutils\imgui\widgets\nav.h" />
+    <ClInclude Include="include\coreutils\Memory.hpp" />
+    <ClInclude Include="include\coreutils\vkeys.h" />
+    <ClInclude Include="include\imgui\imstb_truetype.h" />
+    <ClInclude Include="include\imgui\imconfig.h" />
+    <ClInclude Include="include\imgui\imgui.h" />
+    <ClInclude Include="include\imgui\imgui_internal.h" />
+    <ClInclude Include="include\imgui\imstb_rectpack.h" />
+    <ClInclude Include="include\imgui\imstb_textedit.h" />
+    <ClInclude Include="include\imgui\backends\imgui_impl_win32.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ModelExtrasAPI.cpp" />
@@ -318,14 +334,11 @@
     <ClCompile Include="src\features\weapon\bodystate.cpp">
       <Filter>features\weapon</Filter>
     </ClCompile>
-    <ClCompile Include="src\features\weapon\sound.cpp">
-      <Filter>features\weapon</Filter>
-    </ClCompile>
     <ClCompile Include="src\pch.cpp" />
-    <ClCompile Include="src\trainer\lightstab.cpp">
+    <ClCompile Include="src\view\lightstab.cpp">
       <Filter>trainer</Filter>
     </ClCompile>
-    <ClCompile Include="src\trainer\trainer.cpp">
+    <ClCompile Include="src\view\trainer.cpp">
       <Filter>trainer</Filter>
     </ClCompile>
     <ClCompile Include="src\utils\car.cpp">
@@ -343,5 +356,20 @@
     <ClCompile Include="src\utils\util.cpp">
       <Filter>utils</Filter>
     </ClCompile>
+    <ClCompile Include="include\coreutils\imgui\fonts\fontmgr.cpp" />
+    <ClCompile Include="include\coreutils\imgui\fonts\icon.cpp" />
+    <ClCompile Include="include\coreutils\imgui\fonts\text.cpp" />
+    <ClCompile Include="include\coreutils\imgui\fonts\title.cpp" />
+    <ClCompile Include="include\coreutils\imgui\rw\imgui_impl_rw.cpp" />
+    <ClCompile Include="include\coreutils\imgui\rw\renderhook.cpp" />
+    <ClCompile Include="include\coreutils\imgui\widgets\extras.cpp" />
+    <ClCompile Include="include\coreutils\imgui\widgets\hotkeys.cpp" />
+    <ClCompile Include="include\coreutils\imgui\widgets\nav.cpp" />
+    <ClCompile Include="include\imgui\imgui.cpp" />
+    <ClCompile Include="include\imgui\imgui_demo.cpp" />
+    <ClCompile Include="include\imgui\imgui_draw.cpp" />
+    <ClCompile Include="include\imgui\imgui_tables.cpp" />
+    <ClCompile Include="include\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="include\imgui\backends\imgui_impl_win32.cpp" />
   </ItemGroup>
 </Project>

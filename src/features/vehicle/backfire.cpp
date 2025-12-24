@@ -9,10 +9,10 @@
 #include <CCamera.h>
 #include "ModelExtrasAPI.h"
 
-void BackFireEffect::BackFireFX(CVehicle *pVeh, float x, float y, float z)
+void BackFireEffect::BackFireFX(CVehicle *pVeh, float x, float y, float z, float dirX, float dirY, float dirZ)
 {
     int handle = NULL;
-    plugin::Command<Commands::CREATE_FX_SYSTEM_ON_CAR_WITH_DIRECTION>("GUNFLASH", CPools::GetVehicleRef(pVeh), x, y, z, 0.0f, -25.0f, 0.0f, 1, &handle);
+    plugin::Command<Commands::CREATE_FX_SYSTEM_ON_CAR_WITH_DIRECTION>("GUNFLASH", CPools::GetVehicleRef(pVeh), x, y, z, dirX, dirY, dirZ, 1, &handle);
 
     if (handle == NULL)
     {
@@ -71,7 +71,8 @@ void BackFireEffect::BackFireSingle(CVehicle *pVeh)
             const ME_ExhaustInfo &info = ME_GetExhaustData(pVeh, i);
             if (info.pFrame)
             {
-                BackFireFX(pVeh, info.pFrame->modelling.pos.x, info.pFrame->modelling.pos.y, info.pFrame->modelling.pos.z);
+                CVector f = info.pFrame->modelling.up; // Up is Forward
+                BackFireFX(pVeh, info.pFrame->modelling.pos.x, info.pFrame->modelling.pos.y, info.pFrame->modelling.pos.z, f.x * 1.5f, f.y * 1.5f, f.z * 1.5f);
             }
         }
     }

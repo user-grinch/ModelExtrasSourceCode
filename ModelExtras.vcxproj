@@ -42,7 +42,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>build\bin\</OutDir>
+    <OutDir>$(GTA_SA_DIR)\</OutDir>
     <IntDir>build\Debug\</IntDir>
     <TargetName>ModelExtras</TargetName>
     <TargetExt>.asi</TargetExt>
@@ -62,14 +62,14 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS;PLUGIN_SGV_10US;MODELEXTRAS_DEV;GTASA;RW;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>IMGUI_DEFINE_MATH_OPERATORS;_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS;PLUGIN_SGV_10US;MODELEXTRAS_DEV;GTASA;RW;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <AdditionalOptions>/Od /Ob0 /Oy- %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
-      <AdditionalIncludeDirectories>src\enums;src\features;src\features\common;src\features\ped;src\features\vehicle;src\features\vehicle\core;src\features\weapon;src\interface;src\trainer;src\utils;include;src;..\plugin-sdk\.git;..\plugin-sdk\.github;..\plugin-sdk\examples;..\plugin-sdk\hooking;..\plugin-sdk\injector;..\plugin-sdk\modutils;..\plugin-sdk\output;..\plugin-sdk\plugin_II;..\plugin-sdk\plugin_III;..\plugin-sdk\plugin_iii_unreal;..\plugin-sdk\plugin_IV;..\plugin-sdk\plugin_sa;..\plugin-sdk\plugin_sa_unreal;..\plugin-sdk\plugin_vc;..\plugin-sdk\plugin_vc_unreal;..\plugin-sdk\safetyhook;..\plugin-sdk\shared;..\plugin-sdk\stb;..\plugin-sdk\tools;..\plugin-sdk\plugin_sa\game_sa;..\plugin-sdk\plugin_sa\game_sa\meta;..\plugin-sdk\plugin_sa\game_sa\rw;..\plugin-sdk\shared\bass;..\plugin-sdk\shared\comp;..\plugin-sdk\shared\dxsdk;..\plugin-sdk\shared\extender;..\plugin-sdk\shared\extensions;..\plugin-sdk\shared\game;..\plugin-sdk\shared\rwd3d9;..\plugin-sdk\shared\comp\plugins;..\plugin-sdk\shared\extensions\scripting;$(ProjectDir)include\coreutils\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src\enums;src\features;src\features\common;src\features\ped;src\features\vehicle;src\features\vehicle\core;src\features\weapon;src\interface;src\trainer;src\utils;include;src;..\plugin-sdk\.git;..\plugin-sdk\.github;..\plugin-sdk\examples;..\plugin-sdk\hooking;..\plugin-sdk\injector;..\plugin-sdk\modutils;..\plugin-sdk\output;..\plugin-sdk\plugin_II;..\plugin-sdk\plugin_III;..\plugin-sdk\plugin_iii_unreal;..\plugin-sdk\plugin_IV;..\plugin-sdk\plugin_sa;..\plugin-sdk\plugin_sa_unreal;..\plugin-sdk\plugin_vc;..\plugin-sdk\plugin_vc_unreal;..\plugin-sdk\safetyhook;..\plugin-sdk\shared;..\plugin-sdk\stb;..\plugin-sdk\tools;..\plugin-sdk\plugin_sa\game_sa;..\plugin-sdk\plugin_sa\game_sa\meta;..\plugin-sdk\plugin_sa\game_sa\rw;..\plugin-sdk\shared\bass;..\plugin-sdk\shared\comp;..\plugin-sdk\shared\dxsdk;..\plugin-sdk\shared\extender;..\plugin-sdk\shared\extensions;..\plugin-sdk\shared\game;..\plugin-sdk\shared\rwd3d9;..\plugin-sdk\shared\comp\plugins;..\plugin-sdk\shared\extensions\scripting;$(ProjectDir)include\coreutils\;$(ProjectDir)include\imgui\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -85,8 +85,8 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS;PLUGIN_SGV_10US;MODELEXTRAS_DEV;GTASA;RW;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src\enums;src\features;src\features\common;src\features\ped;src\features\vehicle;src\features\vehicle\core;src\features\weapon;src\interface;src\trainer;src\utils;include;src;..\plugin-sdk\.git;..\plugin-sdk\.github;..\plugin-sdk\examples;..\plugin-sdk\hooking;..\plugin-sdk\injector;..\plugin-sdk\modutils;..\plugin-sdk\output;..\plugin-sdk\plugin_II;..\plugin-sdk\plugin_III;..\plugin-sdk\plugin_iii_unreal;..\plugin-sdk\plugin_IV;..\plugin-sdk\plugin_sa;..\plugin-sdk\plugin_sa_unreal;..\plugin-sdk\plugin_vc;..\plugin-sdk\plugin_vc_unreal;..\plugin-sdk\safetyhook;..\plugin-sdk\shared;..\plugin-sdk\stb;..\plugin-sdk\tools;..\plugin-sdk\plugin_sa\game_sa;..\plugin-sdk\plugin_sa\game_sa\meta;..\plugin-sdk\plugin_sa\game_sa\rw;..\plugin-sdk\shared\bass;..\plugin-sdk\shared\comp;..\plugin-sdk\shared\dxsdk;..\plugin-sdk\shared\extender;..\plugin-sdk\shared\extensions;..\plugin-sdk\shared\game;..\plugin-sdk\shared\rwd3d9;..\plugin-sdk\shared\comp\plugins;..\plugin-sdk\shared\extensions\scripting;$(ProjectDir)include\coreutils\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>IMGUI_DEFINE_MATH_OPERATORS;_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS;PLUGIN_SGV_10US;MODELEXTRAS_DEV;GTASA;RW;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>src\enums;src\features;src\features\common;src\features\ped;src\features\vehicle;src\features\vehicle\core;src\features\weapon;src\interface;src\trainer;src\utils;include;src;..\plugin-sdk\.git;..\plugin-sdk\.github;..\plugin-sdk\examples;..\plugin-sdk\hooking;..\plugin-sdk\injector;..\plugin-sdk\modutils;..\plugin-sdk\output;..\plugin-sdk\plugin_II;..\plugin-sdk\plugin_III;..\plugin-sdk\plugin_iii_unreal;..\plugin-sdk\plugin_IV;..\plugin-sdk\plugin_sa;..\plugin-sdk\plugin_sa_unreal;..\plugin-sdk\plugin_vc;..\plugin-sdk\plugin_vc_unreal;..\plugin-sdk\safetyhook;..\plugin-sdk\shared;..\plugin-sdk\stb;..\plugin-sdk\tools;..\plugin-sdk\plugin_sa\game_sa;..\plugin-sdk\plugin_sa\game_sa\meta;..\plugin-sdk\plugin_sa\game_sa\rw;..\plugin-sdk\shared\bass;..\plugin-sdk\shared\comp;..\plugin-sdk\shared\dxsdk;..\plugin-sdk\shared\extender;..\plugin-sdk\shared\extensions;..\plugin-sdk\shared\game;..\plugin-sdk\shared\rwd3d9;..\plugin-sdk\shared\comp\plugins;..\plugin-sdk\shared\extensions\scripting;$(ProjectDir)include\coreutils\;$(ProjectDir)include\imgui\</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -110,6 +110,25 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="include\coreutils\db\dbmgr.hpp" />
+    <ClInclude Include="include\coreutils\db\ini.hpp" />
+    <ClInclude Include="include\coreutils\db\ini_parser.hpp" />
+    <ClInclude Include="include\coreutils\imgui\fonts\fontmgr.h" />
+    <ClInclude Include="include\coreutils\imgui\fonts\fonts.h" />
+    <ClInclude Include="include\coreutils\imgui\rw\imgui_impl_rw.h" />
+    <ClInclude Include="include\coreutils\imgui\rw\renderhook.h" />
+    <ClInclude Include="include\coreutils\imgui\widgets\extras.h" />
+    <ClInclude Include="include\coreutils\imgui\widgets\hotkeys.h" />
+    <ClInclude Include="include\coreutils\imgui\widgets\nav.h" />
+    <ClInclude Include="include\coreutils\Memory.hpp" />
+    <ClInclude Include="include\coreutils\vkeys.h" />
+    <ClInclude Include="include\imgui\backends\imgui_impl_win32.h" />
+    <ClInclude Include="include\imgui\imconfig.h" />
+    <ClInclude Include="include\imgui\imgui.h" />
+    <ClInclude Include="include\imgui\imgui_internal.h" />
+    <ClInclude Include="include\imgui\imstb_rectpack.h" />
+    <ClInclude Include="include\imgui\imstb_textedit.h" />
+    <ClInclude Include="include\imgui\imstb_truetype.h" />
     <ClInclude Include="src\ModelExtrasAPI.h" />
     <ClInclude Include="src\defines.h" />
     <ClInclude Include="src\enums\dummypos.h" />
@@ -158,12 +177,11 @@
     <ClInclude Include="src\features\vehicle\wheel.h" />
     <ClInclude Include="src\features\vehicle\wheelhub.h" />
     <ClInclude Include="src\features\weapon\bodystate.h" />
-    <ClInclude Include="src\features\weapon\sound.h" />
     <ClInclude Include="src\features\weapon\weaponextender.h" />
     <ClInclude Include="src\interface\icore.hpp" />
     <ClInclude Include="src\interface\ifeature.hpp" />
     <ClInclude Include="src\pch.h" />
-    <ClInclude Include="src\trainer\vehframeview.hpp" />
+    <ClInclude Include="src\view\vehframeview.hpp" />
     <ClInclude Include="src\utils\car.h" />
     <ClInclude Include="src\utils\frame.h" />
     <ClInclude Include="src\utils\matrix.h" />
@@ -172,6 +190,66 @@
     <ClInclude Include="src\vkeys.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="include\coreutils\imgui\fonts\fontmgr.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="include\coreutils\imgui\fonts\icon.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="include\coreutils\imgui\fonts\text.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="include\coreutils\imgui\fonts\title.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="include\coreutils\imgui\rw\imgui_impl_rw.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="include\coreutils\imgui\rw\renderhook.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="include\coreutils\imgui\widgets\extras.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="include\coreutils\imgui\widgets\hotkeys.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="include\coreutils\imgui\widgets\nav.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="include\imgui\backends\imgui_impl_win32.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="include\imgui\imgui.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="include\imgui\imgui_demo.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="include\imgui\imgui_draw.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="include\imgui\imgui_tables.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="include\imgui\imgui_widgets.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="src\ModelExtrasAPI.cpp" />
     <ClCompile Include="src\dllmain.cpp" />
     <ClCompile Include="src\donation.cpp" />
@@ -213,12 +291,11 @@
     <ClCompile Include="src\features\vehicle\wheel.cpp" />
     <ClCompile Include="src\features\vehicle\wheelhub.cpp" />
     <ClCompile Include="src\features\weapon\bodystate.cpp" />
-    <ClCompile Include="src\features\weapon\sound.cpp" />
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="src\trainer\lightstab.cpp" />
-    <ClCompile Include="src\trainer\trainer.cpp" />
+    <ClCompile Include="src\view\lightstab.cpp" />
+    <ClCompile Include="src\view\trainer.cpp" />
     <ClCompile Include="src\utils\car.cpp" />
     <ClCompile Include="src\utils\frame.cpp" />
     <ClCompile Include="src\utils\matrix.cpp" />

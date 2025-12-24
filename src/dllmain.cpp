@@ -26,6 +26,8 @@ std::vector<std::string> donators = {
     "spdfnpe",
     "Pol3 Million"};
 
+extern void InjectImGuiHooks();
+
 void InitLogFile()
 {
     static bool flag = true;
@@ -65,6 +67,12 @@ BOOL WINAPI DllMain(HINSTANCE hDllHandle, DWORD nReason, LPVOID Reserved)
             gConfig.WriteBoolean("CONFIG", "ShowDonationPopup", false);
         }
 #endif
+        if (gConfig.ReadBoolean("CONFIG", "DeveloperMode", false))
+        {
+            InjectImGuiHooks();
+            gLogger->info("DeveloperMode enabled, injecting ImGui hooks...");
+		}
+        
         gVerboseLogging = gConfig.ReadBoolean("CONFIG", "VerboseLogging", false);
 
         Events::initScriptsEvent.after += []()
@@ -156,14 +164,6 @@ BOOL WINAPI DllMain(HINSTANCE hDllHandle, DWORD nReason, LPVOID Reserved)
                 MessageBox(RsGlobal.ps->window, str.c_str(), "Incompatible plugins found!", MB_OK);
                 gLogger->error(str);
                 exit(EXIT_FAILURE);
-            }
-
-            if (GrinchTrainer && gConfig.ReadBoolean("CONFIG", "DeveloperMode", false))
-            {
-                gLogger->info("GrinchTrainerSA found. Registering...");
-                Events::processScriptsEvent += []()
-                {
-                };
             }
         };
 

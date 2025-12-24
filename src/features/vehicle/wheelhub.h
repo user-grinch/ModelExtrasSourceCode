@@ -4,20 +4,17 @@
 class WheelHub
 {
 protected:
-  struct VehData
-  {
-    RwFrame *m_pWRF = NULL, *m_pWRM = NULL, *m_pWRR = NULL;
-    RwFrame *m_pWLF = NULL, *m_pWLM = NULL, *m_pWLR = NULL;
+    struct VehData
+    {
+        RwFrame* m_pHRF = nullptr, * m_pHRM = nullptr, * m_pHRR = nullptr;
+        RwFrame* m_pHLF = nullptr, * m_pHLM = nullptr, * m_pHLR = nullptr;
 
-    RwFrame *m_pHRF = NULL, *m_pHRM = NULL, *m_pHRR = NULL;
-    RwFrame *m_pHLF = NULL, *m_pHLM = NULL, *m_pHLR = NULL;
+        VehData(CVehicle* pVeh) {}
+        ~VehData() {}
+    };
 
-    VehData(CVehicle *pVeh) {}
-    ~VehData() {}
-  };
-
-  static inline VehicleExtendedData<VehData> xData;
+    static inline VehicleExtendedData<VehData> xData;
 
 public:
-  static void Initialize();
+    static void Initialize();
 };

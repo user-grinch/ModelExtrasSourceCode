@@ -3,7 +3,7 @@
 
 #include <algorithm>
 #include <cstring>
-#include <imgui_internal.h>
+#include <imgui/imgui_internal.h>
 
 constexpr float BASE_WIDTH = 1366.0f;
 constexpr float BASE_HEIGHT = 768.0f;
