@@ -131,11 +131,11 @@ void DataMgr::LoadFile(const std::filesystem::directory_entry &e)
 
             Sirens::Parse(data[model], model);
             IVFCarcols::Parse(data[model], model);
-            gLogger->info("Successfully registered file '{}'", filename);
+            gLogger->info("Registered file '{}'", filename);
         }
         catch (const nlohmann::json::parse_error &ex)
         {
-            gLogger->error("Failed to parse JSONC in file '{}': {}", e.path().string(), ex.what());
+            gLogger->error("Failed to parse JSONC file '{}': {}", e.path().string(), ex.what());
         }
     }
     catch (const std::exception &ex)

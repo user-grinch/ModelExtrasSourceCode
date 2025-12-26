@@ -3,7 +3,7 @@
  */
 
 #pragma once
-#define ME_API_VERSION 11000
+#define ME_API_VERSION 11001
 
 #ifdef MODELEXTRAS_DEV
 #define ME_WRAPPER __declspec(dllexport)
@@ -25,7 +25,7 @@ public:
 enum ME_FeatureID
 {
     TextureRemapper,
-    ModelRandomizer,
+    REMOVED_NULL,
     AnimatedBrakes,
     AnimatedClutch,
     AnimatedGearLever,

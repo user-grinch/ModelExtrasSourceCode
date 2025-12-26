@@ -6,12 +6,13 @@
 
 #include <RenderWare.h>
 #include <plugin.h>
+#include <game_sa/common.h>
 
 #include "nlohmann/json.hpp"
 #include "db/ini.hpp"
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/basic_file_sink.h"
-#include "util.h"
+#include "utils/util.h"
 #include "vkeys.h"
 
 using namespace plugin;

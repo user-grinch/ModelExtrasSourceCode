@@ -8,7 +8,7 @@
 #include "defines.h"
 #include "lights.h"
 #include "audiomgr.h"
-#include "util.h"
+#include "utils/util.h"
 #include "datamgr.h"
 #include "enums/materialtype.h"
 

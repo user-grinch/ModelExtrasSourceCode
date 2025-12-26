@@ -4,7 +4,7 @@ enum class eFeatureMatrix
 {
     // Common Features
     TextureRemapper,
-    ModelRandomizer,
+    REMOVED_NULL,
 
     // Bike Features
     AnimatedBrakes,

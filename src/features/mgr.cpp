@@ -12,7 +12,6 @@
 #include "weapon/bodystate.h"
 #include "ped/remap.h"
 #include "common/remap.h"
-#include "common/randomizer.h"
 #include "vehicle/lights.h"
 #include "vehicle/sirens.h"
 #include "vehicle/plate.h"
@@ -28,8 +27,8 @@
 #include <extensions/ScriptCommands.h>
 #include <CHud.h>
 #include <CMessages.h>
-#include "slidedoor.h"
-#include "rotatedoor.h"
+#include "vehicle/slidedoor.h"
+#include "vehicle/rotatedoor.h"
 #include "ped/ganghands.h"
 #include "ped/pedcols.h"
 #include "vehicle/exhausts.h"
@@ -168,14 +167,6 @@ void FeatureMgr::Initialize()
         Remap::Initialize();
         m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::TextureRemapper)));
         LOG_NO_LEVEL("  TextureRemaper");
-    }
-
-    if (gConfig.ReadBoolean("COMMON_FEATURES", "ModelRandomizer", false))
-    {
-        Randomizer::Initialize();
-        m_FunctionTable["x_randomizer"] = Randomizer::Process;
-        m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::ModelRandomizer)));
-        LOG_NO_LEVEL("  ModelRandomizer");
     }
 
     // Bikes Section

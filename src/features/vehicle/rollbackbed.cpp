@@ -3,7 +3,7 @@
 #include "modelinfomgr.h"
 #include "datamgr.h"
 #include "audiomgr.h"
-#include "util.h"
+#include "utils/util.h"
 #include "CWeather.h"
 
 bool RollbackBed::UpdateRotation(CVehicle *pVeh, RwFrame *pFrame, float targetRot, float &curRot, float speed)

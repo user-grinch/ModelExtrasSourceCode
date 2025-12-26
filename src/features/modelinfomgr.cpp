@@ -7,12 +7,12 @@
 #include <rwplcore.h>
 #include <rpworld.h>
 #include "texmgr.h"
-#include "colors.h"
+#include "vehicle/core/colors.h"
 #include <NodeName.h>
-#include "../carcols.h"
+#include "vehicle/carcols.h"
 #include "meevents.h"
-#include "dirtfx.h"
-#include "plate.h"	
+#include "vehicle/dirtfx.h"
+#include "vehicle/plate.h"
 
 extern int GetSirenIndex(CVehicle *pVeh, RpMaterial *pMat);
 extern int GetStrobeIndex(CVehicle *pVeh, RpMaterial *pMat);

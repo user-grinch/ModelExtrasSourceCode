@@ -1,9 +1,10 @@
 #include <assert.h>
-#include <d3d9.h> // Needed for scissor states
+#include <d3d9.h>
 #include <imgui.h>
 #include <plugin.h>
 #include <rpworld.h>
 #include <rwcore.h>
+#include <game_sa/common.h>
 
 using namespace plugin;
 
