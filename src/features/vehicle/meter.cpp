@@ -4,15 +4,18 @@
 #include <CBike.h>
 #include "modelinfomgr.h"
 
-void GearMeter::Initialize()
+void GearIndicator::Initialize()
 {
     ModelInfoMgr::RegisterDummy([](CVehicle *pVeh, RwFrame *pFrame)
                                 {
         std::string name = GetFrameNodeName(pFrame);
         if (name.starts_with("x_gearmeter") || name.starts_with("fc_gm")) {
             VehData &data = vehData.Get(pVeh);
-            data.pRoot = pFrame;
-            FrameUtil::StoreChilds(pFrame, data.m_FrameList);
+
+            IndicatorData indData;
+            indData.pRoot = pFrame;
+            FrameUtil::StoreChilds(pFrame, indData.vecFrameList);
+            data.vecIndicatorData.push_back(std::move(indData));
         } });
 
     ModelInfoMgr::RegisterRender([](CVehicle *pVeh)
@@ -20,40 +23,46 @@ void GearMeter::Initialize()
         if (!pVeh || !pVeh->GetIsOnScreen()) return;
 
         VehData &data = vehData.Get(pVeh);
-        if (!data.m_FrameList.empty() &&  pVeh->m_nCurrentGear != data.m_nCurrent) {
-            FrameUtil::HideAllChilds(data.pRoot);
-            if (data.m_FrameList.size() > static_cast<size_t>(data.m_nCurrent))
-            {
-                FrameUtil::ShowAllAtomics(data.m_FrameList[data.m_nCurrent]);
+
+        for (auto&e : data.vecIndicatorData) {
+            if (!e.vecFrameList.empty() &&  pVeh->m_nCurrentGear != e.iCurrent) {
+                FrameUtil::HideAllChilds(e.pRoot);
+                if (e.vecFrameList.size() > static_cast<size_t>(e.iCurrent))
+                {
+                    FrameUtil::ShowAllAtomics(e.vecFrameList[e.iCurrent]);
+                }
+                e.iCurrent = pVeh->m_nCurrentGear;
             }
-            data.m_nCurrent = pVeh->m_nCurrentGear;
-        } });
+        }
+
+         });
 }
 
-void OdoMeter::Initialize()
+// This is an unoptimized piece of shit, but... I'm too afraid to touch it
+void MileageIndicator::Initialize()
 {
     ModelInfoMgr::RegisterDummy([](CVehicle *pVeh, RwFrame *pFrame)
                                 {
         std::string name = GetFrameNodeName(pFrame);
         if (name.starts_with("x_odometer") || name.starts_with("fc_om")) {
             VehData &data = vehData.Get(pVeh);
-            FrameUtil::StoreChilds(pFrame, data.m_FrameList);
-            data.m_nPrevRot = 1234 + rand() % (57842 - 1234);
+            FrameUtil::StoreChilds(pFrame, data.vecIndicatorData[name].vecFrameList);
+            data.vecIndicatorData[name].iPrevRot = 1234 + rand() % (57842 - 1234);
 
             auto &jsonData = DataMgr::Get(pVeh->m_nModelIndex);
-            if (jsonData.contains("odometer"))
+            if (jsonData.contains(name))
             {
-                if (jsonData["odometer"].contains("kph"))
+                if (jsonData[name].contains("kph"))
                 {
-                    data.m_fMul = jsonData["odometer"]["kph"].get<bool>() ? 100 : 1;
+                    data.vecIndicatorData[name].fMul = jsonData[name]["kph"].get<bool>() ? 160.9f : 1;
                 }
-                if (jsonData["odometer"].contains("digital"))
+                if (jsonData[name].contains("digital"))
                 {
-                    data.m_bDigital = jsonData["odometer"]["digital"].get<bool>();
+                    data.vecIndicatorData[name].bDigital = jsonData[name]["digital"].get<bool>();
                 }
             }
-            data.pFrame = pFrame;
-            data.m_bInitialized = true;
+            data.vecIndicatorData[name].pFrame = pFrame;
+            data.bInitialized = true;
         } });
 
     ModelInfoMgr::RegisterRender([](CVehicle *pVeh)
@@ -61,39 +70,41 @@ void OdoMeter::Initialize()
         if (!pVeh || !pVeh->GetIsOnScreen()) return;
 
         VehData &data = vehData.Get(pVeh);
-        if (data.m_bInitialized && data.pFrame) {
-            if (data.m_FrameList.size() < 6) {
-                LOG_VERBOSE("Vehicle ID: {}. {} odometer childs detected, 6 expected", pVeh->m_nModelIndex, data.m_FrameList.size());
-                return;
-            }
+        if (data.bInitialized) {
+            for (auto& e : data.vecIndicatorData) {
+                if (e.second.vecFrameList.size() < 6) {
+                   LOG_VERBOSE("Vehicle ID: {}. {} odometer childs detected, 6 expected", pVeh->m_nModelIndex, e.second.vecFrameList.size());
+                   return;
+               }
 
-            float curRot = (pVeh->m_nVehicleSubClass == VEHICLE_BIKE) ? static_cast<CBike *>(pVeh)->m_afWheelRotationX[1] : static_cast<CAutomobile *>(pVeh)->m_fWheelRotation[3];
-            curRot /= (2.86 * data.m_fMul);
+               float curRot = (pVeh->m_nVehicleSubClass == VEHICLE_BIKE) ? static_cast<CBike *>(pVeh)->m_afWheelRotationX[1] : static_cast<CAutomobile *>(pVeh)->m_fWheelRotation[3];
+               curRot /= (2.86 * e.second.fMul);
 
-            int displayVal = std::stoi(data.m_ScreenText) + abs(data.m_nPrevRot - curRot);
-            displayVal = plugin::Clamp(displayVal, 0, 999999);
-            data.m_nPrevRot = curRot;
+               int displayVal = std::stoi(e.second.sScreenText) + abs(e.second.iPrevRot - curRot);
+               displayVal = plugin::Clamp(displayVal, 0, 999999);
+               e.second.iPrevRot = curRot;
 
-            std::stringstream ss;
-            ss << std::setw(6) << std::setfill('0') << displayVal;
-            std::string updatedText = ss.str();
+               std::stringstream ss;
+               ss << std::setw(6) << std::setfill('0') << displayVal;
+               std::string updatedText = ss.str();
 
-            if (data.m_ScreenText != updatedText)
-            {
-                for (unsigned int i = 0; i < 6; i++)
-                {
-                    if (updatedText[i] != data.m_ScreenText[i])
-                    {
-                        float angle = (updatedText[i] - data.m_ScreenText[i]) * 36.0f;
-                        FrameUtil::SetRotationX(data.m_FrameList[i], angle);
-                    }
-                }
-                data.m_ScreenText = std::move(updatedText);
+               if (e.second.sScreenText != updatedText)
+               {
+                   for (unsigned int i = 0; i < 6; i++)
+                   {
+                       if (updatedText[i] != e.second.sScreenText[i])
+                       {
+                           float angle = (updatedText[i] - e.second.sScreenText[i]) * 36.0f;
+                           FrameUtil::SetRotationX(e.second.vecFrameList[i], angle);
+                       }
+                   }
+                   e.second.sScreenText = std::move(updatedText);
+               }
             }
         } });
 }
 
-void RpmMeter::Initialize()
+void RPMGauge::Initialize()
 {
     ModelInfoMgr::RegisterDummy([](CVehicle *pVeh, RwFrame *pFrame)
                                 {
@@ -101,19 +112,19 @@ void RpmMeter::Initialize()
         if (name.starts_with("x_rpm") || name.starts_with("fc_rpm") || name.starts_with("tahook")) {
             VehData &data = vehData.Get(pVeh);
             auto &jsonData = DataMgr::Get(pVeh->m_nModelIndex);
-            if (jsonData.contains("rpmmeter"))
+            if (jsonData.contains(name))
             {
-                if (jsonData["rpmmeter"].contains("maxrpm"))
+                if (jsonData[name].contains("maxrpm"))
                 {
-                    data.m_nMaxRpm = jsonData["rpmmeter"].value("maxrpm", data.m_nMaxRpm);
+                    data.vecGaugeData[name].iMaxRPM = jsonData[name].value("maxrpm", data.vecGaugeData[name].iMaxRPM);
                 }
-                if (jsonData["rpmmeter"].contains("maxrotation"))
+                if (jsonData[name].contains("maxrotation"))
                 {
-                    data.m_fMaxRotation = jsonData["rpmmeter"].value("maxrotation", data.m_fMaxRotation);
+                    data.vecGaugeData[name].fMaxRotation = jsonData[name].value("maxrotation", data.vecGaugeData[name].fMaxRotation);
                 }
             }
-            data.pFrame = pFrame;
-            data.m_bInitialized = true;
+            data.vecGaugeData[name].pFrame = pFrame;
+            data.bInitialized = true;
         } });
 
     ModelInfoMgr::RegisterRender([](CVehicle *pVeh)
@@ -121,76 +132,82 @@ void RpmMeter::Initialize()
         if (!pVeh || !pVeh->GetIsOnScreen()) return;
 
         VehData &data = vehData.Get(pVeh);
-        if (data.m_bInitialized && data.pFrame) {
+        if (data.bInitialized) {
             float delta = CTimer::ms_fTimeScale;
             float speed = Util::GetVehicleSpeedRealistic(pVeh);
-            float rpm = 0.0f;
 
-            if (pVeh->m_nCurrentGear > 0) {
-                rpm = (speed / pVeh->m_nCurrentGear) * 100.0f;
+
+            for (auto& e : data.vecGaugeData) {
+                float rpm = 0.0f;
+
+                if (pVeh->m_nCurrentGear > 0) {
+                  rpm = (speed / pVeh->m_nCurrentGear) * 100.0f;
+                }
+
+                if (pVeh->bEngineOn) {
+                  rpm = std::max(rpm, 0.1f * e.second.iMaxRPM);
+                }
+
+                rpm = plugin::Clamp(rpm, 0.0f, static_cast<float>(e.second.iMaxRPM));
+
+                float targetRotation = (rpm / e.second.iMaxRPM) * e.second.fMaxRotation;
+                targetRotation = plugin::Clamp(targetRotation, 0.0f, e.second.fMaxRotation);
+
+                float change = (targetRotation - e.second.fCurRotation) * 0.25f * delta;
+                FrameUtil::SetRotationY(e.second.pFrame, change);
+                e.second.fCurRotation += change;
             }
-
-            if (pVeh->bEngineOn) {
-                rpm = std::max(rpm, 0.1f * data.m_nMaxRpm);
-            }
-
-            rpm = plugin::Clamp(rpm, 0.0f, static_cast<float>(data.m_nMaxRpm));
-
-            float targetRotation = (rpm / data.m_nMaxRpm) * data.m_fMaxRotation;
-            targetRotation = plugin::Clamp(targetRotation, 0.0f, data.m_fMaxRotation);
-
-            float change = (targetRotation - data.m_fCurRotation) * 0.25f * delta;
-            FrameUtil::SetRotationY(data.pFrame, change);
-            data.m_fCurRotation += change;
         } });
 }
 
-void SpeedMeter::Initialize()
+void SpeedGauge::Initialize()
 {
     ModelInfoMgr::RegisterDummy([](CVehicle *pVeh, RwFrame *pFrame)
                                 {
-        std::string name = GetFrameNodeName(pFrame);
-        if (name.starts_with("x_sm") || name.starts_with("fc_sm") || name.starts_with("speedook")) {
-            VehData &data = vehData.Get(pVeh);
-            auto &jsonData = DataMgr::Get(pVeh->m_nModelIndex);
-            if (jsonData.contains("speedmeter"))
+    std::string name = GetFrameNodeName(pFrame);
+    if (name.starts_with("x_sm") || name.starts_with("fc_sm") || name.starts_with("speedook")) {
+        VehData &data = vehData.Get(pVeh);
+        auto &jsonData = DataMgr::Get(pVeh->m_nModelIndex);
+        if (jsonData.contains(name))
+        {
+            if (jsonData[name].contains("kph"))
             {
-                if (jsonData["speedmeter"].contains("kph"))
-                {
-                    data.m_fMul = jsonData["speedmeter"]["kph"].get<bool>() ? 100 : 1;
-                }
-                if (jsonData["speedmeter"].contains("maxspeed"))
-                {
-                    data.m_nMaxSpeed = jsonData["speedmeter"].value("maxspeed", data.m_nMaxSpeed);
-                }
-                if (jsonData["speedmeter"].contains("maxrotation"))
-                {
-                    data.m_fMaxRotation = jsonData["speedmeter"].value("maxrotation", data.m_fMaxRotation);
-                }
+                data.vecGaugeData[name].fMul = jsonData[name]["kph"].get<bool>() ? 160.9f : 1;
             }
-            data.pFrame = pFrame;
-            data.m_bInitialized = true;
-        } });
+            if (jsonData[name].contains("maxspeed"))
+            {
+                data.vecGaugeData[name].iMaxSpeed = jsonData[name].value("maxspeed", data.vecGaugeData[name].iMaxSpeed);
+            }
+            if (jsonData[name].contains("maxrotation"))
+            {
+                data.vecGaugeData[name].fMaxRotation = jsonData[name].value("maxrotation", data.vecGaugeData[name].fMaxRotation);
+            }
+        }
+        data.vecGaugeData[name].pFrame = pFrame;
+        data.bInitialized = true;
+    } });
 
     ModelInfoMgr::RegisterRender([](CVehicle *pVeh)
                                  {
         if (!pVeh || !pVeh->GetIsOnScreen()) return;
 
         VehData &data = vehData.Get(pVeh);
-        if (data.m_bInitialized && data.pFrame) {
+        if (data.bInitialized) {
             float speed = Util::GetVehicleSpeedRealistic(pVeh);
             float delta = CTimer::ms_fTimeScale;
 
-            float newRot = (data.m_fMaxRotation / data.m_nMaxSpeed) * speed * delta;
-            newRot = plugin::Clamp(newRot, 0, data.m_fMaxRotation);
+            for (auto& e : data.vecGaugeData) {
+                float newRot = (e.second.fMaxRotation / e.second.iMaxSpeed) * speed * delta;
+                newRot = plugin::Clamp(newRot, 0, e.second.fMaxRotation);
 
-            float change = (newRot - data.m_fCurRotation) * 0.5f * delta;
-            FrameUtil::SetRotationY(data.pFrame, change);
-            data.m_fCurRotation += change;
+                float change = (newRot - e.second.fCurRotation) * 0.5f * delta;
+                FrameUtil::SetRotationY(e.second.pFrame, change);
+                e.second.fCurRotation += change;
+            }
         } });
 }
 
-void TurboMeter::Initialize()
+void TurboGauge::Initialize()
 {
     ModelInfoMgr::RegisterDummy([](CVehicle *pVeh, RwFrame *pFrame)
                                 {
@@ -198,19 +215,19 @@ void TurboMeter::Initialize()
         if (name.starts_with("x_tm")) {
             VehData &data = vehData.Get(pVeh);
             auto &jsonData = DataMgr::Get(pVeh->m_nModelIndex);
-            if (jsonData.contains("TurboMeter"))
+            if (jsonData.contains(name))
             {
-                if (jsonData["TurboMeter"].contains("MaxTurbo"))
+                if (jsonData[name].contains("maxturbo"))
                 {
-                    data.m_nMaxTurbo = jsonData["TurboMeter"].value("MaxTurbo", data.m_nMaxTurbo);
+                    data.vecGaugeData[name].iMaxTurbo = jsonData[name].value("maxturbo", data.vecGaugeData[name].iMaxTurbo);
                 }
-                if (jsonData["TurboMeter"].contains("MaxRotation"))
+                if (jsonData[name].contains("maxrotation"))
                 {
-                    data.m_fMaxRotation = jsonData["TurboMeter"].value("MaxRotation", data.m_fMaxRotation);
+                    data.vecGaugeData[name].fMaxRotation = jsonData[name].value("maxrotation", data.vecGaugeData[name].fMaxRotation);
                 }
             }
-            data.pFrame = pFrame;
-            data.m_bInitialized = true;
+            data.vecGaugeData[name].pFrame = pFrame;
+            data.bInitialized = true;
         } });
 
     ModelInfoMgr::RegisterRender([](CVehicle *pVeh)
@@ -218,32 +235,44 @@ void TurboMeter::Initialize()
         if (!pVeh || !pVeh->GetIsOnScreen()) return;
 
         VehData &data = vehData.Get(pVeh);
-        if (data.m_bInitialized && data.pFrame) {
-            static float prevSpeed = 0.0f;
+        if (data.bInitialized) {
             float speed = Util::GetVehicleSpeedRealistic(pVeh);
             float delta = CTimer::ms_fTimeScale;
-            float turbo = abs(prevSpeed - speed);
 
-            if (pVeh->m_nCurrentGear != 0)
-            {
-                turbo += 10.0f;
+            for (auto& e : data.vecGaugeData) {
+                float turbo = abs(e.second.fPrevTurbo - speed);
+
+                if (pVeh->m_nCurrentGear != 0)
+                {
+                    turbo += 10.0f;
+                }
+
+                float newRot = (e.second.fMaxRotation / e.second.iMaxTurbo) * abs(e.second.fPrevTurbo - speed) * delta * 1.0f;
+                newRot = plugin::Clamp(newRot, 0, e.second.fMaxRotation);
+
+                float change = (newRot - e.second.fCurRotation) * 0.25f * delta;
+                FrameUtil::SetRotationY(e.second.pFrame, change);
+                e.second.fCurRotation += change;
             }
-
-            float newRot = (data.m_fMaxRotation / data.m_nMaxTurbo) * abs(prevSpeed - speed) * delta * 1.0f;
-            newRot = plugin::Clamp(newRot, 0, data.m_fMaxRotation);
-
-            float change = (newRot - data.m_fCurRotation) * 0.25f * delta;
-            FrameUtil::SetRotationY(data.pFrame, change);
-            data.m_fCurRotation += change;
         } });
 }
 
-void GasMeter::Initialize()
+void FixedGauge::Initialize()
 {
     ModelInfoMgr::RegisterDummy([](CVehicle *pVeh, RwFrame *pFrame)
                                 {
         std::string name = GetFrameNodeName(pFrame);
-        if (name == "x_gm" || name == "petrolok") {
-            FrameUtil::SetRotationY(pFrame, RandomNumberInRange(20.0f, 70.0f));
+
+        // rest are for backward compatibility
+        if (name.starts_with("x_gauge_fixed") || name == "x_gasmeter" || name == "x_gm" || name == "petrolok") {
+            auto &jsonData = DataMgr::Get(pVeh->m_nModelIndex);
+
+            float angle = 0;
+            if (jsonData.contains(name) && jsonData[name].contains("angle")) {
+                angle = jsonData[name]["angle"];
+            } else {
+                angle = RandomNumberInRange(20.0f, 70.0f);
+            }
+            FrameUtil::SetRotationY(pFrame, angle);
         } });
 }

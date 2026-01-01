@@ -235,35 +235,35 @@ void FeatureMgr::Initialize()
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "AnimatedGasMeter", false))
     {
-        GasMeter::Initialize();
+        FixedGauge::Initialize();
         m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::AnimatedGasMeter)));
         LOG_NO_LEVEL("  AnimatedGasMeter");
     }
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "AnimatedGearMeter", false))
     {
-        GearMeter::Initialize();
+        GearIndicator::Initialize();
         m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::AnimatedGearMeter)));
         LOG_NO_LEVEL("  AnimatedGearMeter");
     }
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "AnimatedOdoMeter", false))
     {
-        OdoMeter::Initialize();
+        MileageIndicator::Initialize();
         m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::AnimatedOdoMeter)));
         LOG_NO_LEVEL("  AnimatedOdoMeter");
     }
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "AnimatedRpmMeter", false))
     {
-        RpmMeter::Initialize();
+        RPMGauge::Initialize();
         m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::AnimatedRpmMeter)));
         LOG_NO_LEVEL("  AnimatedRpmMeter");
     }
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "AnimatedSpeedMeter", false))
     {
-        SpeedMeter::Initialize();
+        SpeedGauge::Initialize();
         m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::AnimatedSpeedMeter)));
         LOG_NO_LEVEL("  AnimatedSpeedMeter");
     }
@@ -277,7 +277,7 @@ void FeatureMgr::Initialize()
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "AnimatedTurboMeter", false))
     {
-        TurboMeter::Initialize();
+        TurboGauge::Initialize();
         m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::AnimatedTurboMeter)));
         LOG_NO_LEVEL("  AnimatedTurboMeter");
     }

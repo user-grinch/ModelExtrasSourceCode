@@ -3,37 +3,19 @@
 #include "../../interface/ifeature.hpp"
 #include <vector>
 
-class GearMeter
+class GearIndicator
 {
 protected:
-  struct VehData
-  {
-    uint m_nCurrent = 0;
+  struct IndicatorData {
+    uint iCurrent = 0;
     RwFrame *pRoot = nullptr;
-    std::vector<RwFrame *> m_FrameList;
-
-    VehData(CVehicle *pVeh) {}
-    ~VehData() {}
+    std::vector<RwFrame *> vecFrameList;
   };
 
-  static inline VehicleExtendedData<VehData> vehData;
-
-public:
-  static void Initialize();
-};
-
-class OdoMeter
-{
-protected:
   struct VehData
   {
-    RwFrame *pFrame = nullptr;
-    bool m_bInitialized = false;
-    bool m_bDigital = false;
-    int m_nPrevRot = 0;
-    std::string m_ScreenText = "000000";
-    std::vector<RwFrame *> m_FrameList;
-    float m_fMul = 160.9f;
+    bool bInitialized = false;
+    std::vector<IndicatorData> vecIndicatorData;
 
     VehData(CVehicle *pVeh) {}
     ~VehData() {}
@@ -45,17 +27,22 @@ public:
   static void Initialize();
 };
 
-class RpmMeter
+class MileageIndicator
 {
 protected:
+  struct IndicatorData {
+    RwFrame *pFrame = nullptr;
+    bool bDigital = false;
+    int iPrevRot = 0;
+    std::string sScreenText = "000000";
+    std::vector<RwFrame *> vecFrameList;
+    float fMul = 160.9f;
+  };
+
   struct VehData
   {
-    RwFrame *pFrame = nullptr;
-    bool m_bInitialized = false;
-    int m_nMaxRpm = 5000.0f;
-    int prevGear = -1;
-    float m_fCurRotation = 0.0f;
-    float m_fMaxRotation = 260.0f;
+    bool bInitialized = false;
+    std::unordered_map<std::string, IndicatorData> vecIndicatorData;
 
     VehData(CVehicle *pVeh) {}
     ~VehData() {}
@@ -67,17 +54,21 @@ public:
   static void Initialize();
 };
 
-class SpeedMeter
+class RPMGauge
 {
 protected:
+  struct GaugeData {
+    RwFrame *pFrame = nullptr;
+    int iMaxRPM = 5000.0f;
+    int iPrevGear = -1;
+    float fCurRotation = 0.0f;
+    float fMaxRotation = 260.0f;
+  };
+
   struct VehData
   {
-    RwFrame *pFrame = nullptr;
-    bool m_bInitialized = false;
-    int m_nMaxSpeed = 100.0f;
-    float m_fMul = 160.9f;
-    float m_fCurRotation = 0.0f;
-    float m_fMaxRotation = 100.0f;
+    bool bInitialized = false;
+    std::unordered_map<std::string, GaugeData> vecGaugeData;
 
     VehData(CVehicle *pVeh) {}
     ~VehData() {}
@@ -89,16 +80,21 @@ public:
   static void Initialize();
 };
 
-class TurboMeter
+class SpeedGauge
 {
 protected:
+  struct GaugeData {
+    RwFrame *pFrame = nullptr;
+    int iMaxSpeed = 100.0f;
+    float fMul = 160.9f;
+    float fCurRotation = 0.0f;
+    float fMaxRotation = 100.0f;
+  };
+
   struct VehData
   {
-    RwFrame *pFrame = nullptr;
-    bool m_bInitialized = false;
-    float m_nMaxTurbo = 220.0f;
-    float m_fCurRotation = 0.0f;
-    float m_fMaxRotation = 220.0f;
+    bool bInitialized = false;
+    std::unordered_map<std::string, GaugeData> vecGaugeData;
 
     VehData(CVehicle *pVeh) {}
     ~VehData() {}
@@ -110,7 +106,33 @@ public:
   static void Initialize();
 };
 
-class GasMeter
+class TurboGauge
+{
+protected:
+  struct GaugeData {
+    RwFrame *pFrame = nullptr;
+    float fPrevTurbo = 0.0f;
+    float iMaxTurbo = 220.0f;
+    float fCurRotation = 0.0f;
+    float fMaxRotation = 220.0f;
+  };
+
+  struct VehData
+  {
+    bool bInitialized = false;
+    std::unordered_map<std::string, GaugeData> vecGaugeData;
+
+    VehData(CVehicle *pVeh) {}
+    ~VehData() {}
+  };
+
+  static inline VehicleExtendedData<VehData> vehData;
+
+public:
+  static void Initialize();
+};
+
+class FixedGauge
 {
 public:
   static void Initialize();

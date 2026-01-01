@@ -71,11 +71,17 @@ void RenderUtil::RegisterCorona(CEntity *pEntity, int coronaID, CVector pos, CRG
         return;
     }
 
-    static float MUL = gConfig.ReadFloat("TWEAKS", "CoronaDistanceMul", 0.5f);
-	float factor = DistanceBetweenPoints(TheCamera.GetPosition(), pEntity->GetPosition()) * MUL;
+    static float MUL = gConfig.ReadFloat("TWEAKS", "CoronaDistanceMul", 0.2f);
+
+	float coronaSz = size;
+
+    // Only during night time
+    if (Util::IsNightTime() && MUL != 0.0f) {
+        coronaSz *= DistanceBetweenPoints(TheCamera.GetPosition(), pEntity->GetPosition()) * MUL;
+    }
 
     CCoronas::RegisterCorona(coronaID, pEntity, col.r, col.g, col.b, col.a, pos,
-                             size * CORONA_SZ_MUL * factor, 260.0f, CORONATYPE_SHINYSTAR, FLARETYPE_NONE, true, false, 0, 0.0f, false, 0.3f, 0, 30.0f, false, false);
+                             coronaSz, 260.0f, CORONATYPE_SHINYSTAR, FLARETYPE_NONE, true, false, 0, 0.0f, false, 0.3f, 0, 30.0f, false, false);
 };
 
 void RenderUtil::RegisterCoronaDirectional(const VehicleDummyConfig *pConfig, float angle, float radius, float szMul, bool inversed, bool skipCheck)

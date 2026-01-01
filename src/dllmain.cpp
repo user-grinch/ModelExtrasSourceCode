@@ -112,9 +112,7 @@ BOOL WINAPI DllMain(HINSTANCE hDllHandle, DWORD nReason, LPVOID Reserved)
             bool ImVehFtInstalled = GetModuleHandle("ImVehFt.asi");
             bool ImVehFtFixInstalled = GetModuleHandle("ImVehFtFix.asi");
             bool AVSInstalled = GetModuleHandle("AdvancedVehicleSirens.asi");
-            bool EarShot = GetModuleHandle("EarShot.asi");
             bool PedFuncs = GetModuleHandle("PedFuncs.asi");
-            bool GrinchTrainer = GetModuleHandle("GrinchTrainerSA.asi");
             bool BackFireZAZInstalled = false;
             bool BackFireJDRInstalled = false;
 
@@ -141,7 +139,7 @@ BOOL WINAPI DllMain(HINSTANCE hDllHandle, DWORD nReason, LPVOID Reserved)
                 return;
             }
 
-            if (gConfig.ReadBoolean("CONFIG", "ShowIncompatibleWarning", true) && (BackFireJDRInstalled || BackFireZAZInstalled || ImVehFtInstalled || ImVehFtFixInstalled || AVSInstalled || EarShot))
+            if (gConfig.ReadBoolean("CONFIG", "ShowIncompatibleWarning", true) && (BackFireJDRInstalled || BackFireZAZInstalled || ImVehFtInstalled || ImVehFtFixInstalled || AVSInstalled))
             {
                 std::string str = "ModelExtras contain the functions of these plugins,\n\n";
 
@@ -151,8 +149,6 @@ BOOL WINAPI DllMain(HINSTANCE hDllHandle, DWORD nReason, LPVOID Reserved)
                     str += "- ImVehFtFix.asi\n";
                 if (AVSInstalled)
                     str += "- AdvancedVehicleSirens.asi\n";
-                if (EarShot)
-                    str += "- EarShot.asi\n";
                 if (PedFuncs)
                     str += "- PedFuncs.asi\n";
                 if (BackFireZAZInstalled)

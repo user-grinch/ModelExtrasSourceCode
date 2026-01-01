@@ -2,7 +2,6 @@
 #include <plugin.h>
 #define PATRON_BUILD 1
 
-#define CORONA_SZ_MUL 0.8f
 #define AMBIENT_ON_VAL 8.0f
 
 #define MOD_DATA_PATH(x) PLUGIN_PATH((char *)("ModelExtras/" x))
