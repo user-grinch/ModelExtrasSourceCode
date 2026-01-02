@@ -4,7 +4,7 @@
 #include "vehicle/chain.h"
 #include "vehicle/brakes.h"
 #include "vehicle/gear.h"
-#include "vehicle/meter.h"
+#include "vehicle/gauge.h"
 #include "vehicle/handlebar.h"
 #include "vehicle/steerwheel.h"
 #include "vehicle/spotlights.h"

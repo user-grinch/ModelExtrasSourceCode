@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "Meter.h"
+#include "gauge.h"
 #include "datamgr.h"
 #include <CBike.h>
 #include "modelinfomgr.h"
@@ -38,70 +38,69 @@ void GearIndicator::Initialize()
          });
 }
 
-// This is an unoptimized piece of shit, but... I'm too afraid to touch it
 void MileageIndicator::Initialize()
 {
-    ModelInfoMgr::RegisterDummy([](CVehicle *pVeh, RwFrame *pFrame)
-                                {
+    ModelInfoMgr::RegisterDummy([](CVehicle *pVeh, RwFrame *pFrame) {
         std::string name = GetFrameNodeName(pFrame);
         if (name.starts_with("x_odometer") || name.starts_with("fc_om")) {
             VehData &data = vehData.Get(pVeh);
-            FrameUtil::StoreChilds(pFrame, data.vecIndicatorData[name].vecFrameList);
-            data.vecIndicatorData[name].iPrevRot = 1234 + rand() % (57842 - 1234);
+            auto& indicator = data.vecIndicatorData[name];
+
+            FrameUtil::StoreChilds(pFrame, indicator.vecFrameList);
+
+            indicator.dCurrentDistance = static_cast<double>(rand() % 999999);
+            indicator.pFrame = pFrame;
 
             auto &jsonData = DataMgr::Get(pVeh->m_nModelIndex);
-            if (jsonData.contains(name))
-            {
-                if (jsonData[name].contains("kph"))
-                {
-                    data.vecIndicatorData[name].fMul = jsonData[name]["kph"].get<bool>() ? 160.9f : 1;
-                }
-                if (jsonData[name].contains("digital"))
-                {
-                    data.vecIndicatorData[name].bDigital = jsonData[name]["digital"].get<bool>();
-                }
+            if (jsonData.contains("gauges") && jsonData["gauges"].contains(name)) {
+                indicator.fMul = jsonData["gauges"][name].value("kph", true) ? 160.9f : 1.0f;
             }
-            data.vecIndicatorData[name].pFrame = pFrame;
             data.bInitialized = true;
-        } });
+        }
+    });
 
-    ModelInfoMgr::RegisterRender([](CVehicle *pVeh)
-                                 {
-        if (!pVeh || !pVeh->GetIsOnScreen()) return;
+    ModelInfoMgr::RegisterRender([](CVehicle *pVeh) {
+    if (!pVeh || !pVeh->GetIsOnScreen()) return;
 
-        VehData &data = vehData.Get(pVeh);
-        if (data.bInitialized) {
-            for (auto& e : data.vecIndicatorData) {
-                if (e.second.vecFrameList.size() < 6) {
-                   LOG_VERBOSE("Vehicle ID: {}. {} odometer childs detected, 6 expected", pVeh->m_nModelIndex, e.second.vecFrameList.size());
-                   return;
-               }
+    VehData &data = vehData.Get(pVeh);
+    if (!data.bInitialized) return;
 
-               float curRot = (pVeh->m_nVehicleSubClass == VEHICLE_BIKE) ? static_cast<CBike *>(pVeh)->m_afWheelRotationX[1] : static_cast<CAutomobile *>(pVeh)->m_fWheelRotation[3];
-               curRot /= (2.86 * e.second.fMul);
+    for (auto& [name, indicator] : data.vecIndicatorData) {
+        if (indicator.vecFrameList.size() < 6) continue;
 
-               int displayVal = std::stoi(e.second.sScreenText) + abs(e.second.iPrevRot - curRot);
-               displayVal = plugin::Clamp(displayVal, 0, 999999);
-               e.second.iPrevRot = curRot;
+        float curWheelRot = (pVeh->m_nVehicleSubClass == VEHICLE_BIKE)
+            ? static_cast<CBike *>(pVeh)->m_afWheelRotationX[1]
+            : static_cast<CAutomobile *>(pVeh)->m_fWheelRotation[3];
 
-               std::stringstream ss;
-               ss << std::setw(6) << std::setfill('0') << displayVal;
-               std::string updatedText = ss.str();
+        float diff = abs(curWheelRot - indicator.fLastWheelRot);
+        if (diff > 5.0f) diff = 0.0f;
 
-               if (e.second.sScreenText != updatedText)
-               {
-                   for (unsigned int i = 0; i < 6; i++)
-                   {
-                       if (updatedText[i] != e.second.sScreenText[i])
-                       {
-                           float angle = (updatedText[i] - e.second.sScreenText[i]) * 36.0f;
-                           FrameUtil::SetRotationX(e.second.vecFrameList[i], angle);
-                       }
-                   }
-                   e.second.sScreenText = std::move(updatedText);
-               }
+        indicator.dCurrentDistance += (diff / (2.86f * indicator.fMul));
+        indicator.fLastWheelRot = curWheelRot;
+
+        int displayVal = static_cast<int>(indicator.dCurrentDistance) % 1000000;
+
+        int divisor = 100000;
+        for (int i = 0; i < 6; i++) {
+            int currentDigit = (displayVal / divisor) % 10;
+            divisor /= 10;
+
+            if (indicator.lastDigits[i] != currentDigit) {
+                if (indicator.lastDigits[i] != -1) {
+                    int steps = currentDigit - indicator.lastDigits[i];
+                    if (steps < 0) steps += 10;
+
+                    float angleToRotate = static_cast<float>(steps) * 36.0f;
+                    FrameUtil::SetRotationX(indicator.vecFrameList[i], angleToRotate);
+                } else {
+                    FrameUtil::SetRotationX(indicator.vecFrameList[i], currentDigit * 36.0f);
+                }
+
+                indicator.lastDigits[i] = currentDigit;
             }
-        } });
+        }
+    }
+});
 }
 
 void RPMGauge::Initialize()
@@ -112,15 +111,15 @@ void RPMGauge::Initialize()
         if (name.starts_with("x_rpm") || name.starts_with("fc_rpm") || name.starts_with("tahook")) {
             VehData &data = vehData.Get(pVeh);
             auto &jsonData = DataMgr::Get(pVeh->m_nModelIndex);
-            if (jsonData.contains(name))
+            if (jsonData.contains("gauges") && jsonData["gauges"].contains(name))
             {
-                if (jsonData[name].contains("maxrpm"))
+                if (jsonData["gauges"][name].contains("maxrpm"))
                 {
-                    data.vecGaugeData[name].iMaxRPM = jsonData[name].value("maxrpm", data.vecGaugeData[name].iMaxRPM);
+                    data.vecGaugeData[name].iMaxRPM = jsonData["gauges"][name].value("maxrpm", data.vecGaugeData[name].iMaxRPM);
                 }
-                if (jsonData[name].contains("maxrotation"))
+                if (jsonData["gauges"][name].contains("maxrotation"))
                 {
-                    data.vecGaugeData[name].fMaxRotation = jsonData[name].value("maxrotation", data.vecGaugeData[name].fMaxRotation);
+                    data.vecGaugeData[name].fMaxRotation = jsonData["gauges"][name].value("maxrotation", data.vecGaugeData[name].fMaxRotation);
                 }
             }
             data.vecGaugeData[name].pFrame = pFrame;
@@ -168,19 +167,19 @@ void SpeedGauge::Initialize()
     if (name.starts_with("x_sm") || name.starts_with("fc_sm") || name.starts_with("speedook")) {
         VehData &data = vehData.Get(pVeh);
         auto &jsonData = DataMgr::Get(pVeh->m_nModelIndex);
-        if (jsonData.contains(name))
+        if (jsonData.contains("gauges") && jsonData["gauges"].contains(name))
         {
-            if (jsonData[name].contains("kph"))
+            if (jsonData["gauges"][name].contains("kph"))
             {
-                data.vecGaugeData[name].fMul = jsonData[name]["kph"].get<bool>() ? 160.9f : 1;
+                data.vecGaugeData[name].fMul = jsonData["gauges"][name]["kph"].get<bool>() ? 160.9f : 1;
             }
-            if (jsonData[name].contains("maxspeed"))
+            if (jsonData["gauges"][name].contains("maxspeed"))
             {
-                data.vecGaugeData[name].iMaxSpeed = jsonData[name].value("maxspeed", data.vecGaugeData[name].iMaxSpeed);
+                data.vecGaugeData[name].iMaxSpeed = jsonData["gauges"][name].value("maxspeed", data.vecGaugeData[name].iMaxSpeed);
             }
-            if (jsonData[name].contains("maxrotation"))
+            if (jsonData["gauges"][name].contains("maxrotation"))
             {
-                data.vecGaugeData[name].fMaxRotation = jsonData[name].value("maxrotation", data.vecGaugeData[name].fMaxRotation);
+                data.vecGaugeData[name].fMaxRotation = jsonData["gauges"][name].value("maxrotation", data.vecGaugeData[name].fMaxRotation);
             }
         }
         data.vecGaugeData[name].pFrame = pFrame;
@@ -215,15 +214,15 @@ void TurboGauge::Initialize()
         if (name.starts_with("x_tm")) {
             VehData &data = vehData.Get(pVeh);
             auto &jsonData = DataMgr::Get(pVeh->m_nModelIndex);
-            if (jsonData.contains(name))
+            if (jsonData.contains("gauges") && jsonData["gauges"].contains(name))
             {
-                if (jsonData[name].contains("maxturbo"))
+                if (jsonData["gauges"][name].contains("maxturbo"))
                 {
-                    data.vecGaugeData[name].iMaxTurbo = jsonData[name].value("maxturbo", data.vecGaugeData[name].iMaxTurbo);
+                    data.vecGaugeData[name].iMaxTurbo = jsonData["gauges"][name].value("maxturbo", data.vecGaugeData[name].iMaxTurbo);
                 }
-                if (jsonData[name].contains("maxrotation"))
+                if (jsonData["gauges"][name].contains("maxrotation"))
                 {
-                    data.vecGaugeData[name].fMaxRotation = jsonData[name].value("maxrotation", data.vecGaugeData[name].fMaxRotation);
+                    data.vecGaugeData[name].fMaxRotation = jsonData["gauges"][name].value("maxrotation", data.vecGaugeData[name].fMaxRotation);
                 }
             }
             data.vecGaugeData[name].pFrame = pFrame;
@@ -268,8 +267,8 @@ void FixedGauge::Initialize()
             auto &jsonData = DataMgr::Get(pVeh->m_nModelIndex);
 
             float angle = 0;
-            if (jsonData.contains(name) && jsonData[name].contains("angle")) {
-                angle = jsonData[name]["angle"];
+            if (jsonData.contains("gauges") && jsonData["gauges"].contains(name) && jsonData["gauges"][name].contains("angle")) {
+                angle = jsonData["gauges"][name]["angle"];
             } else {
                 angle = RandomNumberInRange(20.0f, 70.0f);
             }

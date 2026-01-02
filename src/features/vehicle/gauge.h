@@ -1,6 +1,5 @@
 #pragma once
 #include <plugin.h>
-#include "../../interface/ifeature.hpp"
 #include <vector>
 
 class GearIndicator
@@ -32,10 +31,10 @@ class MileageIndicator
 protected:
   struct IndicatorData {
     RwFrame *pFrame = nullptr;
-    bool bDigital = false;
-    int iPrevRot = 0;
-    std::string sScreenText = "000000";
+    double dCurrentDistance = 0.0;
+    float fLastWheelRot = 0.0f;
     std::vector<RwFrame *> vecFrameList;
+    int lastDigits[6] = {-1, -1, -1, -1, -1, -1};
     float fMul = 160.9f;
   };
 
