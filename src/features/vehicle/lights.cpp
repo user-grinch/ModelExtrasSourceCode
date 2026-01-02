@@ -53,6 +53,7 @@ void Lights::Initialize()
 	m_bEnabled = true;
 	patch::Nop(0x6E2722, 19);	  // CVehicle::DoHeadLightReflection
 	patch::SetUChar(0x6E1A22, 0); // CVehicle::DoTailLightEffect
+	patch::SetRaw(0x6E0A50, const_cast<char *>("\xC2\x10\x00"), 3); // CVehicle::DoHeadLightEffect
 
 	// NOP CVehicle::DoHeadLightBeam
 	if (!gConfig.ReadBoolean("TWEAKS", "HeadLightBeams", false))
@@ -356,9 +357,7 @@ void Lights::Initialize()
 			{
 				bool isLeftFrontOk = !Util::IsLightDamaged(pVeh, eLights::LIGHT_FRONT_LEFT);
 				bool isRightFrontOk = !Util::IsLightDamaged(pVeh, eLights::LIGHT_FRONT_RIGHT);
-				bool isHeadlightLeftOn = pVeh->m_renderLights.m_bLeftFront && isLeftFrontOk;
-				bool isHeadlightRightOn = pVeh->m_renderLights.m_bRightFront && isRightFrontOk;
-				RenderHeadlights(pVeh, isHeadlightLeftOn, isHeadlightRightOn, false);
+				RenderHeadlights(pVeh, isLeftFrontOk, isRightFrontOk, false);
 			}
 		}
 	};
@@ -404,9 +403,6 @@ void Lights::Initialize()
 		bool isRightRearOk = !(Util::IsLightDamaged(pTowedVeh, eLights::LIGHT_REAR_RIGHT) 
 								|| Util::IsPanelDamaged(pTowedVeh, ePanels::WING_REAR_RIGHT) 
 							);
-		bool isHeadlightLeftOn = pControlVeh->m_renderLights.m_bLeftFront && isLeftFrontOk;
-		bool isHeadlightRightOn = pControlVeh->m_renderLights.m_bRightFront && isRightFrontOk;
-
 		RenderLights(pControlVeh, pTowedVeh, eMaterialType::AllDayLight);
 		RenderLights(pControlVeh, pTowedVeh, eMaterialType::StrobeLight);
 		RenderLights(pControlVeh, pTowedVeh, eMaterialType::SideLightLeft);
@@ -426,7 +422,7 @@ void Lights::Initialize()
 		bool isBike = CModelInfo::IsBikeModel(pControlVeh->m_nModelIndex);
 
 		if (pControlVeh->m_pDriver == FindPlayerPed()) {
-			RenderHeadlights(pControlVeh, isHeadlightLeftOn, isHeadlightRightOn);
+			RenderHeadlights(pControlVeh, isLeftFrontOk, isRightFrontOk);
 		}
 
 		if (SpotLights::IsEnabled(pControlVeh)) {
@@ -746,7 +742,7 @@ void Lights::RenderHeadlights(CVehicle *pControlVeh, bool isLeftOn, bool isRight
 		return;
 	}
 
-	if (pControlVeh->bLightsOn || CarUtil::IsLightsForcedOn(pControlVeh))
+	if (pControlVeh->bLightsOn || CarUtil::IsLightsForcedOn(pControlVeh) || Util::IsNightTime())
 	{
 		bool isFoggy = (CWeather::NewWeatherType == WEATHER_FOGGY_SF || CWeather::NewWeatherType == WEATHER_SANDSTORM_DESERT || CWeather::OldWeatherType == WEATHER_FOGGY_SF || CWeather::OldWeatherType == WEATHER_SANDSTORM_DESERT);
 		std::string texName = data.m_bLongLightsOn ? "headlight_long" : "headlight_short";
