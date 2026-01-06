@@ -18,7 +18,7 @@ extern RwSurfaceProperties& gLightSurfProps;
 extern void LightsTab();
 
 bool bWindowOpenFlag = false;
-
+extern void DrawMonsterInspector();
 void ViewInit() {
     if (bWindowOpenFlag) {
         RenderHook::SetCursorVisible(bWindowOpenFlag);
@@ -67,6 +67,11 @@ void ViewInit() {
 
                 if (ImGui::BeginTabItem("Lights")) {
                     LightsTab();
+                    ImGui::EndTabItem();
+                }
+
+                if (ImGui::BeginTabItem("Vehicle Inspector")) {
+                    DrawMonsterInspector();
                     ImGui::EndTabItem();
                 }
 

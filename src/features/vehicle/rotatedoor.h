@@ -8,7 +8,8 @@ protected:
     struct DoorConfig {
       RwFrame* frame = nullptr;
       float originalRot = 0.0f;
-      bool reverse = false;
+      float mul = 1.0f;
+      float popOutAmount = 0.0f;
       float prevRot = 0.0f;
     };
 

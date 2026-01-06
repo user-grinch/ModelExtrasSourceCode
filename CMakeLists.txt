@@ -51,7 +51,9 @@ file(GLOB_RECURSE MODULE_FILES
 # Target
 # ============================================================
 
-add_library(ModelExtras SHARED)
+add_library(ModelExtras SHARED
+        src/view/vehinspector.cpp
+)
 
 # Add modules
 if(MODULE_FILES)
@@ -122,6 +124,7 @@ target_compile_options(ModelExtras PRIVATE
 
 target_link_directories(ModelExtras PRIVATE
         ${PLUGIN_SDK_DIR}/output/lib
+        ${CMAKE_CURRENT_SOURCE_DIR}/lib
         ${CMAKE_CURRENT_SOURCE_DIR}/lib
 )
 

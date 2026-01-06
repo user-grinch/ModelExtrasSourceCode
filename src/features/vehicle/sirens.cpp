@@ -699,6 +699,7 @@ void Sirens::Initialize()
 						break;
 					}
 				}
+				AudioMgr::PlaySwitchSound(vehicle);
 			}
 			prev = now;
 		}
@@ -732,6 +733,7 @@ void Sirens::Initialize()
 					return;
 
 				vehicleData[vehicle]->State = newState;
+				AudioMgr::PlaySwitchSound(vehicle);
 			}
 		}
 	};

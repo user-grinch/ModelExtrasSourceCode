@@ -7,7 +7,8 @@ class SlideDoor
 protected:
     struct DoorConfig {
       RwFrame* frame = nullptr;
-      bool reverse = false;
+      float mul = 1.0f;
+      float popOutAmount = 0.2f;
     };
 
     struct VehData {

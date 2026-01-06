@@ -7,8 +7,13 @@ void SlideDoor::UpdateSlidingDoor(CVehicle* pVeh, DoorConfig& config, eDoors doo
 {
     if (!config.frame) return;
 
+    float sideMult = (doorID == DOOR_FRONT_LEFT || doorID == DOOR_REAR_LEFT) ? -1.0f : 1.0f;
+
     float ratio = pVeh->GetDooorAngleOpenRatio(doorID);
-    config.frame->modelling.pos.y = config.reverse ? ratio : -ratio;
+    config.frame->modelling.pos.y = config.mul * ratio * -1;
+
+    float popFactor = std::min(1.0f, ratio * 5.0f);
+    config.frame->modelling.pos.x = popFactor * config.popOutAmount * sideMult;
     RwMatrixUpdate(&config.frame->modelling);
 }
 
@@ -22,18 +27,22 @@ void SlideDoor::Initialize()
         auto& jsonData = DataMgr::Get(pVeh->m_nModelIndex);
         VehData& data = xData.Get(pVeh);
 
-        bool reverse = jsonData["doors"].contains(name)
-                        ? jsonData["doors"][name].value("reverse", false)
-                        : false;
+        float mul = 1.0f;
+        float popOutAmount = 0.0f;
+
+        if (jsonData.contains("doors") && jsonData["doors"].contains(name)) {
+            mul = jsonData["doors"][name].value("movmul", 0.0f);
+            popOutAmount = jsonData["doors"][name].value("popout", 0.15f);
+        }
 
         if (name == "dvan_l" || name == "dmbus_l" || name == "x_sd_lf") {
-            data.leftFront = { pFrame, reverse };
+            data.leftFront = { pFrame, mul, popOutAmount };
         } else if (name == "dvan_r" || name == "dmbus_r" || name == "x_sd_rf") {
-            data.rightFront = { pFrame, reverse };
+            data.rightFront = { pFrame, mul, popOutAmount };
         } else if (name == "x_sd_lr") {
-            data.leftRear = { pFrame, reverse };
+            data.leftRear = { pFrame, mul, popOutAmount };
         } else if (name == "x_sd_rr") {
-            data.rightRear = { pFrame, reverse };
+            data.rightRear = { pFrame, mul, popOutAmount };
         }
     });
 

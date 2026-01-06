@@ -686,7 +686,7 @@ void Lights::RenderLight(CVehicle *pVeh, eMaterialType state, bool shadows, std:
 					continue;
 				}
 			}
-			EnableDummy((int)pVeh + 42 + id++, e, pVeh, highlight ? 1.75f : 1.0f);
+			EnableDummy((int)pVeh + 42 + id++, e, pVeh, highlight ? 3.00f : 1.0f);
 
 			// Skip front shadows on bike wheelie
 			if (c.dummyType == eDummyPos::Front && Util::IsVehicleDoingWheelie(pVeh))

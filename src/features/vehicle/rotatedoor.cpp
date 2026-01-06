@@ -8,10 +8,17 @@ void RotateDoor::UpdateRotatingDoor(CVehicle* pVeh, DoorConfig& config, eDoors d
     if (!config.frame) return;
 
     float ratio = pVeh->GetDooorAngleOpenRatio(doorID);
-    float targetRot = ratio * (config.reverse ? 1.0f : -1.0f) * 90.0f;
+
+    float popFactor = std::min(1.0f, ratio * 5.0f);
+    float sideMult = (doorID == DOOR_FRONT_LEFT || doorID == DOOR_REAR_LEFT) ? 1.0f : -1.0f;
+    config.frame->modelling.pos.x = popFactor * config.popOutAmount * sideMult;
+
+    float targetRot = ratio * config.mul * 90.0f * sideMult;
 
     MatrixUtil::SetRotationZAbsolute(&config.frame->modelling, targetRot - config.prevRot);
     config.prevRot = targetRot;
+
+    RwMatrixUpdate(&config.frame->modelling);
 }
 
 void RotateDoor::Initialize()
@@ -24,19 +31,24 @@ void RotateDoor::Initialize()
         auto& jsonData = DataMgr::Get(pVeh->m_nModelIndex);
         VehData& data = xData.Get(pVeh);
 
-        bool reverse = jsonData["doors"].contains(name)
-                        ? jsonData["doors"][name].value("reverse", false)
-                        : false;
+        float mul = 1.0f;
+        float popOutAmount = 0.0f;
+
+        if (jsonData.contains("doors") && jsonData["doors"].contains(name)) {
+            mul = jsonData["doors"][name].value("movmul", 1.0f);
+            popOutAmount = jsonData["doors"][name].value("popout", 0.15f);
+        }
 
         float orgRot = MatrixUtil::GetRotationZ(&pFrame->modelling);
-        if (name == "x_rd_lf") {
-            data.leftFront = { pFrame, orgRot, reverse };
+
+        if (name == "x_rd_lf ") {
+            data.leftFront = { pFrame, orgRot, mul, popOutAmount };
         } else if (name == "x_rd_rf") {
-            data.rightFront = { pFrame, orgRot, reverse };
-        } else if (name == "x_rd_lr") {
-            data.leftRear = { pFrame, orgRot, reverse };
-        } else if (name == "x_rd_rr") {
-            data.rightRear = { pFrame, orgRot, reverse };
+            data.rightFront = { pFrame, orgRot, mul, popOutAmount };
+        } else if (name == "x_sd_lr") {
+            data.leftRear = { pFrame, orgRot, mul, popOutAmount };
+        } else if (name == "x_sd_rr") {
+            data.rightRear = { pFrame, orgRot, mul, popOutAmount };
         }
     });
 

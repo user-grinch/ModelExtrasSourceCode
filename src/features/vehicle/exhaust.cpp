@@ -1,4 +1,5 @@
 #include "pch.h"
+#include "pch.h"
 #include "exhausts.h"
 #include <CWorld.h>
 #include <CCamera.h>
@@ -15,32 +16,56 @@
 
 #define NODE_NAME "x_exhaust"
 
-template <uintptr_t addr>
-void ExhaustFx::hkAddExhaustParticles()
+// Global trampolines
+ExhaustFn_t ogFunc1 = nullptr, ogFunc2 = nullptr;
+NitroFn_t ogNitro1 = nullptr, ogNitro2 = nullptr, ogNitro3 = nullptr;
+
+void __fastcall ExhaustFx::hkAddExhaustParticles1(CVehicle * pVeh)
 {
-    using func_hook = injector::function_hooker_thiscall<injector::scoped_call, addr, void(CVehicle *)>;
-    injector::make_static_hook<func_hook>([](func_hook::func_type ogFunc, CVehicle *pVeh)
-                                          {
-		auto &data = xData.Get(pVeh); 
-        if (!data.isUsed) {
-            ogFunc(pVeh);
-        } });
+    if (!pVeh) return;
+    auto &data = xData.Get(pVeh);
+    if (!data.isUsed && ogFunc1) {
+        ogFunc1(pVeh);
+    }
 }
 
-template <uintptr_t addr>
-void ExhaustFx::hkDoNitroEffect()
+void __fastcall ExhaustFx::hkAddExhaustParticles2(CVehicle *pVeh)
 {
-    using func_hook = injector::function_hooker_thiscall<injector::scoped_call, addr, char(CAutomobile *, float)>;
-    injector::make_static_hook<func_hook>([](func_hook::func_type ogFunc, CAutomobile *pVeh, float power)
-                                          {
-        auto& data = xData.Get(pVeh);
-        if (data.isUsed) {
-			RenderNitroFx(pVeh, power);
-        }
-        else {
-            ogFunc(pVeh, power);
-        }
-        return 1; });
+    if (!pVeh) return;
+    auto &data = xData.Get(pVeh);
+    if (!data.isUsed && ogFunc2) {
+        ogFunc2(pVeh);
+    }
+}
+
+char __fastcall ExhaustFx::hkDoNitroEffect1(CAutomobile* pVeh, float power)
+{
+    auto& data = xData.Get(pVeh);
+    if (data.isUsed) {
+        RenderNitroFx(pVeh, power);
+        return 1;
+    }
+    return ogNitro1(pVeh, power);
+}
+
+char __fastcall ExhaustFx::hkDoNitroEffect2(CAutomobile* pVeh, float power)
+{
+    auto& data = xData.Get(pVeh);
+    if (data.isUsed) {
+        RenderNitroFx(pVeh, power);
+        return 1;
+    }
+    return ogNitro2(pVeh, power);
+}
+
+char __fastcall ExhaustFx::hkDoNitroEffect3(CAutomobile* pVeh, float power)
+{
+    auto& data = xData.Get(pVeh);
+    if (data.isUsed) {
+        RenderNitroFx(pVeh, power);
+        return 1;
+    }
+    return ogNitro3(pVeh, power);
 }
 
 void ExhaustFx::FindNodes(CVehicle *pVeh, RwFrame *pFrame)
@@ -73,13 +98,13 @@ void ExhaustFx::Initialize()
 
     ModelInfoMgr::RegisterRender([](CVehicle *pVeh)
                                  {
-                                    
+
         if (!pVeh || !pVeh->GetIsOnScreen()) {
             return;
         }
 
-        VehData &data = xData.Get(pVeh); 
-        
+        VehData &data = xData.Get(pVeh);
+
         // Must be here to work with VehFuncs recursive extras
         if (!data.isUsed) {
             RwFrame *pFrame = (RwFrame*)pVeh->m_pRwClump->object.parent;
@@ -89,12 +114,20 @@ void ExhaustFx::Initialize()
         for (auto& e : data.m_pDummies) {
             RenderSmokeFx(pVeh, e.second);
         } });
+    ogFunc1 = injector::GetBranchDestination(0x6AB344, true).get();
+    injector::MakeCALL(0x6AB344, hkAddExhaustParticles1, true);
 
-    hkAddExhaustParticles<0x6AB344>();
-    hkAddExhaustParticles<0x6BD3FF>();
-    hkDoNitroEffect<0x6A405A>();
-    hkDoNitroEffect<0x6A406B>();
-    hkDoNitroEffect<0x6A40E1>();
+    ogFunc2 = injector::GetBranchDestination(0x6BD3FF, true).get();
+    injector::MakeCALL(0x6BD3FF, hkAddExhaustParticles2, true);
+
+    ogNitro1 = injector::GetBranchDestination(0x6A405A, true).get();
+    injector::MakeCALL(0x6A405A, hkDoNitroEffect1, true);
+
+    ogNitro2 = injector::GetBranchDestination(0x6A406B, true).get();
+    injector::MakeCALL(0x6A406B, hkDoNitroEffect2, true);
+
+    ogNitro3 = injector::GetBranchDestination(0x6A40E1, true).get();
+    injector::MakeCALL(0x6A40E1, hkDoNitroEffect3, true);
 }
 
 ExhaustData ExhaustFx::LoadData(CVehicle *pVeh, RwFrame *pFrame)
