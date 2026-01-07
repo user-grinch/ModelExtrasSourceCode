@@ -21,6 +21,23 @@ void RotateDoor::UpdateRotatingDoor(CVehicle* pVeh, DoorConfig& config, eDoors d
     RwMatrixUpdate(&config.frame->modelling);
 }
 
+void RotateDoor::UpdateRotatingBootBonnet(CVehicle* pVeh, DoorConfig& config, eDoors doorID)
+{
+    if (!config.frame) return;
+
+    float ratio = pVeh->GetDooorAngleOpenRatio(doorID);
+
+    float popFactor = std::min(1.0f, ratio * 5.0f);
+    config.frame->modelling.pos.z = popFactor * config.popOutAmount;
+
+    float targetRot = ratio * config.mul * 45.0f;
+
+    MatrixUtil::SetRotationXAbsolute(&config.frame->modelling, targetRot - config.prevRot);
+
+    config.prevRot = targetRot;
+    RwMatrixUpdate(&config.frame->modelling);
+}
+
 void RotateDoor::Initialize()
 {
     ModelInfoMgr::RegisterDummy([](CVehicle* pVeh, RwFrame* pFrame)
@@ -45,10 +62,14 @@ void RotateDoor::Initialize()
             data.leftFront = { pFrame, orgRot, mul, popOutAmount };
         } else if (name == "x_rd_rf") {
             data.rightFront = { pFrame, orgRot, mul, popOutAmount };
-        } else if (name == "x_sd_lr") {
+        } else if (name == "x_rd_lr") {
             data.leftRear = { pFrame, orgRot, mul, popOutAmount };
-        } else if (name == "x_sd_rr") {
+        } else if (name == "x_rd_rr") {
             data.rightRear = { pFrame, orgRot, mul, popOutAmount };
+        } else if (name == "x_rd_boot") {
+            data.boot = { pFrame, orgRot, mul, popOutAmount };
+        } else if (name == "x_rd_bonnet") {
+            data.bonnet = { pFrame, orgRot, mul, popOutAmount };
         }
     });
 
@@ -61,5 +82,7 @@ void RotateDoor::Initialize()
         UpdateRotatingDoor(pVeh, data.rightFront, eDoors::DOOR_FRONT_RIGHT);
         UpdateRotatingDoor(pVeh, data.leftRear, eDoors::DOOR_REAR_LEFT);
         UpdateRotatingDoor(pVeh, data.rightRear, eDoors::DOOR_REAR_RIGHT);
+        UpdateRotatingBootBonnet(pVeh, data.boot, eDoors::BOOT);
+        UpdateRotatingBootBonnet(pVeh, data.bonnet, eDoors::BONNET);
     });
 }

@@ -16,6 +16,7 @@ protected:
     struct VehData {
       DoorConfig leftFront, rightFront;
       DoorConfig leftRear, rightRear;
+      DoorConfig boot, bonnet;
 
       VehData(CVehicle* pVeh) {}
       ~VehData() {}
@@ -23,6 +24,7 @@ protected:
 
     static inline VehicleExtendedData<VehData> xData;
     static void UpdateRotatingDoor(CVehicle* pVeh, DoorConfig& config, eDoors doorID);
+    static void UpdateRotatingBootBonnet(CVehicle* pVeh, DoorConfig& config, eDoors doorID);
 
 public:
     static void Initialize();

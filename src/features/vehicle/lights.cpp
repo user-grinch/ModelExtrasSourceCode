@@ -727,8 +727,7 @@ void Lights::RenderLights(CVehicle *pControlVeh, CVehicle *pTowedVeh, eMaterialT
 	}
 }
 
-void Lights::RenderHeadlights(CVehicle *pControlVeh, bool isLeftOn, bool isRightOn, bool realTime)
-{
+void Lights::RenderHeadlights(CVehicle *pControlVeh, bool isLeftOn, bool isRightOn, bool realTime) {
 	CVehicle *pTowedVeh = pControlVeh;
 	VehLightData &data = m_VehData.Get(pControlVeh);
 
@@ -737,7 +736,10 @@ void Lights::RenderHeadlights(CVehicle *pControlVeh, bool isLeftOn, bool isRight
 		pTowedVeh = pControlVeh->m_pTrailer;
 	}
 
-	if (CModelInfo::IsTrailerModel(pControlVeh->m_nModelIndex) || CarUtil::IsLightsForcedOff(pControlVeh))
+	int model = pControlVeh->m_nModelIndex;
+	if (CModelInfo::IsTrailerModel(model) || CarUtil::IsLightsForcedOff(pControlVeh)
+	|| CModelInfo::IsBmxModel(model) || CModelInfo::IsBoatModel(model) || CModelInfo::IsHeliModel(model)
+	|| CModelInfo::IsPlaneModel(model))
 	{
 		return;
 	}
