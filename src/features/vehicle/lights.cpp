@@ -32,7 +32,9 @@ static uint64_t delay;
 
 CVector2D GetCarPathLinkPosition(CCarPathLinkAddress &address)
 {
-	if (address.m_nAreaId != -1 && address.m_nCarPathLinkId != -1 && ThePaths.m_pPathNodes && ThePaths.m_pPathNodes[address.m_nAreaId])
+	if (address.m_nAreaId >= 0 && address.m_nCarPathLinkId >= 0
+		&& ThePaths.m_pNaviNodes && ThePaths.m_pNaviNodes[address.m_nAreaId]
+	)
 	{
 		return CVector2D(static_cast<float>(ThePaths.m_pNaviNodes[address.m_nAreaId][address.m_nCarPathLinkId].m_vecPosn.x) / 8.0f,
 						 static_cast<float>(ThePaths.m_pNaviNodes[address.m_nAreaId][address.m_nCarPathLinkId].m_vecPosn.y) / 8.0f);

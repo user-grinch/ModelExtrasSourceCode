@@ -52,7 +52,12 @@ file(GLOB_RECURSE MODULE_FILES
 # ============================================================
 
 add_library(ModelExtras SHARED
-        src/view/vehinspector.cpp
+        src/view/tabs/inspector.cpp
+        src/view/tabs/editor.cpp
+        src/view/hooks.cpp
+        src/view/tabs/status.cpp
+        src/view/tabs/lights.cpp
+        src/view/common.hpp
 )
 
 # Add modules
@@ -136,7 +141,6 @@ target_link_libraries(ModelExtras PRIVATE
 
 target_link_options(ModelExtras PRIVATE
         /SAFESEH:NO
-        /DELAYLOAD:GrinchTrainerSA.asi
         $<$<CONFIG:Debug>:/DEBUG /MAP /RTC1>
         $<$<CONFIG:Release>:/DEBUG /MAP /OPT:REF /OPT:ICF>
 )
