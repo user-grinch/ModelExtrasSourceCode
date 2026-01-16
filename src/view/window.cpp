@@ -33,6 +33,9 @@ void DevWindow() {
     }
 
     ImGui::TextDisabled("Work in Progress");
+    if (FindPlayerVehicle()) {
+        ImGui::Text("%d", FindPlayerVehicle()->m_nCurrentGear);
+    }
     ImGui::Separator();
 
     if (ImGui::BeginTabBar("ModelExtras", ImGuiTabBarFlags_FittingPolicyScroll)) {

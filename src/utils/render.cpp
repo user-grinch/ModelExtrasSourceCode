@@ -71,7 +71,7 @@ void RenderUtil::RegisterCorona(CEntity *pEntity, int coronaID, CVector pos, CRG
         return;
     }
 
-    static float MUL = gConfig.ReadFloat("TWEAKS", "CoronaDistanceMul", 0.2f);
+    static float MUL = gConfig.ReadFloat("TWEAKS", "CoronaDistanceMul", 0.0f);
 
 	float coronaSz = size;
 
