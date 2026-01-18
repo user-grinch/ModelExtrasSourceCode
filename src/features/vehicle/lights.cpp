@@ -55,10 +55,13 @@ void Lights::Initialize()
 	m_bEnabled = true;
 	patch::Nop(0x6E2722, 19);	  // CVehicle::DoHeadLightReflection
 	patch::SetUChar(0x6E1A22, 0); // CVehicle::DoTailLightEffect
-	patch::SetRaw(0x6E0A50, const_cast<char *>("\xC2\x10\x00"), 3); // CVehicle::DoHeadLightEffect
+
+	// // CVehicle::DoHeadLightEffect
+	patch::SetUChar(0x6E0CF8, 0);
+	patch::SetUChar(0x6E0DEE, 0);
 
 	// NOP CVehicle::DoHeadLightBeam
-	if (!gConfig.ReadBoolean("TWEAKS", "HeadLightBeams", false))
+	if (!gConfig.ReadBoolean("TWEAKS", "HeadLightBeams", true))
 	{
 		// cmp ax, ax
 		patch::SetRaw(0x6A2EA5, (void *)"\x66\x39\xC0\x90", 4);

@@ -45,8 +45,8 @@ void WheelHub::Initialize()
         UpdateRotation(pVeh, data.m_pWRF, data.m_pHRF);
         UpdateRotation(pVeh, data.m_pWRM, data.m_pHRM);
         UpdateRotation(pVeh, data.m_pWRR, data.m_pHRR);
-        UpdateRotation(pVeh, data.m_pWRF, data.m_pHLF, true);
-        UpdateRotation(pVeh, data.m_pWRM, data.m_pHLM, true);
-        UpdateRotation(pVeh, data.m_pWRR, data.m_pHLR, true); 
+        UpdateRotation(pVeh, data.m_pWLF, data.m_pHLF, true);
+        UpdateRotation(pVeh, data.m_pWLM, data.m_pHLM, true);
+        UpdateRotation(pVeh, data.m_pWLR, data.m_pHLR, true);
     });
 }

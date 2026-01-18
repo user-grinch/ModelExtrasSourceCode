@@ -31,6 +31,7 @@ private:
 	static inline std::map<CVehicle *, std::map<eMaterialType, std::vector<VehicleDummy *>>> m_Dummies;
 
 	static void EnableDummy(int id, VehicleDummy *dummy, CVehicle *vehicle, float szMul = 1.0f);
+
 	static void RenderLight(CVehicle *pVeh, eMaterialType state, bool shadows, std::string texture, float sz, bool highlight, bool isDummyOk = true);
 	static void RenderLights(CVehicle *pControlVeh, CVehicle *pTowedVeh, eMaterialType state, bool shadows = true, std::string texture = "indicator", float sz = 1.0f, bool highlight = false, bool isDummyOk = true);
 	static void RenderHeadlights(CVehicle *pControlVeh, bool isLeftOn, bool isRightOn, bool realTime = true);

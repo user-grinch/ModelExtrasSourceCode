@@ -266,12 +266,12 @@ void FixedGauge::Initialize()
         if (name.starts_with("x_gauge_fixed") || name == "x_gasmeter" || name == "x_gm" || name == "petrolok") {
             auto &jsonData = DataMgr::Get(pVeh->m_nModelIndex);
 
-            float angle = 0;
+            float minAngle = 20.0f;
+            float maxAngle = 70.0f;
             if (jsonData.contains("gauges") && jsonData["gauges"].contains(name) && jsonData["gauges"][name].contains("angle")) {
-                angle = jsonData["gauges"][name]["angle"];
-            } else {
-                angle = RandomNumberInRange(20.0f, 70.0f);
+                minAngle = jsonData["gauges"][name]["minangle"];
+                maxAngle = jsonData["gauges"][name]["maxangle"];
             }
-            FrameUtil::SetRotationY(pFrame, angle);
+            FrameUtil::SetRotationY(pFrame, RandomNumberInRange(minAngle, maxAngle));
         } });
 }
