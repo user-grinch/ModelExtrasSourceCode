@@ -18,7 +18,7 @@ void SteerWheel::Initialize()
                 data.factor = (float)std::stoi(&name[7]) / 2;
             }
             data.pFrame = pFrame;
-        } else if (name.starts_with("movsteer") ||name.starts_with("steering_dummy")) {
+        } else if (name.starts_with("movsteer") || name.starts_with("steering_dummy") || name.starts_with("ik_steer")) {
             data.pFrame = pFrame;
         } 
     });

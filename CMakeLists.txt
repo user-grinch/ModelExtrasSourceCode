@@ -6,7 +6,7 @@ project(ModelExtras LANGUAGES CXX)
 # ============================================================
 
 if(NOT DEFINED ENV{PLUGIN_SDK_DIR})
-    message(FATAL_ERROR "PLUGIN_SDK_DIR environment variable is not set")
+    message(FATAL_ERROR "PLUGIN_SDK_DIR2 environment variable is not set")
 endif()
 set(PLUGIN_SDK_DIR $ENV{PLUGIN_SDK_DIR})
 
@@ -58,6 +58,16 @@ add_library(ModelExtras SHARED
         src/view/tabs/status.cpp
         src/view/tabs/lights.cpp
         src/view/common.hpp
+        src/view/tabs/modules/metadata.hpp
+        src/view/tabs/modules/IEditor.hpp
+        src/view/tabs/modules/light.hpp
+        src/view/tabs/modules/sirens.hpp
+        src/view/tabs/modules/raw.hpp
+        src/view/tabs/modules/spoiler.hpp
+        src/view/tabs/modules/brakegear.hpp
+        src/view/tabs/modules/exhaust.hpp
+        src/view/tabs/modules/door.hpp
+        src/view/tabs/modules/roof.hpp
 )
 
 # Add modules

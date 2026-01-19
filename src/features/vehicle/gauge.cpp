@@ -34,8 +34,7 @@ void GearIndicator::Initialize()
                 e.iCurrent = pVeh->m_nCurrentGear;
             }
         }
-
-         });
+    });
 }
 
 void MileageIndicator::Initialize()
@@ -72,10 +71,10 @@ void MileageIndicator::Initialize()
             ? static_cast<CBike *>(pVeh)->m_afWheelRotationX[1]
             : static_cast<CAutomobile *>(pVeh)->m_fWheelRotation[3];
 
-        float diff = abs(curWheelRot - indicator.fLastWheelRot);
-        if (diff > 5.0f) diff = 0.0f;
+        float diff = curWheelRot - indicator.fLastWheelRot;
+        if (abs(diff) > 5.0f) diff = 0.0f;
 
-        indicator.dCurrentDistance += (diff / (2.86f * indicator.fMul));
+        indicator.dCurrentDistance += (abs(diff) / (2.86f * indicator.fMul));
         indicator.fLastWheelRot = curWheelRot;
 
         int displayVal = static_cast<int>(indicator.dCurrentDistance) % 1000000;
@@ -139,18 +138,18 @@ void RPMGauge::Initialize()
             for (auto& e : data.vecGaugeData) {
                 float rpm = 0.0f;
 
-                if (pVeh->m_nCurrentGear > 0) {
-                  rpm = (speed / pVeh->m_nCurrentGear) * 100.0f;
+                if (pVeh->m_nCurrentGear != 0) {
+                  rpm = (speed / abs((float)pVeh->m_nCurrentGear)) * 100.0f;
                 }
 
                 if (pVeh->bEngineOn) {
                   rpm = std::max(rpm, 0.1f * e.second.iMaxRPM);
                 }
 
-                rpm = plugin::Clamp(rpm, 0.0f, static_cast<float>(e.second.iMaxRPM));
+                if (pVeh->m_nCurrentGear < 0) rpm *= -1.0f;
 
-                float targetRotation = (rpm / e.second.iMaxRPM) * e.second.fMaxRotation;
-                targetRotation = plugin::Clamp(targetRotation, 0.0f, e.second.fMaxRotation);
+                float targetRotation = (rpm / (float)e.second.iMaxRPM) * e.second.fMaxRotation;
+                targetRotation = plugin::Clamp(targetRotation, -e.second.fMaxRotation, e.second.fMaxRotation);
 
                 float change = (targetRotation - e.second.fCurRotation) * 0.25f * delta;
                 FrameUtil::SetRotationY(e.second.pFrame, change);
@@ -196,10 +195,10 @@ void SpeedGauge::Initialize()
             float delta = CTimer::ms_fTimeScale;
 
             for (auto& e : data.vecGaugeData) {
-                float newRot = (e.second.fMaxRotation / e.second.iMaxSpeed) * speed * delta;
-                newRot = plugin::Clamp(newRot, 0, e.second.fMaxRotation);
+                float targetRotation = (speed / (float)e.second.iMaxSpeed) * e.second.fMaxRotation;
+                targetRotation = plugin::Clamp(targetRotation, -e.second.fMaxRotation, e.second.fMaxRotation);
 
-                float change = (newRot - e.second.fCurRotation) * 0.5f * delta;
+                float change = (targetRotation - e.second.fCurRotation) * 0.5f * delta;
                 FrameUtil::SetRotationY(e.second.pFrame, change);
                 e.second.fCurRotation += change;
             }
@@ -239,19 +238,20 @@ void TurboGauge::Initialize()
             float delta = CTimer::ms_fTimeScale;
 
             for (auto& e : data.vecGaugeData) {
-                float turbo = abs(e.second.fPrevTurbo - speed);
+                float turbo = speed - e.second.fPrevTurbo;
 
                 if (pVeh->m_nCurrentGear != 0)
                 {
-                    turbo += 10.0f;
+                    turbo += (turbo >= 0) ? 10.0f : -10.0f;
                 }
 
-                float newRot = (e.second.fMaxRotation / e.second.iMaxTurbo) * abs(e.second.fPrevTurbo - speed) * delta * 1.0f;
-                newRot = plugin::Clamp(newRot, 0, e.second.fMaxRotation);
+                float targetRot = (e.second.fMaxRotation / (float)e.second.iMaxTurbo) * turbo * delta;
+                targetRot = plugin::Clamp(targetRot, -e.second.fMaxRotation, e.second.fMaxRotation);
 
-                float change = (newRot - e.second.fCurRotation) * 0.25f * delta;
+                float change = (targetRot - e.second.fCurRotation) * 0.25f * delta;
                 FrameUtil::SetRotationY(e.second.pFrame, change);
                 e.second.fCurRotation += change;
+                e.second.fPrevTurbo = speed;
             }
         } });
 }
@@ -262,7 +262,6 @@ void FixedGauge::Initialize()
                                 {
         std::string name = GetFrameNodeName(pFrame);
 
-        // rest are for backward compatibility
         if (name.starts_with("x_gauge_fixed") || name == "x_gasmeter" || name == "x_gm" || name == "petrolok") {
             auto &jsonData = DataMgr::Get(pVeh->m_nModelIndex);
 

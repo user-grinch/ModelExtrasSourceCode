@@ -10,9 +10,9 @@ void FrontBrake::Initialize()
         if (name.starts_with("x_fbrake") || name.starts_with("fc_fbrake")) {
             VehData &data = vehData.Get(pVeh);
             auto &jsonData = DataMgr::Get(pVeh->m_nModelIndex);
-            if (jsonData.contains("frontbrake") && jsonData["frontbrake"].contains("maxrotation"))
+            if (jsonData.contains("frontbrake") && jsonData["frontbrake"].contains("offset"))
             {
-                data.m_nMaxRotation = jsonData["frontbrake"].value("maxrotation", 360.0f);
+                data.m_nMaxRotation = jsonData["frontbrake"].value("offset", 360.0f);
             }
             data.m_nWaitTime = static_cast<unsigned int>(abs(data.m_nMaxRotation / 5));
             data.pFrame = pFrame;
@@ -78,9 +78,9 @@ void RearBrake::Initialize() {
         if (name.starts_with("x_rbrake") || name.starts_with("fc_rbrake")) {
             VehData &data = vehData.Get(pVeh);
             auto &jsonData = DataMgr::Get(pVeh->m_nModelIndex);
-            if (jsonData.contains("rearbrake") && jsonData["rearbrake"].contains("maxrotation"))
+            if (jsonData.contains("rearbrake") && jsonData["rearbrake"].contains("offset"))
             {
-                data.m_nMaxRotation = jsonData["rearbrake"].value("maxrotation", data.m_nMaxRotation);
+                data.m_nMaxRotation = jsonData["rearbrake"].value("offset", data.m_nMaxRotation);
             }
             data.m_nWaitTime = static_cast<unsigned int>(abs(data.m_nMaxRotation / 5));
             data.pFrame = pFrame;
