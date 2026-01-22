@@ -4,6 +4,12 @@
 #include <CBike.h>
 #include "modelinfomgr.h"
 
+static inline float ClampRotation(float value, float maxRot)
+{
+    float limit = std::abs(maxRot);
+    return plugin::Clamp(value, -limit, limit);
+}
+
 void GearIndicator::Initialize()
 {
     ModelInfoMgr::RegisterDummy([](CVehicle *pVeh, RwFrame *pFrame)
@@ -134,7 +140,6 @@ void RPMGauge::Initialize()
             float delta = CTimer::ms_fTimeScale;
             float speed = Util::GetVehicleSpeedRealistic(pVeh);
 
-
             for (auto& e : data.vecGaugeData) {
                 float rpm = 0.0f;
 
@@ -149,7 +154,12 @@ void RPMGauge::Initialize()
                 if (pVeh->m_nCurrentGear < 0) rpm *= -1.0f;
 
                 float targetRotation = (rpm / (float)e.second.iMaxRPM) * e.second.fMaxRotation;
-                targetRotation = plugin::Clamp(targetRotation, -e.second.fMaxRotation, e.second.fMaxRotation);
+                targetRotation = ClampRotation(targetRotation, e.second.fMaxRotation);
+
+                // Stop reverse gear from moving to opposite direction
+                if (pVeh->m_nCurrentGear == 0) {
+                    targetRotation = -targetRotation;
+                }
 
                 float change = (targetRotation - e.second.fCurRotation) * 0.25f * delta;
                 FrameUtil::SetRotationY(e.second.pFrame, change);
@@ -196,8 +206,11 @@ void SpeedGauge::Initialize()
 
             for (auto& e : data.vecGaugeData) {
                 float targetRotation = (speed / (float)e.second.iMaxSpeed) * e.second.fMaxRotation;
-                targetRotation = plugin::Clamp(targetRotation, -e.second.fMaxRotation, e.second.fMaxRotation);
-
+                // Stop reverse gear from moving to opposite direction
+                if (pVeh->m_nCurrentGear == 0) {
+                    targetRotation = -targetRotation;
+                }
+                targetRotation = ClampRotation(targetRotation, e.second.fMaxRotation);
                 float change = (targetRotation - e.second.fCurRotation) * 0.5f * delta;
                 FrameUtil::SetRotationY(e.second.pFrame, change);
                 e.second.fCurRotation += change;
@@ -245,10 +258,13 @@ void TurboGauge::Initialize()
                     turbo += (turbo >= 0) ? 10.0f : -10.0f;
                 }
 
-                float targetRot = (e.second.fMaxRotation / (float)e.second.iMaxTurbo) * turbo * delta;
-                targetRot = plugin::Clamp(targetRot, -e.second.fMaxRotation, e.second.fMaxRotation);
-
-                float change = (targetRot - e.second.fCurRotation) * 0.25f * delta;
+                float targetRotation = (e.second.fMaxRotation / (float)e.second.iMaxTurbo) * turbo * delta;
+                // Stop reverse gear from moving to opposite direction
+                if (pVeh->m_nCurrentGear == 0) {
+                    targetRotation = -targetRotation;
+                }
+                targetRotation = ClampRotation(targetRotation, e.second.fMaxRotation);
+                float change = (targetRotation - e.second.fCurRotation) * 0.25f * delta;
                 FrameUtil::SetRotationY(e.second.pFrame, change);
                 e.second.fCurRotation += change;
                 e.second.fPrevTurbo = speed;
