@@ -15,7 +15,32 @@
 bool VehicleSiren::GetSirenState()
 {
 	return (Mute == false) ? (vehicle->bSirenOrAlarm) : (true);
-};
+}
+
+
+bool IsValidSirenVehicle(RwFrame *pFrame)
+{
+	bool flag = false;
+	if (pFrame)
+	{
+		const std::string name = GetFrameNodeName(pFrame);
+		if (name.starts_with("siren")) {
+			return true;
+		}
+
+		if (RwFrame *newFrame = pFrame->child)
+		{
+			flag = flag || IsValidSirenVehicle(newFrame);
+		}
+		if (RwFrame *newFrame = pFrame->next)
+		{
+			flag = flag || IsValidSirenVehicle(newFrame);
+		}
+	}
+	return flag;
+}
+
+std::map<CVehicle*, bool> sirenExtraUsedFlag;
 
 char __fastcall Sirens::hkUsesSiren(CVehicle *ptr)
 {
@@ -25,7 +50,11 @@ char __fastcall Sirens::hkUsesSiren(CVehicle *ptr)
 		return false;
 	}
 
-	if (Sirens::modelData.contains(ptr->m_nModelIndex))
+	if (!sirenExtraUsedFlag.count(ptr)) {
+		sirenExtraUsedFlag[ptr] = IsValidSirenVehicle((RwFrame*)ptr->m_pRwClump->object.parent);
+	}
+
+	if (Sirens::modelData.contains(ptr->m_nModelIndex) && sirenExtraUsedFlag[ptr])
 	{
 		ptr->m_vehicleAudio.m_bModelWithSiren = true;
 		return true;
@@ -517,7 +546,7 @@ void Sirens::Parse(const nlohmann::json &data, int model)
 
 void Sirens::EventCtor(CVehicle *pVeh)
 {
-	if (modelData.contains(pVeh->m_nModelIndex))
+	if (Sirens::modelData.contains(pVeh->m_nModelIndex))
 	{
 		vehicleData[pVeh] = new VehicleSiren(pVeh);
 	}
