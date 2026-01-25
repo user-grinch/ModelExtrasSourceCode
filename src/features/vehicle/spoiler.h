@@ -8,7 +8,7 @@ protected:
   struct SpoilerData
   {
     RwFrame *m_pFrame = NULL;
-    float m_fRotation, m_fCurrentRotation, m_fPrevRotation = 0.0f;
+    float m_fRotation, m_fCurrentRotation = 1.0f, m_fPrevRotation = 1.0f;
     size_t m_nTime, m_nTriggerSpeed;
   };
 
