@@ -3,7 +3,6 @@
 #include "defines.h"
 #include "modules/light.hpp"
 #include "modules/metadata.hpp"
-#include "modules/raw.hpp"
 #include "modules/sirens.hpp"
 #include "modules/spoiler.hpp"
 #include "view/common.hpp"
@@ -15,7 +14,7 @@
 #include <vector>
 #include <memory>
 
-#include "modules/brakegear.hpp"
+#include "modules/door.hpp"
 #include "modules/exhaust.hpp"
 #include "modules/IEditor.hpp"
 #include "modules/roof.hpp"
@@ -40,14 +39,15 @@ public:
     ModelExtrasEditor() {
         // Core Modules
         modules.push_back(std::make_unique<MetadataModule>());
+        modules.push_back(std::make_unique<ExhaustsModule>());
+        modules.push_back(std::make_unique<SpoilerModule>());
+        modules.push_back(std::make_unique<RoofModule>());
+
+        modules.push_back(std::make_unique<DoorsModule>());
+
         modules.push_back(std::make_unique<LightsModule>());
         modules.push_back(std::make_unique<SirensModule>());
 
-        modules.push_back(std::make_unique<SpoilerModule>());
-        modules.push_back(std::make_unique<RoofModule>());
-        modules.push_back(std::make_unique<ExhaustsModule>());
-        modules.push_back(std::make_unique<BrakesGearsModule>());
-        modules.push_back(std::make_unique<RawJsonModule>());
     }
 
     void SetModel(int id) {

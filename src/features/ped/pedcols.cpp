@@ -52,19 +52,38 @@ void PedColors::SetEditableMaterials(RpClump *pClump) {
 void PedData::Init(CPed *pPed) {
 	uint32_t model = pPed->m_nModelIndex;
 	auto jsonData = DataMgr::Get(model);
-	if (jsonData.contains("pedcols")) {
-		const std::vector<std::string> keys = { "primary", "secondary", "tertiary", "quaternary" };
-		for (size_t i = 0; i < keys.size(); ++i) {
-			const auto& colArray = jsonData["pedcols"][keys[i]];
-			if (!colArray.empty()) {
-				const auto& rgb = colArray[plugin::RandomNumberInRange<size_t>(0, colArray.size() - 1)];
 
-				if (rgb.size() == 3) {
-					m_Colors[i] = CRGBA(rgb[0], rgb[1], rgb[2]);
+	if (jsonData.contains("pedcols")) {
+		const auto& pedCols = jsonData["pedcols"];
+
+		if (pedCols.contains("colors") && pedCols.contains("variations")) {
+			const auto& colorBank = pedCols["colors"];
+			const auto& variations = pedCols["variations"];
+
+			if (!variations.empty()) {
+				size_t varIdx = plugin::RandomNumberInRange<size_t>(0, variations.size() - 1);
+				const auto& selectedVar = variations[varIdx];
+
+				const std::vector<std::string> keys = { "primary", "secondary", "tertiary", "quaternary" };
+
+				for (size_t i = 0; i < keys.size(); ++i) {
+					if (selectedVar.contains(keys[i])) {
+						int colorIndex = selectedVar[keys[i]];
+
+						if (colorIndex >= 0 && colorIndex < (int)colorBank.size()) {
+							const auto& color = colorBank[colorIndex];
+
+							m_Colors[i] = CRGBA(
+								color.value("red", 255),
+								color.value("green", 255),
+								color.value("blue", 255)
+							);
+						}
+					}
 				}
+				m_bUsingPedCols = true;
 			}
 		}
-		m_bUsingPedCols = true;
 	}
 }
 

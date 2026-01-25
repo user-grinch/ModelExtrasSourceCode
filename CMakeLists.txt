@@ -62,9 +62,7 @@ add_library(ModelExtras SHARED
         src/view/tabs/modules/IEditor.hpp
         src/view/tabs/modules/light.hpp
         src/view/tabs/modules/sirens.hpp
-        src/view/tabs/modules/raw.hpp
         src/view/tabs/modules/spoiler.hpp
-        src/view/tabs/modules/brakegear.hpp
         src/view/tabs/modules/exhaust.hpp
         src/view/tabs/modules/door.hpp
         src/view/tabs/modules/roof.hpp
