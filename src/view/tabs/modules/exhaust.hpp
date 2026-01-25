@@ -22,26 +22,30 @@ public:
         std::string keyToDelete = "";
 
         // Iterate through exhausts
-        for (auto& [key, val] : exhausts.items()) {
-            ImGui::PushID(key.c_str());
+        if (exhausts.empty()) {
+            ImGui::TextDisabled("No custom exhausts defined.");
+        } else {
+            for (auto& [key, val] : exhausts.items()) {
+                ImGui::PushID(key.c_str());
 
-            // Framed headers make the list easier to read
-            if (ImGui::TreeNodeEx(key.c_str(), ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_AllowOverlap)) {
+                // Framed headers make the list easier to read
+                if (ImGui::TreeNodeEx(key.c_str(), ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_AllowOverlap)) {
 
-                dirty |= DrawExhaustEditor(val);
+                    dirty |= DrawExhaustEditor(val);
 
-                ImGui::Spacing();
-                ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0.0f, 0.6f, 0.6f));
-                if (ImGui::Button("Remove", ImVec2(-1, 0))) {
-                    keyToDelete = key;
+                    ImGui::Spacing();
+                    ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0.0f, 0.6f, 0.6f));
+                    if (ImGui::Button("Remove", ImVec2(-1, 0))) {
+                        keyToDelete = key;
+                    }
+                    ImGui::PopStyleColor();
+
+                    ImGui::TreePop();
                 }
-                ImGui::PopStyleColor();
 
-                ImGui::TreePop();
+                ImGui::PopID();
+                ImGui::Spacing();
             }
-
-            ImGui::PopID();
-            ImGui::Spacing();
         }
 
         if (!keyToDelete.empty()) {

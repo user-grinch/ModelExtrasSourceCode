@@ -15,7 +15,7 @@ void DevWindow() {
     if (!bWindowOpenFlag) return;
     RenderHook::SetCursorVisible(bWindowOpenFlag);
 
-    ImGui::SetNextWindowSize(ImVec2(500, 400), ImGuiCond_FirstUseEver); // sensible default
+    ImGui::SetNextWindowSize(ImVec2(800, 800), ImGuiCond_FirstUseEver); // sensible default
     if (!ImGui::Begin("ModelExtras Developer Window", &bWindowOpenFlag)) {
         ImGui::End();
         return;
@@ -31,13 +31,6 @@ void DevWindow() {
         ImGui::End();
         return;
     }
-
-    ImGui::TextDisabled("Work in Progress");
-    if (FindPlayerVehicle()) {
-        ImGui::Text("%d", FindPlayerVehicle()->m_nCurrentGear);
-    }
-    ImGui::Separator();
-
     if (ImGui::BeginTabBar("ModelExtras", ImGuiTabBarFlags_FittingPolicyScroll)) {
         Tab_Status();
         Tab_Lights();

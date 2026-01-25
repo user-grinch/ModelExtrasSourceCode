@@ -18,6 +18,7 @@
 #include "modules/exhaust.hpp"
 #include "modules/IEditor.hpp"
 #include "modules/roof.hpp"
+#include "modules/carcols.hpp"
 
 class ModelExtrasEditor {
 private:
@@ -44,6 +45,7 @@ public:
         modules.push_back(std::make_unique<RoofModule>());
 
         modules.push_back(std::make_unique<DoorsModule>());
+        modules.push_back(std::make_unique<CarcolsModule>());
 
         modules.push_back(std::make_unique<LightsModule>());
         modules.push_back(std::make_unique<SirensModule>());

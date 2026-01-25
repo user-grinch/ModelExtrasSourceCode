@@ -54,7 +54,7 @@ public:
                 ImGui::Spacing();
             }
         } else {
-            ImGui::TextDisabled("No convertible components defined.");
+            ImGui::TextDisabled("No convertible roofs defined.");
         }
 
         // Safe deletion

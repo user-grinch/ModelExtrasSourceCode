@@ -23,29 +23,33 @@ public:
         // --- List Section ---
         std::string keyToDelete = "";
 
-        for (auto& [key, val] : spoilers.items()) {
-            ImGui::PushID(key.c_str());
+        if (spoilers.empty()) {
+            ImGui::TextDisabled("No spoilers defined.");
+        } else {
+            for (auto& [key, val] : spoilers.items()) {
+                ImGui::PushID(key.c_str());
 
-            // Framed node for visual "card" look
-            if (ImGui::TreeNodeEx(key.c_str(), ImGuiTreeNodeFlags_Framed)) {
+                // Framed node for visual "card" look
+                if (ImGui::TreeNodeEx(key.c_str(), ImGuiTreeNodeFlags_Framed)) {
 
-                dirty |= DrawSpoilerControls(val);
+                    dirty |= DrawSpoilerControls(val);
 
-                ImGui::Spacing();
-                ImGui::Separator();
+                    ImGui::Spacing();
+                    ImGui::Separator();
 
-                // Full-width Delete button inside the node
-                ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0.0f, 0.6f, 0.5f));
-                if (ImGui::Button("Remove", ImVec2(-1, 0))) {
-                    keyToDelete = key;
+                    // Full-width Delete button inside the node
+                    ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0.0f, 0.6f, 0.5f));
+                    if (ImGui::Button("Remove", ImVec2(-1, 0))) {
+                        keyToDelete = key;
+                    }
+                    ImGui::PopStyleColor();
+
+                    ImGui::TreePop();
                 }
-                ImGui::PopStyleColor();
 
-                ImGui::TreePop();
+                ImGui::PopID();
+                ImGui::Spacing();
             }
-
-            ImGui::PopID();
-            ImGui::Spacing();
         }
 
         // Safe deletion outside the loop

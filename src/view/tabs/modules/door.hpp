@@ -61,7 +61,7 @@ public:
                 ImGui::Spacing();
             }
         } else {
-            ImGui::TextDisabled("No custom doors configured.");
+            ImGui::TextDisabled("No custom doors defined.");
         }
 
         if (!toDelete.empty()) {

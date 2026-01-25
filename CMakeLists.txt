@@ -66,6 +66,7 @@ add_library(ModelExtras SHARED
         src/view/tabs/modules/exhaust.hpp
         src/view/tabs/modules/door.hpp
         src/view/tabs/modules/roof.hpp
+        src/view/tabs/modules/carcols.hpp
 )
 
 # Add modules
