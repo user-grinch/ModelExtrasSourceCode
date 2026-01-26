@@ -151,15 +151,8 @@ void RPMGauge::Initialize()
                   rpm = std::max(rpm, 0.1f * e.second.iMaxRPM);
                 }
 
-                if (pVeh->m_nCurrentGear < 0) rpm *= -1.0f;
-
                 float targetRotation = (rpm / (float)e.second.iMaxRPM) * e.second.fMaxRotation;
                 targetRotation = ClampRotation(targetRotation, e.second.fMaxRotation);
-
-                // Stop reverse gear from moving to opposite direction
-                if (pVeh->m_nCurrentGear == 0) {
-                    targetRotation = -targetRotation;
-                }
 
                 float change = (targetRotation - e.second.fCurRotation) * 0.25f * delta;
                 FrameUtil::SetRotationY(e.second.pFrame, change);

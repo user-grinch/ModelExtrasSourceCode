@@ -580,7 +580,7 @@ void Sirens::Initialize()
 		CRGBA col = *reinterpret_cast<CRGBA *>(RpMaterialGetColor(pMat));
 
 		if (pMat && pMat->texture && modelData.contains(pVeh->m_nModelIndex)) {
-			bool isSirenTex = std::string(pMat->texture->name).find("siren", 0) != 0 
+			bool isSirenTex = std::string(pMat->texture->name).find("siren", 0) != 0
 								|| std::string(pMat->texture->name).find("vehiclelights128", 0) != 0;
 			bool isIVFSiren = modelData[pVeh->m_nModelIndex]->isImVehFtSiren;
 

@@ -335,7 +335,7 @@ void Lights::Initialize()
 			}
 
 			static uint32_t longLightKey = gConfig.ReadInteger("KEYS", "LongLightKey", VK_G);
-			if (KeyPressed(longLightKey) && pVeh->bLightsOn && pVeh->m_nOverrideLights != eLightOverride::ForceLightsOff)
+			if (KeyPressed(longLightKey) && (pVeh->bLightsOn || CarUtil::IsLightsForcedOn(pVeh)))
 			{
 				size_t now = CTimer::m_snTimeInMilliseconds;
 				if (now - prev > 500.0f)
