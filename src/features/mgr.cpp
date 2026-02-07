@@ -31,6 +31,7 @@
 #include "vehicle/rotatedoor.h"
 #include "ped/ganghands.h"
 #include "ped/pedcols.h"
+#include "vehicle/clock.h"
 #include "vehicle/exhausts.h"
 #include "vehicle/roof.h"
 #include "vehicle/leds.h"
@@ -301,6 +302,13 @@ void FeatureMgr::Initialize()
         DashboardLEDs::Initialize();
         m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::DashboardLED)));
         LOG_NO_LEVEL("  DashboardLED");
+    }
+
+    if (gConfig.ReadBoolean("VEHICLE_FEATURES", "DigitalClock", false))
+    {
+        DigitalClockFeature::Initialize();
+        m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::Clock)));
+        LOG_NO_LEVEL("  DigitalClock");
     }
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "DirtFX", false))

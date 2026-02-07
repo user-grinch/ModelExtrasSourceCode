@@ -57,6 +57,7 @@ enum ME_FeatureID
     ConvertableRoof,
     DashboardLEDs,
     RollbackBed,
+    Clock,
     FeatureCount
 };
 

@@ -67,6 +67,8 @@ add_library(ModelExtras SHARED
         src/view/tabs/modules/door.hpp
         src/view/tabs/modules/roof.hpp
         src/view/tabs/modules/carcols.hpp
+        src/features/vehicle/clock.cpp
+        src/features/vehicle/clock.h
 )
 
 # Add modules

@@ -45,6 +45,7 @@ enum class eFeatureMatrix
     ConvertibleRoof,
     DashboardLED,
     RollbackBed,
+    Clock,
 
     FeatureCount
 };
