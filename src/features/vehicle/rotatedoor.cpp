@@ -49,7 +49,7 @@ void RotateDoor::Initialize()
         float popOutAmount = 0.0f;
 
         if (jsonData.contains("doors") && jsonData["doors"].contains(name)) {
-            mul = jsonData["doors"][name].value("movmul", 1.0f);
+            mul = jsonData["doors"][name].value("mul", 1.0f);
             popOutAmount = jsonData["doors"][name].value("popout", 0.15f);
         }
 

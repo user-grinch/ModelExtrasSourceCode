@@ -36,7 +36,16 @@ void ModelInfoMgr::Initialize() {
 
 	MEEvents::vehRenderEvent.before += [](CVehicle *pVeh)
     {
-        ModelInfoMgr::OnRender(pVeh);
+		// Wait for VehFuncs to init extras
+		auto& data = m_VehData.Get(pVeh);
+		if (data.nFrameCount > 10) {
+	        ModelInfoMgr::OnRender(pVeh);
+		} else if (data.nFrameCount == 10) {
+			ModelInfoMgr::FindDummies(pVeh, (RwFrame *)pVeh->m_pRwClump->object.parent);
+			data.nFrameCount++;
+		} else {
+			data.nFrameCount++;
+		}
     };
 
     MEEvents::heliRenderEvent.after += [](CVehicle *pVeh)
@@ -46,11 +55,10 @@ void ModelInfoMgr::Initialize() {
             ModelInfoMgr::OnRender(pVeh);
         }
     };
-
-    Events::vehicleSetModelEvent.after += [](CVehicle *pVeh, int model)
-    {
-        ModelInfoMgr::FindDummies(pVeh, (RwFrame *)pVeh->m_pRwClump->object.parent);
-    };
+    // Events::vehicleSetModelEvent.after += [](CVehicle *pVeh, int model)
+    // {
+    //     ModelInfoMgr::FindDummies(pVeh, (RwFrame *)pVeh->m_pRwClump->object.parent);
+    // };
 }
 
 void ModelInfoMgr::RegisterRender(RenderCallback_t render)
@@ -200,6 +208,13 @@ RpMaterial *ModelInfoMgr::SetEditableMaterialsCB(RpMaterial *material, void *dat
 	if (iLightIndex != eMaterialType::UnknownMaterial)
 	{
 		auto& data = m_VehData.Get(pCurVeh);
+
+		// Sirens crash fix TODO: remove this and fix it
+		if (iLightIndex == eMaterialType::SirenLight && data.nFrameCount <= 10)
+		{
+			return material;
+		}
+
 		bool lightOn = false;
 		data.m_MatAvail[iLightIndex] = true;
 

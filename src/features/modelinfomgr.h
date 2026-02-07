@@ -26,6 +26,7 @@ struct VehModelData
 	bool *m_MatAvail;
 	bool *m_SirenStatus;
 	bool *m_StrobeStatus;
+	uint32_t nFrameCount = 0;
 
 	VehModelData(CVehicle *pVeh)
 	{

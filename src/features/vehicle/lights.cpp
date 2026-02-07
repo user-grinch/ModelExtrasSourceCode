@@ -400,12 +400,13 @@ void Lights::Initialize()
 			return;
 		}
 
-		bool isLeftFrontOk = !Util::IsLightDamaged(pControlVeh, eLights::LIGHT_FRONT_LEFT);
-		bool isRightFrontOk = !Util::IsLightDamaged(pControlVeh, eLights::LIGHT_FRONT_RIGHT);
-		bool isLeftRearOk = !(Util::IsLightDamaged(pTowedVeh, eLights::LIGHT_REAR_LEFT) 
+		// RenderLights checks are required for popup lights
+		bool isLeftFrontOk = pControlVeh->m_renderLights.m_bLeftFront && !Util::IsLightDamaged(pControlVeh, eLights::LIGHT_FRONT_LEFT);
+		bool isRightFrontOk = pControlVeh->m_renderLights.m_bRightFront &&!Util::IsLightDamaged(pControlVeh, eLights::LIGHT_FRONT_RIGHT);
+		bool isLeftRearOk = pControlVeh->m_renderLights.m_bLeftRear &&!(Util::IsLightDamaged(pTowedVeh, eLights::LIGHT_REAR_LEFT)
 								|| Util::IsPanelDamaged(pTowedVeh, ePanels::WING_REAR_LEFT) 
 							);
-		bool isRightRearOk = !(Util::IsLightDamaged(pTowedVeh, eLights::LIGHT_REAR_RIGHT) 
+		bool isRightRearOk = pControlVeh->m_renderLights.m_bRightRear &&!(Util::IsLightDamaged(pTowedVeh, eLights::LIGHT_REAR_RIGHT)
 								|| Util::IsPanelDamaged(pTowedVeh, ePanels::WING_REAR_RIGHT) 
 							);
 		RenderLights(pControlVeh, pTowedVeh, eMaterialType::AllDayLight);
