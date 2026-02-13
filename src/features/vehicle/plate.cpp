@@ -6,8 +6,6 @@
 #include <rpworld.h>
 #include <RenderWare.h>
 #include <CTheZones.h>
-#include "defines.h"
-#include "enums/lightoverride.h"
 #include "texmgr.h"
 #include <utility>
 

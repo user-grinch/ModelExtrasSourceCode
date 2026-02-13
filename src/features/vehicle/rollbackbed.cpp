@@ -3,8 +3,6 @@
 #include "modelinfomgr.h"
 #include "datamgr.h"
 #include "audiomgr.h"
-#include "utils/util.h"
-#include "CWeather.h"
 
 using namespace plugin;
 

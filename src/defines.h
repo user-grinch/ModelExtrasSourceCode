@@ -11,7 +11,7 @@
 
 #ifdef PATRON_BUILD
 #define MOD_TITLE MOD_NAME " v" MOD_VERSION MOD_VERSION_SUFFIX " (Patron Build)"
-#elif
+#else
 #define MOD_TITLE MOD_NAME " v" MOD_VERSION MOD_VERSION_SUFFIX
 #endif
 
