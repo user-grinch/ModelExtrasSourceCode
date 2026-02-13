@@ -1,12 +1,7 @@
 #pragma once
 #include <plugin.h>
-#include "../../interface/ifeature.hpp"
 #include <vector>
-#include <fstream>
-#include <sstream>
 #include <vector>
-#include <string>
-#include <filesystem>
 #include <unordered_map>
 
 struct ColorSet

@@ -7,10 +7,10 @@
 #include <rwcore.h>
 #include <rpworld.h>
 #include "spotlights.h"
-#include "../audiomgr.h"
+#include "audiomgr.h"
 #include <CWeather.h>
 #include <CCoronas.h>
-#include "../../enums/vehdummy.h"
+#include "enums/vehdummy.h"
 #include "datamgr.h"
 #include "core/colors.h"
 #include <CPointLights.h>

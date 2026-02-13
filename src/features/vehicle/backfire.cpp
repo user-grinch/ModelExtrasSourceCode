@@ -4,8 +4,8 @@
 #include "datamgr.h"
 #include <extensions/ScriptCommands.h>
 #include <extensions/scripting/ScriptCommandNames.h>
-#include "../audiomgr.h"
-#include "../../enums/vehdummy.h"
+#include "audiomgr.h"
+#include "enums/vehdummy.h"
 #include <CCamera.h>
 #include "ModelExtrasAPI.h"
 
