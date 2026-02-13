@@ -3,7 +3,7 @@
 #include "ini_parser.hpp"
 #include <string>
 #include <string_view>
-#include <Windows.h>
+#include <windows.h>
 
 /*
 *  String comparision functions, with case sensitive option

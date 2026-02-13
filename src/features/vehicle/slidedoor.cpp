@@ -1,18 +1,21 @@
 #include "pch.h"
-#include "SlideDoor.h"
+#include "slidedoor.h"
 #include "datamgr.h"
 #include "modelinfomgr.h"
 
-void SlideDoor::UpdateDoorGroup(CVehicle* pVeh, std::vector<DoorConfig>& configs, eDoors doorID)
+void SlideDoor::UpdateDoorGroup(CVehicle *pVeh, std::vector<DoorConfig> &configs, eDoors doorID)
 {
-    if (configs.empty()) return;
+    if (configs.empty())
+        return;
 
     float ratio = pVeh->GetDooorAngleOpenRatio(doorID);
     float sideMult = (doorID == DOOR_FRONT_LEFT || doorID == DOOR_REAR_LEFT) ? -1.0f : 1.0f;
     float popFactor = std::min(1.0f, ratio * 5.0f);
 
-    for (auto& config : configs) {
-        if (!config.frame) continue;
+    for (auto &config : configs)
+    {
+        if (!config.frame)
+            continue;
 
         // Sliding movement (Y axis)
         config.frame->modelling.pos.y = config.mul * ratio * -1.0f;
@@ -26,8 +29,8 @@ void SlideDoor::UpdateDoorGroup(CVehicle* pVeh, std::vector<DoorConfig>& configs
 
 void SlideDoor::Initialize()
 {
-    ModelInfoMgr::RegisterDummy([](CVehicle* pVeh, RwFrame* pFrame)
-    {
+    ModelInfoMgr::RegisterDummy([](CVehicle *pVeh, RwFrame *pFrame)
+                                {
         std::string name = GetFrameNodeName(pFrame);
 
         bool isLF = name.starts_with("dvan_l") || name.starts_with("dmbus_l") || name.starts_with("x_sd_lf");
@@ -53,17 +56,15 @@ void SlideDoor::Initialize()
         if (isLF)      data.leftFront.push_back(cfg);
         else if (isRF) data.rightFront.push_back(cfg);
         else if (isLR) data.leftRear.push_back(cfg);
-        else if (isRR) data.rightRear.push_back(cfg);
-    });
+        else if (isRR) data.rightRear.push_back(cfg); });
 
-    ModelInfoMgr::RegisterRender([](CVehicle* pVeh)
-    {
+    ModelInfoMgr::RegisterRender([](CVehicle *pVeh)
+                                 {
         if (!pVeh || !pVeh->GetIsOnScreen()) return;
 
         VehData& data = xData.Get(pVeh);
         UpdateDoorGroup(pVeh, data.leftFront,  eDoors::DOOR_FRONT_LEFT);
         UpdateDoorGroup(pVeh, data.rightFront, eDoors::DOOR_FRONT_RIGHT);
         UpdateDoorGroup(pVeh, data.leftRear,   eDoors::DOOR_REAR_LEFT);
-        UpdateDoorGroup(pVeh, data.rightRear,  eDoors::DOOR_REAR_RIGHT);
-    });
+        UpdateDoorGroup(pVeh, data.rightRear,  eDoors::DOOR_REAR_RIGHT); });
 }

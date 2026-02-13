@@ -1,15 +1,18 @@
 #include "imgui.h"
+#include "rwplcore.h"
 
 extern bool gbGlobalIndicatorLights;
 extern float gfGlobalCoronaSize;
 extern int gGlobalCoronaIntensity;
 extern int gGlobalShadowIntensity;
 
-extern RwSurfaceProperties& gLightSurfProps;
+extern RwSurfaceProperties &gLightSurfProps;
 
-static void HelpMarker(const char* desc) {
+static void HelpMarker(const char *desc)
+{
     ImGui::TextDisabled("(?)");
-    if (ImGui::IsItemHovered()) {
+    if (ImGui::IsItemHovered())
+    {
         ImGui::BeginTooltip();
         ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
         ImGui::TextUnformatted(desc);
@@ -18,14 +21,17 @@ static void HelpMarker(const char* desc) {
     }
 }
 
-void Tab_Lights() {
-    if (ImGui::BeginTabItem("Settings")) {
+void Tab_Lights()
+{
+    if (ImGui::BeginTabItem("Settings"))
+    {
         ImGui::Spacing();
 
         ImGui::TextColored(ImVec4(0.4f, 0.8f, 1.0f, 1.0f), "General Configuration");
         ImGui::Separator();
         ImGui::Checkbox("Global Indicator Lights", &gbGlobalIndicatorLights);
-        ImGui::SameLine(); HelpMarker("Toggles indicators for all traffic vehicles globally.");
+        ImGui::SameLine();
+        HelpMarker("Toggles indicators for all traffic vehicles globally.");
 
         ImGui::Spacing();
         ImGui::Spacing();
@@ -41,7 +47,7 @@ void Tab_Lights() {
 
         ImGui::Spacing();
         ImGui::Text("Material Properties");
-        ImGui::SliderFloat3("Ambient Color", (float*)&gLightSurfProps.ambient, 0.0f, 20.0f);
+        ImGui::SliderFloat3("Ambient Color", (float *)&gLightSurfProps.ambient, 0.0f, 20.0f);
 
         ImGui::PopItemWidth();
         ImGui::EndTabItem();

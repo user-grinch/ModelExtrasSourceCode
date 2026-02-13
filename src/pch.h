@@ -1,5 +1,5 @@
 #pragma once
-#define FMT_UNICODE 0 
+#define FMT_UNICODE 0
 #include <CTimer.h>
 #include <NodeName.h>
 #include <CModelInfo.h>
@@ -36,38 +36,45 @@ extern CIniReader gConfig;
 
 extern bool gVerboseLogging;
 
-#define LOG_VERBOSE(fmt, ...)         \
-  if (gVerboseLogging)                \
-  {                                   \
-    gLogger->debug(fmt, __VA_ARGS__); \
-  }
+#define LOG_VERBOSE(fmt, ...)             \
+  do                                      \
+  {                                       \
+    if (gVerboseLogging)                  \
+    {                                     \
+      gLogger->debug(fmt, ##__VA_ARGS__); \
+    }                                     \
+  } while (0)
 
 extern unsigned int FramePluginOffset;
 #define PLUGIN_ID_STR 'MEX'
 #define PLUGIN_ID_NUM 0x42945628
 #define FRAME_EXTENSION(frame) ((RwFrameExtension *)((unsigned int)frame + FramePluginOffset))
 
-struct RwFrameExtension {   
-	CVehicle *pOwner;
+struct RwFrameExtension
+{
+  CVehicle *pOwner;
   RwMatrix *pOrigMatrix;
 
-	static RwFrame *Initialize(RwFrame *pFrame) {
+  static RwFrame *Initialize(RwFrame *pFrame)
+  {
     FRAME_EXTENSION(pFrame)->pOwner = nullptr;
     FRAME_EXTENSION(pFrame)->pOrigMatrix = nullptr;
-		return pFrame;
-	}
+    return pFrame;
+  }
 
-	static RwFrame *Shutdown(RwFrame *pFrame) {
+  static RwFrame *Shutdown(RwFrame *pFrame)
+  {
     if (FRAME_EXTENSION(pFrame)->pOrigMatrix)
-		{
-			delete FRAME_EXTENSION(pFrame)->pOrigMatrix;
-		}
-		return pFrame;
-	}
+    {
+      delete FRAME_EXTENSION(pFrame)->pOrigMatrix;
+    }
+    return pFrame;
+  }
 
-	static RwFrame *Clone(RwFrame *pCopy, RwFrame *pFrame) {
-		return pCopy;
-	}
+  static RwFrame *Clone(RwFrame *pCopy, RwFrame *pFrame)
+  {
+    return pCopy;
+  }
 };
 
 extern bool gbVehIKInstalled;

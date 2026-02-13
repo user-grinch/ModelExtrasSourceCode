@@ -8,7 +8,7 @@
 #include <CPedModelInfo.h>
 #include <rw/rwcore.h>
 #include <rw/rpworld.h>
-#include <Renderware.h>
+#include <RenderWare.h>
 
 void PedRemap::CustomAssignRemapTxd(const char *txdName, uint16_t txdId)
 {

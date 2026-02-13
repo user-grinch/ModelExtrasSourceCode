@@ -70,8 +70,8 @@ BOOL WINAPI DllMain(HINSTANCE hDllHandle, DWORD nReason, LPVOID Reserved)
         {
             InjectImGuiHooks();
             gLogger->info("DeveloperMode enabled, injecting ImGui hooks...");
-		}
-        
+        }
+
         gVerboseLogging = gConfig.ReadBoolean("CONFIG", "VerboseLogging", false);
 
         Events::initScriptsEvent.after += []()
@@ -135,7 +135,7 @@ BOOL WINAPI DllMain(HINSTANCE hDllHandle, DWORD nReason, LPVOID Reserved)
                 std::string msg = std::format("{} folder not found. You need to put both '{}.asi' & '{}' folder in the same directory", MOD_NAME, MOD_NAME, MOD_NAME);
                 gLogger->error(msg.c_str());
                 MessageBox(RsGlobal.ps->window, msg.c_str(), MOD_NAME, MB_ICONERROR);
-                return;
+                return TRUE;
             }
 
             if (gConfig.ReadBoolean("CONFIG", "ShowIncompatibleWarning", true) && (BackFireJDRInstalled || BackFireZAZInstalled || ImVehFtInstalled || ImVehFtFixInstalled || AVSInstalled))
@@ -160,8 +160,8 @@ BOOL WINAPI DllMain(HINSTANCE hDllHandle, DWORD nReason, LPVOID Reserved)
                 gLogger->error(str);
                 exit(EXIT_FAILURE);
             }
+            return TRUE;
         };
-
         FeatureMgr::Initialize();
     }
     return TRUE;

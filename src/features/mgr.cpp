@@ -44,14 +44,16 @@ void InitLogFile();
 
 void FeatureMgr::Initialize()
 {
+
     ModelInfoMgr::Initialize();
     plugin::Events::initGameEvent.after += []()
     {
         DataMgr::Init();
-		gbVehIKInstalled = GetModuleHandle("VehIK.asi") != NULL;
+        gbVehIKInstalled = GetModuleHandle("VehIK.asi") != NULL;
 
-        if (gbVehIKInstalled) {
-			gLogger->info("VehIK detected, disabling SteerWheel and HandleBar features.");
+        if (gbVehIKInstalled)
+        {
+            gLogger->info("VehIK detected, disabling SteerWheel and HandleBar features.");
         }
     };
 
@@ -132,11 +134,9 @@ void FeatureMgr::Initialize()
         Remove(static_cast<void *>(ptr), eModelEntityType::Object);
     };
 
-    InitLogFile();
     AudioMgr::Initialize();
 
     // Common Section
-    LOG_NO_LEVEL("\nCore->");
     if (gConfig.ReadBoolean("CONFIG", "ModelVersionCheck", true))
     {
         Events::vehicleSetModelEvent.after += [](CVehicle *pVeh, int model)
@@ -155,75 +155,62 @@ void FeatureMgr::Initialize()
                 }
             }
         };
-        LOG_NO_LEVEL("  ModelVersionCheck");
     }
 
     ExtraWheel::Initialize();
 
     // Common Section
-    LOG_NO_LEVEL("\nCommon Features->");
     if (gConfig.ReadBoolean("COMMON_FEATURES", "TextureRemaper", false))
     {
         PedRemap::Initialize();
         Remap::Initialize();
         m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::TextureRemapper)));
-        LOG_NO_LEVEL("  TextureRemaper");
     }
 
     // Bikes Section
-    LOG_NO_LEVEL("\nPed Features->");
     if (gConfig.ReadBoolean("PED_FEATURES", "HDGangHands", false))
     {
         GangHands::Initialize();
         m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::GangHands)));
-        LOG_NO_LEVEL("  HDGangHands");
     }
 
     if (gConfig.ReadBoolean("PED_FEATURES", "PedCols", false))
     {
         PedColors::Initialize();
         m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::PedCols)));
-        LOG_NO_LEVEL("  PedCols");
     }
 
     // Bikes Section
-    LOG_NO_LEVEL("\nBike Features->");
     if (gConfig.ReadBoolean("BIKE_FEATURES", "AnimatedBrakes", false))
     {
         FrontBrake::Initialize();
         RearBrake::Initialize();
         m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::AnimatedBrakes)));
-        LOG_NO_LEVEL("  AnimatedBrakes");
     }
 
     if (gConfig.ReadBoolean("BIKE_FEATURES", "AnimatedClutch", false))
     {
         Clutch::Initialize();
         m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::AnimatedClutch)));
-        LOG_NO_LEVEL("  AnimatedClutch");
     }
 
     if (gConfig.ReadBoolean("BIKE_FEATURES", "AnimatedGearLever", false))
     {
         GearLever::Initialize();
         m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::AnimatedGearLever)));
-        LOG_NO_LEVEL("  AnimatedClutch");
     }
 
     if (gConfig.ReadBoolean("BIKE_FEATURES", "RotatingHandleBar", false))
     {
         HandleBar::Initialize();
         m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::RotatingHandleBar)));
-        LOG_NO_LEVEL("  RotatingHandleBar");
     }
 
     // Vehicle Section
-    LOG_NO_LEVEL("\nVehicle Features->");
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "AnimatedChain", false))
     {
         ChainFeature::Initialize();
         m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::AnimatedChain)));
-        LOG_NO_LEVEL("  AnimatedChain");
     }
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "AnimatedDoors", false))
@@ -231,118 +218,101 @@ void FeatureMgr::Initialize()
         SlideDoor::Initialize();
         RotateDoor::Initialize();
         m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::AnimatedDoors)));
-        LOG_NO_LEVEL("  AnimatedDoor");
     }
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "AnimatedGasMeter", false))
     {
         FixedGauge::Initialize();
         m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::AnimatedGasMeter)));
-        LOG_NO_LEVEL("  AnimatedGasMeter");
     }
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "AnimatedGearMeter", false))
     {
         GearIndicator::Initialize();
         m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::AnimatedGearMeter)));
-        LOG_NO_LEVEL("  AnimatedGearMeter");
     }
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "AnimatedOdoMeter", false))
     {
         MileageIndicator::Initialize();
         m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::AnimatedOdoMeter)));
-        LOG_NO_LEVEL("  AnimatedOdoMeter");
     }
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "AnimatedRpmMeter", false))
     {
         RPMGauge::Initialize();
         m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::AnimatedRpmMeter)));
-        LOG_NO_LEVEL("  AnimatedRpmMeter");
     }
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "AnimatedSpeedMeter", false))
     {
         SpeedGauge::Initialize();
         m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::AnimatedSpeedMeter)));
-        LOG_NO_LEVEL("  AnimatedSpeedMeter");
     }
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "AnimatedSpoiler", false))
     {
         Spoiler::Initialize();
         m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::AnimatedSpoiler)));
-        LOG_NO_LEVEL("  AnimatedSpoiler");
     }
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "AnimatedTurboMeter", false))
     {
         TurboGauge::Initialize();
         m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::AnimatedTurboMeter)));
-        LOG_NO_LEVEL("  AnimatedTurboMeter");
     }
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "BackfireEffect", false))
     {
         BackFireEffect::Initialize();
         m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::BackfireEffect)));
-        LOG_NO_LEVEL("  BackfireEffect");
     }
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "ConvertibleRoof", false))
     {
         ConvertibleRoof::Initialize();
         m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::ConvertibleRoof)));
-        LOG_NO_LEVEL("  ConvertibleRoof");
     }
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "DashboardLED", false))
     {
         DashboardLEDs::Initialize();
         m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::DashboardLED)));
-        LOG_NO_LEVEL("  DashboardLED");
     }
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "DigitalClock", false))
     {
         DigitalClockFeature::Initialize();
         m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::Clock)));
-        LOG_NO_LEVEL("  DigitalClock");
     }
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "DirtFX", false))
     {
         DirtFx::Initialize();
         m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::DirtFX)));
-        LOG_NO_LEVEL("  DirtFX");
     }
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "ExhaustFx", false))
     {
         ExhaustFx::Initialize();
         m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::ExhaustFx)));
-        LOG_NO_LEVEL("  ExhaustFx");
     }
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "HDLicensePlate", false))
     {
         LicensePlate::Initialize();
         m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::HDLicensePlate)));
-        LOG_NO_LEVEL("  HDLicensePlate");
     }
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "IVFCarcols", false))
     {
         if (GetModuleHandle("SAMP.dll") || GetModuleHandle("SAMP.asi"))
         {
-            LOG_NO_LEVEL("  IVFCarcols: SAMP detected, feature disabled. ")
         }
         else
         {
             IVFCarcols::Initialize();
             m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::IVFCarcols)));
-            LOG_NO_LEVEL("  IVFCarcols");
         }
     }
 
@@ -350,61 +320,50 @@ void FeatureMgr::Initialize()
     {
         RollbackBed::Initialize();
         m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::RollbackBed)));
-        LOG_NO_LEVEL("  RollbackBed");
     }
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "RotatingSteeringWheel", false))
     {
         SteerWheel::Initialize();
         m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::RotatingSteeringWheel)));
-        LOG_NO_LEVEL("  RotatingSteeringWheel");
     }
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "RotatingWheelHubs", false))
     {
         WheelHub::Initialize();
         m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::RotatingWheelHubs)));
-        LOG_NO_LEVEL("  RotatingWheelHubs");
     }
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "StandardLights", false))
     {
         Lights::Initialize();
         m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::StandardLights)));
-        LOG_NO_LEVEL("  StandardLights");
     }
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "SirenLights", false))
     {
         Sirens::Initialize();
         m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::SirenLights)));
-        LOG_NO_LEVEL("  SirenLights");
     }
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "SoundEffects", false))
     {
         SoundEffects::Initialize();
         m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::SoundEffects)));
-        LOG_NO_LEVEL("  SoundEffects");
     }
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "SpotLights", false))
     {
         SpotLights::Initialize();
         m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::SpotLights)));
-        LOG_NO_LEVEL("  Spotlights");
     }
 
     // Weapons Section
-    LOG_NO_LEVEL("\nWeapon Features->");
     if (gConfig.ReadBoolean("WEAPON_FEATURES", "BodyStateVariation", false))
     {
         m_FunctionTable["x_body_state"] = BodyState::Process;
         m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::BodyStateVariation)));
-        LOG_NO_LEVEL("  BodyStateVariation");
     }
-
-    LOG_NO_LEVEL("");
 }
 
 void FeatureMgr::Reload(CVehicle *pVeh)

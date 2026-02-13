@@ -14,6 +14,7 @@
 #include "datamgr.h"
 #include "core/colors.h"
 #include <CPointLights.h>
+#include "ModelExtrasAPI.h"
 
 // flags
 bool gbGlobalIndicatorLights = false;
@@ -32,9 +33,7 @@ static uint64_t delay;
 
 CVector2D GetCarPathLinkPosition(CCarPathLinkAddress &address)
 {
-	if (address.m_nAreaId >= 0 && address.m_nCarPathLinkId >= 0
-		&& ThePaths.m_pNaviNodes && ThePaths.m_pNaviNodes[address.m_nAreaId]
-	)
+	if (address.m_nAreaId >= 0 && address.m_nCarPathLinkId >= 0 && ThePaths.m_pNaviNodes && ThePaths.m_pNaviNodes[address.m_nAreaId])
 	{
 		return CVector2D(static_cast<float>(ThePaths.m_pNaviNodes[address.m_nAreaId][address.m_nCarPathLinkId].m_vecPosn.x) / 8.0f,
 						 static_cast<float>(ThePaths.m_pNaviNodes[address.m_nAreaId][address.m_nCarPathLinkId].m_vecPosn.y) / 8.0f);
@@ -733,7 +732,8 @@ void Lights::RenderLights(CVehicle *pControlVeh, CVehicle *pTowedVeh, eMaterialT
 	}
 }
 
-void Lights::RenderHeadlights(CVehicle *pControlVeh, bool isLeftOn, bool isRightOn, bool realTime) {
+void Lights::RenderHeadlights(CVehicle *pControlVeh, bool isLeftOn, bool isRightOn, bool realTime)
+{
 	CVehicle *pTowedVeh = pControlVeh;
 	VehLightData &data = m_VehData.Get(pControlVeh);
 
@@ -743,9 +743,7 @@ void Lights::RenderHeadlights(CVehicle *pControlVeh, bool isLeftOn, bool isRight
 	}
 
 	int model = pControlVeh->m_nModelIndex;
-	if (CModelInfo::IsTrailerModel(model) || CarUtil::IsLightsForcedOff(pControlVeh)
-	|| CModelInfo::IsBmxModel(model) || CModelInfo::IsBoatModel(model) || CModelInfo::IsHeliModel(model)
-	|| CModelInfo::IsPlaneModel(model))
+	if (CModelInfo::IsTrailerModel(model) || CarUtil::IsLightsForcedOff(pControlVeh) || CModelInfo::IsBmxModel(model) || CModelInfo::IsBoatModel(model) || CModelInfo::IsHeliModel(model) || CModelInfo::IsPlaneModel(model))
 	{
 		return;
 	}

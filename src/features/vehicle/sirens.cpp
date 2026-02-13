@@ -17,14 +17,14 @@ bool VehicleSiren::GetSirenState()
 	return (Mute == false) ? (vehicle->bSirenOrAlarm) : (true);
 }
 
-
 bool IsValidSirenVehicle(RwFrame *pFrame)
 {
 	bool flag = false;
 	if (pFrame)
 	{
 		const std::string name = GetFrameNodeName(pFrame);
-		if (name.starts_with("siren")) {
+		if (name.starts_with("siren"))
+		{
 			return true;
 		}
 
@@ -40,7 +40,7 @@ bool IsValidSirenVehicle(RwFrame *pFrame)
 	return flag;
 }
 
-std::map<CVehicle*, bool> sirenExtraUsedFlag;
+std::map<CVehicle *, bool> sirenExtraUsedFlag;
 
 char __fastcall Sirens::hkUsesSiren(CVehicle *ptr)
 {
@@ -50,8 +50,9 @@ char __fastcall Sirens::hkUsesSiren(CVehicle *ptr)
 		return false;
 	}
 
-	if (!sirenExtraUsedFlag.count(ptr)) {
-		sirenExtraUsedFlag[ptr] = IsValidSirenVehicle((RwFrame*)ptr->m_pRwClump->object.parent);
+	if (!sirenExtraUsedFlag.count(ptr))
+	{
+		sirenExtraUsedFlag[ptr] = IsValidSirenVehicle((RwFrame *)ptr->m_pRwClump->object.parent);
 	}
 
 	if (Sirens::modelData.contains(ptr->m_nModelIndex) && sirenExtraUsedFlag[ptr])
@@ -917,9 +918,9 @@ void Sirens::Initialize()
 			ModelInfoMgr::EnableSirenMaterial(vehicle, mat.first);
 		} });
 
-	patch::ReplaceFunctionCall(0x6D8492, hkUsesSiren);
-	patch::ReplaceFunctionCall(0x6AB80F, hkAddPointLights);
-	patch::ReplaceFunctionCall(0x6AAB71, hkVehiclePreRender);
+	patch::ReplaceFunctionCall(0x6D8492, (void *)hkUsesSiren);
+	patch::ReplaceFunctionCall(0x6AB80F, (void *)hkAddPointLights);
+	patch::ReplaceFunctionCall(0x6AAB71, (void *)hkVehiclePreRender);
 
 	Events::initGameEvent += []
 	{
