@@ -118,7 +118,7 @@ void IVFCarcols::Parse(const nlohmann::json &data, int model)
             auto maxIdx = cols.size();
             if (pIdx >= maxIdx || sIdx >= maxIdx || tIdx >= maxIdx || qIdx >= maxIdx)
             {
-                gLogger->error(
+                LOG(ERROR) << std::format(
                     "Carcols index out of bounds for model '{}': "
                     "primary={}, secondary={}, tertiary={}, quaternary={}, max={}",
                     model, pIdx, sIdx, tIdx, qIdx, maxIdx);

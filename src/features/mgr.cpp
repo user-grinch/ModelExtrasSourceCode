@@ -53,7 +53,7 @@ void FeatureMgr::Initialize()
 
         if (gbVehIKInstalled)
         {
-            gLogger->info("VehIK detected, disabling SteerWheel and HandleBar features.");
+            LOG(INFO) << "VehIK detected, disabling SteerWheel and HandleBar features.";
         }
     };
 
@@ -81,7 +81,7 @@ void FeatureMgr::Initialize()
         {
             static std::string text = "ModelExtras requires SilentPatchSA installed!";
             CMessages::AddMessageWithString((char *)text.c_str(), 5000, false, NULL, true);
-            gLogger->warn(text);
+            LOG(WARNING) << text;
         }
     };
 
@@ -151,7 +151,7 @@ void FeatureMgr::Initialize()
                     static std::string text;
                     text = std::format("Model {} requires ModelExtras v{} but v{} is installed.", model, ver, MOD_VERSION_NUMBER);
                     CMessages::AddMessageWithString((char *)text.c_str(), 5000, false, NULL, true);
-                    gLogger->warn(text);
+                    LOG(WARNING) << text;
                 }
             }
         };

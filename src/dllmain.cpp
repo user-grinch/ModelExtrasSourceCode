@@ -24,7 +24,13 @@ std::vector<std::string> donators = {
     "Boris Ilincic",
     "Damix",
     "spdfnpe",
-    "Pol3 Million"};
+    "Pol3 Million",
+    "Bubby Jackson",
+    "Keith Ferrell",
+    "Clayton Morrison",
+    "SimBoRRis",
+    "Agha"
+};
 
 extern void InjectImGuiHooks();
 
@@ -35,23 +41,21 @@ void InitLogFile()
     {
         return;
     }
-    gLogger->flush_on(spdlog::level::debug);
-    spdlog::set_level(spdlog::level::debug);
-    gLogger->set_pattern("%v");
-    gLogger->info("Starting " MOD_TITLE " (" __DATE__ ")\nAuthor: Grinch_\nDiscord: " DISCORD_INVITE "\nPatreon: " PATREON_LINK "\nMore Info: " GITHUB_LINK "");
+    auto sink_cout = std::make_shared<AixLog::SinkCout>(AixLog::Severity::debug);
+    auto sink_file = std::make_shared<AixLog::SinkFile>(AixLog::Severity::debug, std::string(MOD_NAME) + ".log");
+    AixLog::Log::init({sink_cout, sink_file});
+    LOG(INFO) << "Starting " << MOD_TITLE << " (" << __DATE__ << ")\nAuthor: Grinch_\nDiscord: " << DISCORD_INVITE << "\nPatreon: " << PATREON_LINK << "\nMore Info: " << GITHUB_LINK;
 
     // date time
     SYSTEMTIME st;
     GetSystemTime(&st);
-    gLogger->info("Date: {}-{}-{} Time: {}:{}\n", st.wYear, st.wMonth, st.wDay,
-                  st.wHour, st.wMinute);
-    gLogger->info("\nDonators:");
+    LOG(INFO) << "Date: " << st.wYear << "-" << st.wMonth << "-" << st.wDay << " Time: " << st.wHour << ":" << st.wMinute;
+    LOG(INFO) << "\nDonators:";
     for (const auto &name : donators)
     {
-        gLogger->info("- {}", name);
+        LOG(INFO) << "- " << name;
     }
 
-    gLogger->set_pattern("[%L] %v");
     flag = false;
 }
 
@@ -69,7 +73,7 @@ BOOL WINAPI DllMain(HINSTANCE hDllHandle, DWORD nReason, LPVOID Reserved)
         if (gConfig.ReadBoolean("CONFIG", "DeveloperMode", false))
         {
             InjectImGuiHooks();
-            gLogger->info("DeveloperMode enabled, injecting ImGui hooks...");
+            LOG(INFO) << "DeveloperMode enabled, injecting ImGui hooks...";
         }
 
         gVerboseLogging = gConfig.ReadBoolean("CONFIG", "VerboseLogging", false);
@@ -78,7 +82,7 @@ BOOL WINAPI DllMain(HINSTANCE hDllHandle, DWORD nReason, LPVOID Reserved)
         {
             if (!gVerboseLogging)
             {
-                gLogger->info("Enable 'VerboseLogging' in ModelExtras.ini to display model-related errors.");
+                LOG(INFO) << "Enable 'VerboseLogging' in ModelExtras.ini to display model-related errors.";
             }
         };
 
@@ -101,7 +105,7 @@ BOOL WINAPI DllMain(HINSTANCE hDllHandle, DWORD nReason, LPVOID Reserved)
             if (!cleo)
             {
                 MessageBox(RsGlobal.ps->window, "CLEO Library 4.4 or above is required!", "ModelExtras", MB_OK);
-                gLogger->error("CLEO Library 4.4 or above is required!");
+                LOG(ERROR) << "CLEO Library 4.4 or above is required!";
             }
         };
 
@@ -133,7 +137,7 @@ BOOL WINAPI DllMain(HINSTANCE hDllHandle, DWORD nReason, LPVOID Reserved)
             if (!std::filesystem::is_directory(PLUGIN_PATH((char *)MOD_NAME)))
             {
                 std::string msg = std::format("{} folder not found. You need to put both '{}.asi' & '{}' folder in the same directory", MOD_NAME, MOD_NAME, MOD_NAME);
-                gLogger->error(msg.c_str());
+                LOG(ERROR) << msg.c_str();
                 MessageBox(RsGlobal.ps->window, msg.c_str(), MOD_NAME, MB_ICONERROR);
                 return TRUE;
             }
@@ -157,7 +161,7 @@ BOOL WINAPI DllMain(HINSTANCE hDllHandle, DWORD nReason, LPVOID Reserved)
 
                 str += "\nRemove them to continue playing the game.";
                 MessageBox(RsGlobal.ps->window, str.c_str(), "Incompatible plugins found!", MB_OK);
-                gLogger->error(str);
+                LOG(ERROR) << str;
                 exit(EXIT_FAILURE);
             }
             return TRUE;

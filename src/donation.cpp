@@ -98,11 +98,10 @@ void CreateControls(HWND hWnd)
         return;
     }
 
-    // Center the image (256x128)
     int imageWidth = 512;
     int imageHeight = 256;
-    int xPos = 90 + (400 - imageWidth) / 2; // Window width is 400, center the image
-    int yPos = 20;                          // Set a fixed top position
+    int xPos = 90 + (400 - imageWidth) / 2; 
+    int yPos = 20;                         
 
     HWND hImage = CreateWindowEx(0, "STATIC", NULL,
                                  WS_CHILD | WS_VISIBLE | SS_BITMAP,

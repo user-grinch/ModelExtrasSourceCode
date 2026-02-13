@@ -32,7 +32,7 @@ void PedRemap::CustomAssignRemapTxd(const char *txdName, uint16_t txdId)
 					}
 					else
 					{
-						gLogger->error("peds*.txd limit is only up to 'peds5.txd'");
+						LOG(ERROR) << "peds*.txd limit is only up to 'peds5.txd'";
 					}
 				}
 			}
@@ -300,7 +300,7 @@ void PedRemap::FindRemaps(CPed *ped)
 						}
 						else
 						{
-							gLogger->warn("Failed to add remap for texture {} due to {} textures limit.", texture->name, TEXTURE_LIMIT);
+							LOG(WARNING) << std::format("Failed to add remap for texture {} due to {} textures limit.", texture->name, TEXTURE_LIMIT);
 						}
 					}
 

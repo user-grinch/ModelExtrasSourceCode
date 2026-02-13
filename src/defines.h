@@ -23,6 +23,3 @@
 #define PATREON_LINK "https://www.patreon.com/grinch_"
 
 #define STR_FOUND(x, y) x.find(y) != std::string::npos
-#define STR_NOT_FOUND(x, y) x.find(y) == std::string::npos
-
-#define RwFrameSetParent(frame) ((RwObject *)(frame))->parent

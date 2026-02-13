@@ -10,8 +10,8 @@
 
 #include "nlohmann/json.hpp"
 #include "db/ini.hpp"
-#include "spdlog/spdlog.h"
-#include "spdlog/sinks/basic_file_sink.h"
+#include "AixLog/AixLog.hpp"
+#include <format>
 #include "utils/util.h"
 #include "vkeys.h"
 
@@ -26,13 +26,10 @@ enum class eModelEntityType
   Jetpack,
 };
 
-extern std::shared_ptr<spdlog::logger> gLogger;
 extern CIniReader gConfig;
 
 #define LOG_NO_LEVEL(x)       \
-  gLogger->set_pattern("%v"); \
-  gLogger->info(x);           \
-  gLogger->set_pattern("[%L] %v");
+  LOG(INFO) << x;
 
 extern bool gVerboseLogging;
 
@@ -41,7 +38,7 @@ extern bool gVerboseLogging;
   {                                       \
     if (gVerboseLogging)                  \
     {                                     \
-      gLogger->debug(fmt, ##__VA_ARGS__); \
+      LOG(DEBUG) << std::format(fmt, ##__VA_ARGS__); \
     }                                     \
   } while (0)
 
