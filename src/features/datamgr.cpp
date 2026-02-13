@@ -164,8 +164,7 @@ void DataMgr::Parse()
     }
 }
 
-nlohmann::json &
-DataMgr::Get(int model)
+nlohmann::json& DataMgr::Get(int model)
 {
     return data[model];
 }

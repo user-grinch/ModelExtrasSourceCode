@@ -2,10 +2,7 @@
 #include <plugin.h>
 #define PATRON_BUILD 1
 
-#define AMBIENT_ON_VAL 8.0f
-
 #define MOD_DATA_PATH(x) PLUGIN_PATH((char *)("ModelExtras/" x))
-#define MOD_DATA_PATH_S(x) PLUGIN_PATH((char *)("ModelExtras/" + x).c_str())
 
 #define MOD_NAME "ModelExtras"
 #define MOD_VERSION "2.1"

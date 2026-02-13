@@ -28,10 +28,10 @@ void WheelHub::Initialize()
         else if (name == "wheel_lr_dummy" || name == "wheel_lb_dummy") data.m_pWLR = pFrame;
         else if (name == "hub_rf") data.m_pHRF = pFrame;
         else if (name == "hub_rm") data.m_pHRM = pFrame;
-        else if (name == "hub_rb") data.m_pHRR = pFrame;
+        else if (name == "hub_rb" || name == "hub_rr") data.m_pHRR = pFrame;
         else if (name == "hub_lf") data.m_pHLF = pFrame;
         else if (name == "hub_lm") data.m_pHLM = pFrame;
-        else if (name == "hub_lb") data.m_pHLR = pFrame; 
+        else if (name == "hub_lb" || name == "hub_lr") data.m_pHLR = pFrame; 
     });
 
     ModelInfoMgr::RegisterRender([](CVehicle *pVeh)

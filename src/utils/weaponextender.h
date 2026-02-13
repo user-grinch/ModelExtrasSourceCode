@@ -1,7 +1,7 @@
 #pragma once
-#include "pch.h"
 #include <vector>
 #include <map>
+#include <plugin.h>
 
 static ThiscallEvent <AddressList<0x5E6342, H_CALL>, PRIORITY_BEFORE, ArgPickN<CWeapon*, 0>, void(CWeapon*)>  weaponDtorEvent;
 

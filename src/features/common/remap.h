@@ -1,7 +1,7 @@
 #pragma once
 #include <plugin.h>
-#include "extender.h"
 #include <map>
+#include <vector>
 
 class Remap {
 private: 
@@ -14,10 +14,9 @@ private:
     std::map<std::string, std::vector<TextureVariant>> m_pTextures;
     void* curPtr = nullptr;
     bool useBlood = false;
-    RemapData(int) {}
     ~RemapData() {}
   };
-  static inline Extender<int, RemapData> xRemaps;
+  static inline std::map<int, RemapData> xRemaps;
 
 private:
   static bool GetKilledState(CWeapon *pWeapon);

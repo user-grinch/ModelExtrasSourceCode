@@ -29,7 +29,7 @@ void Remap::LoadRemaps(CBaseModelInfo *pModelInfo, int model, eModelEntityType t
             bool isBloodTex = bloodPos != std::string::npos;
 
             if (isRemapTex || isBloodTex) {
-                RemapData &data = xRemaps.Get(model);
+                RemapData &data = xRemaps[model];
                 if (data.m_pTextures.empty()) {
                     std::string bloodName = orgName + "_bld";
                     RwTexture *pOrgTex = TextureMgr::FindInDict(orgName, pDict);
@@ -40,7 +40,7 @@ void Remap::LoadRemaps(CBaseModelInfo *pModelInfo, int model, eModelEntityType t
             
             if (isRemapTex && !isBloodTex)
             {
-                RemapData &data = xRemaps.Get(model);
+                RemapData &data = xRemaps[model];
                 std::string bloodName = name + "_bld";
                 RwTexture *pBloodTex = TextureMgr::FindInDict(bloodName, pDict);
                 data.m_pTextures[orgName].push_back({pTex, pBloodTex});
@@ -183,7 +183,7 @@ void Remap::BeforeRender(void *ptr, eModelEntityType type)
     int model = Util::GetEntityModel(ptr, type);
     CBaseModelInfo *pModelInfo = CModelInfo::GetModelInfo(model);
 
-    RemapData &data = xRemaps.Get(model);
+    RemapData &data = xRemaps[model];
     if (!data.m_bRemapsLoaded)
     {
         LoadRemaps(pModelInfo, model, type);
