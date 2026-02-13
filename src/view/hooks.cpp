@@ -6,6 +6,8 @@
 
 #define TEST_CHEAT 0x0ADC
 
+using namespace plugin;
+
 extern void DevWindow();
 
 bool bWindowOpenFlag = false;
@@ -33,7 +35,7 @@ void InjectImGuiHooks() {
             screenY = SCREEN_HEIGHT;
         }
 
-        if (plugin::Command<TEST_CHEAT>("MEDEV")) {
+        if (Command<TEST_CHEAT>("MEDEV")) {
             bWindowOpenFlag = !bWindowOpenFlag;
             RenderHook::SetCursorVisible(bWindowOpenFlag);
         }

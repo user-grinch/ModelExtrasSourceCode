@@ -2,12 +2,8 @@
 #include "defines.h"
 #include "features/mgr.h"
 
-#include <extensions/ScriptCommands.h>
-#include <extensions/scripting/ScriptCommandNames.h>
-
-#define GET_SCRIPT_STRUCT_NAMED 0xAAA
-
 extern void ShowDonationWindow();
+extern void InjectImGuiHooks();
 
 std::vector<std::string> donators = {
     "Wei Woo",
@@ -32,31 +28,39 @@ std::vector<std::string> donators = {
     "Agha"
 };
 
-extern void InjectImGuiHooks();
-
 void InitLogFile()
 {
-    static bool flag = true;
-    if (!flag)
-    {
-        return;
-    }
+    static bool initialized = false;
+    if (initialized) return;
+    initialized = true;
+
     auto sink_cout = std::make_shared<AixLog::SinkCout>(AixLog::Severity::debug);
     auto sink_file = std::make_shared<AixLog::SinkFile>(AixLog::Severity::debug, std::string(MOD_NAME) + ".log");
     AixLog::Log::init({sink_cout, sink_file});
-    LOG(INFO) << "Starting " << MOD_TITLE << " (" << __DATE__ << ")\nAuthor: Grinch_\nDiscord: " << DISCORD_INVITE << "\nPatreon: " << PATREON_LINK << "\nMore Info: " << GITHUB_LINK;
 
-    // date time
+    std::string header = "Starting " + std::string(MOD_TITLE) + " (" + __DATE__ + ")\n"
+                         "Author: Grinch_\n"
+                         "Discord: " + DISCORD_INVITE + "\n"
+                         "Patreon: " + PATREON_LINK + "\n"
+                         "More Info: " + GITHUB_LINK + "\n";
+    
     SYSTEMTIME st;
     GetSystemTime(&st);
-    LOG(INFO) << "Date: " << st.wYear << "-" << st.wMonth << "-" << st.wDay << " Time: " << st.wHour << ":" << st.wMinute;
-    LOG(INFO) << "\nDonators:";
-    for (const auto &name : donators)
-    {
-        LOG(INFO) << "- " << name;
-    }
+    char timeBuf[64];
+    sprintf_s(timeBuf, "Date: %04d-%02d-%02d Time: %02d:%02d\n", 
+              st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute);
+    
+    header += timeBuf;
 
-    flag = false;
+    if (!donators.empty())
+    {
+        header += "Donators:\n";
+        for (const auto& name : donators)
+        {
+            header += "- " + name + "\n";
+        }
+    }
+    LOG(INFO) << header;
 }
 
 BOOL WINAPI DllMain(HINSTANCE hDllHandle, DWORD nReason, LPVOID Reserved)
@@ -111,38 +115,14 @@ BOOL WINAPI DllMain(HINSTANCE hDllHandle, DWORD nReason, LPVOID Reserved)
 
         Events::initGameEvent += []()
         {
-            bool CLEOInstalled = GetModuleHandle("CLEO.asi");
             bool ImVehFtInstalled = GetModuleHandle("ImVehFt.asi");
             bool ImVehFtFixInstalled = GetModuleHandle("ImVehFtFix.asi");
             bool AVSInstalled = GetModuleHandle("AdvancedVehicleSirens.asi");
             bool PedFuncs = GetModuleHandle("PedFuncs.asi");
-            bool BackFireZAZInstalled = false;
-            bool BackFireJDRInstalled = false;
-
-            if (CLEOInstalled)
-            {
-                int script = NULL;
-                plugin::Command<GET_SCRIPT_STRUCT_NAMED>("IFLAME", &script);
-                BackFireZAZInstalled = script != NULL;
-                plugin::Command<GET_SCRIPT_STRUCT_NAMED>("Backfir", &script);
-                BackFireJDRInstalled = script != NULL;
-            }
 
             InitLogFile();
 
-            /*
-                Had to put this in place since some people put the folder in root
-                directory and the asi in modloader. Why??
-            */
-            if (!std::filesystem::is_directory(PLUGIN_PATH((char *)MOD_NAME)))
-            {
-                std::string msg = std::format("{} folder not found. You need to put both '{}.asi' & '{}' folder in the same directory", MOD_NAME, MOD_NAME, MOD_NAME);
-                LOG(ERROR) << msg.c_str();
-                MessageBox(RsGlobal.ps->window, msg.c_str(), MOD_NAME, MB_ICONERROR);
-                return TRUE;
-            }
-
-            if (gConfig.ReadBoolean("CONFIG", "ShowIncompatibleWarning", true) && (BackFireJDRInstalled || BackFireZAZInstalled || ImVehFtInstalled || ImVehFtFixInstalled || AVSInstalled))
+            if (gConfig.ReadBoolean("CONFIG", "ShowIncompatibleWarning", true) && (ImVehFtInstalled || ImVehFtFixInstalled || AVSInstalled))
             {
                 std::string str = "ModelExtras contain the functions of these plugins,\n\n";
 
@@ -154,10 +134,6 @@ BOOL WINAPI DllMain(HINSTANCE hDllHandle, DWORD nReason, LPVOID Reserved)
                     str += "- AdvancedVehicleSirens.asi\n";
                 if (PedFuncs)
                     str += "- PedFuncs.asi\n";
-                if (BackFireZAZInstalled)
-                    str += "- Back-fire.cs by ZAZ\n";
-                if (BackFireJDRInstalled)
-                    str += "- Backfire - ALS.cs by Junior-Djjr\n";
 
                 str += "\nRemove them to continue playing the game.";
                 MessageBox(RsGlobal.ps->window, str.c_str(), "Incompatible plugins found!", MB_OK);

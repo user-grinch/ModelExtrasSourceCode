@@ -16,6 +16,8 @@
 #include <CPointLights.h>
 #include "ModelExtrasAPI.h"
 
+using namespace plugin;
+
 // flags
 bool gbGlobalIndicatorLights = false;
 float gfGlobalCoronaSize = 0.3f;
@@ -67,7 +69,7 @@ void Lights::Initialize()
 		patch::SetRaw(0x6BDE63, (void *)"\x66\x39\xC0\x90\x90\x90\x90", 7);
 	}
 
-	plugin::Events::initGameEvent += []()
+	Events::initGameEvent += []()
 	{
 		gbGlobalIndicatorLights = gConfig.ReadBoolean("VEHICLE_FEATURES", "StandardLights_GlobalIndicatorLights", false);
 

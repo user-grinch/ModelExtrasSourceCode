@@ -4,10 +4,12 @@
 #include <CBike.h>
 #include "modelinfomgr.h"
 
+using namespace plugin;
+
 static inline float ClampRotation(float value, float maxRot)
 {
     float limit = std::abs(maxRot);
-    return plugin::Clamp(value, -limit, limit);
+    return Clamp(value, -limit, limit);
 }
 
 void GearIndicator::Initialize()
@@ -276,7 +278,7 @@ void FixedGauge::Initialize()
 
             float minAngle = 20.0f;
             float maxAngle = 70.0f;
-            if (jsonData.contains("gauges") && jsonData["gauges"].contains(name) && jsonData["gauges"][name].contains("angle")) {
+            if (jsonData.contains("gauges") && jsonData["gauges"][name].contains("angle")) {
                 minAngle = jsonData["gauges"][name]["minangle"];
                 maxAngle = jsonData["gauges"][name]["maxangle"];
             }

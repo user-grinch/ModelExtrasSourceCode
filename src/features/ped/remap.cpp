@@ -10,6 +10,8 @@
 #include <rw/rpworld.h>
 #include <RenderWare.h>
 
+using namespace plugin;
+
 void PedRemap::CustomAssignRemapTxd(const char *txdName, uint16_t txdId)
 {
 	if (txdName)
@@ -38,7 +40,7 @@ void PedRemap::CustomAssignRemapTxd(const char *txdName, uint16_t txdId)
 			}
 		}
 	}
-	plugin::CallDynGlobal<const char *, uint16_t>(ORIGINAL_AssignRemapTxd, txdName, txdId);
+	CallDynGlobal<const char *, uint16_t>(ORIGINAL_AssignRemapTxd, txdName, txdId);
 }
 
 void PedRemap::LoadAdditionalTxds()
@@ -103,7 +105,7 @@ RwTexture *PedRemap::Custom_RwTexDictionaryFindNamedTexture(RwTexDictionary *dic
 
 RwTexture *__cdecl PedRemap::hkRwTexDictionaryFindNamedTexture(RwTexDictionary *dict, const char *name)
 {
-	RwTexture *pTex = plugin::CallAndReturnDynGlobal<RwTexture *, RwTexDictionary *, const char *>(ORIGINAL_RwTexDictionaryFindNamedTexture, dict, name);
+	RwTexture *pTex = CallAndReturnDynGlobal<RwTexture *, RwTexDictionary *, const char *>(ORIGINAL_RwTexDictionaryFindNamedTexture, dict, name);
 	if (pTex)
 	{
 		return pTex;
@@ -114,7 +116,7 @@ RwTexture *__cdecl PedRemap::hkRwTexDictionaryFindNamedTexture(RwTexDictionary *
 
 RwTexture *__cdecl PedRemap::hkRwTexDictionaryFindNamedTexture2(RwTexDictionary *dict, const char *name)
 {
-	RwTexture *pTex = plugin::CallAndReturnDynGlobal<RwTexture *, RwTexDictionary *, const char *>(ORIGINAL_RwTexDictionaryFindNamedTexture2, dict, name);
+	RwTexture *pTex = CallAndReturnDynGlobal<RwTexture *, RwTexDictionary *, const char *>(ORIGINAL_RwTexDictionaryFindNamedTexture2, dict, name);
 	if (pTex)
 	{
 		return pTex;

@@ -1,93 +1,17 @@
 #include "pch.h"
+
+#if !PATRON_BUILD
+
 #include "defines.h"
-#include <plugin.h>
-#include <windows.h>
 #include <shellapi.h>
 
-LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-void CreateControls(HWND hWnd);
-
-#if PATRON_BUILD
-const char* const LONG_MESSAGE =
-    "You're using a donator build, thanks for supporting the project. "
-    "Your contribution helps make continued updates, new features, and maintenance possible. "
-    "Appreciate your support, and hope you find this build useful.";
-#else
 const char *const LONG_MESSAGE =
     "Maintaining and enhancing this mod takes a lot of effort and time, with continuous updates, new features, and bug fixes. "
     "If you find this mod valuable and would like to support its ongoing development, "
     "please consider making a donation to help keep the improvements coming.";
-#endif
 
 const char *const WARN_MESSAGE =
     "This is NOT a replacement for ImVehFt. Most models should work, but compatibility is not guaranteed.";
-
-void ShowDonationWindow()
-{
-    const char CLASS_NAME[] = "ModelExtrasWindow";
-
-    WNDCLASS wc = {};
-
-    wc.lpfnWndProc = WindowProc;
-    wc.hInstance = GetModuleHandle(NULL);
-    wc.lpszClassName = CLASS_NAME;
-    wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-    wc.hbrBackground = (HBRUSH)(COLOR_WINDOW);
-    wc.hIcon = LoadIcon(NULL, IDI_INFORMATION);
-
-    RegisterClass(&wc);
-    int screenWidth = GetSystemMetrics(SM_CXSCREEN);
-    int screenHeight = GetSystemMetrics(SM_CYSCREEN);
-
-    int windowWidth = 450;
-    int windowHeight = 600;
-    int xPos = (screenWidth - windowWidth) / 2;
-    int yPos = (screenHeight - windowHeight) / 2;
-
-    HWND hWnd = CreateWindowEx(WS_EX_APPWINDOW, CLASS_NAME, "ModelExtras Startup", WS_OVERLAPPED | WS_SYSMENU, xPos, yPos, windowWidth,
-                               windowHeight, NULL, NULL, GetModuleHandle(NULL), NULL);
-
-    if (hWnd == NULL)
-        return;
-
-    ShowWindow(hWnd, SW_SHOW);
-    UpdateWindow(hWnd);
-
-    MSG msg = {};
-    while (GetMessage(&msg, NULL, 0, 0))
-    {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
-    }
-}
-
-LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-    switch (message)
-    {
-    case WM_CREATE:
-        CreateControls(hWnd);
-        break;
-    case WM_COMMAND:
-        Events::initRwEvent += [wParam]()
-        {
-            if (LOWORD(wParam) == 1)
-                ShellExecute(NULL, "open", DISCORD_INVITE, NULL, NULL, SW_SHOWNORMAL);
-            else if (LOWORD(wParam) == 2)
-                ShellExecute(NULL, "open", PATREON_LINK, NULL, NULL, SW_SHOWNORMAL);
-            else if (LOWORD(wParam) == 3)
-                ShellExecute(NULL, "open", GITHUB_LINK, NULL, NULL, SW_SHOWNORMAL);
-        };
-        DestroyWindow(hWnd);
-        break;
-    case WM_DESTROY:
-        PostQuitMessage(0);
-        break;
-    default:
-        return DefWindowProc(hWnd, message, wParam, lParam);
-    }
-    return 0;
-}
 
 void CreateControls(HWND hWnd)
 {
@@ -128,3 +52,71 @@ void CreateControls(HWND hWnd)
     SendMessage(hDonationButton, WM_SETFONT, (WPARAM)hFont, TRUE);
     SendMessage(hGitHubButton, WM_SETFONT, (WPARAM)hFont, TRUE);
 }
+
+LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+    switch (message)
+    {
+    case WM_CREATE:
+        CreateControls(hWnd);
+        break;
+    case WM_COMMAND:
+        Events::initRwEvent += [wParam]()
+        {
+            if (LOWORD(wParam) == 1)
+                ShellExecute(NULL, "open", DISCORD_INVITE, NULL, NULL, SW_SHOWNORMAL);
+            else if (LOWORD(wParam) == 2)
+                ShellExecute(NULL, "open", PATREON_LINK, NULL, NULL, SW_SHOWNORMAL);
+            else if (LOWORD(wParam) == 3)
+                ShellExecute(NULL, "open", GITHUB_LINK, NULL, NULL, SW_SHOWNORMAL);
+        };
+        DestroyWindow(hWnd);
+        break;
+    case WM_DESTROY:
+        PostQuitMessage(0);
+        break;
+    default:
+        return DefWindowProc(hWnd, message, wParam, lParam);
+    }
+    return 0;
+}
+
+void ShowDonationWindow()
+{
+    const char CLASS_NAME[] = "ModelExtrasWindow";
+
+    WNDCLASS wc = {};
+
+    wc.lpfnWndProc = WindowProc;
+    wc.hInstance = GetModuleHandle(NULL);
+    wc.lpszClassName = CLASS_NAME;
+    wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+    wc.hbrBackground = (HBRUSH)(COLOR_WINDOW);
+    wc.hIcon = LoadIcon(NULL, IDI_INFORMATION);
+
+    RegisterClass(&wc);
+    int screenWidth = GetSystemMetrics(SM_CXSCREEN);
+    int screenHeight = GetSystemMetrics(SM_CYSCREEN);
+
+    int windowWidth = 450;
+    int windowHeight = 600;
+    int xPos = (screenWidth - windowWidth) / 2;
+    int yPos = (screenHeight - windowHeight) / 2;
+
+    HWND hWnd = CreateWindowEx(WS_EX_APPWINDOW, CLASS_NAME, "ModelExtras Startup", WS_OVERLAPPED | WS_SYSMENU, xPos, yPos, windowWidth,
+                               windowHeight, NULL, NULL, GetModuleHandle(NULL), NULL);
+
+    if (hWnd == NULL)
+        return;
+
+    ShowWindow(hWnd, SW_SHOW);
+    UpdateWindow(hWnd);
+
+    MSG msg = {};
+    while (GetMessage(&msg, NULL, 0, 0))
+    {
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+    }
+}
+#endif

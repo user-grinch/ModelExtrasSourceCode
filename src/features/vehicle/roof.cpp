@@ -6,6 +6,8 @@
 #include "utils/util.h"
 #include "CWeather.h"
 
+using namespace plugin;
+
 bool ConvertibleRoof::UpdateRotation(RoofConfig &config, CVehicle *pVeh, bool closed)
 {
     if (config.pFrame)
@@ -72,7 +74,7 @@ void ConvertibleRoof::Initialize()
                                         data.m_Boots.push_back(std::move(c));
                                     } });
 
-    plugin::Events::vehicleRenderEvent += [](CVehicle *pVeh)
+    Events::vehicleRenderEvent += [](CVehicle *pVeh)
     {
         if (CWeather::NewWeatherType != eWeatherType::WEATHER_RAINY_SF && CWeather::OldWeatherType != eWeatherType::WEATHER_RAINY_SF && CWeather::NewWeatherType != eWeatherType::WEATHER_RAINY_COUNTRYSIDE && CWeather::OldWeatherType != eWeatherType::WEATHER_RAINY_COUNTRYSIDE)
         {
@@ -145,7 +147,7 @@ void ConvertibleRoof::Initialize()
                 break;
         } });
 
-    plugin::Events::processScriptsEvent += []()
+    Events::processScriptsEvent += []()
     {
         size_t now = CTimer::m_snTimeInMilliseconds;
         static size_t prev = 0;

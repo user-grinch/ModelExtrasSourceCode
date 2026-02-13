@@ -6,6 +6,8 @@
 #include "utils/util.h"
 #include "CWeather.h"
 
+using namespace plugin;
+
 bool RollbackBed::UpdateRotation(CVehicle *pVeh, RwFrame *pFrame, float targetRot, float &curRot, float speed)
 {
     VehData &data = xData.Get(pVeh);
@@ -159,7 +161,7 @@ void RollbackBed::Initialize()
         } 
     });
 
-    plugin::Events::processScriptsEvent += []()
+    Events::processScriptsEvent += []()
     {
         size_t now = CTimer::m_snTimeInMilliseconds;
         static size_t prev = 0;

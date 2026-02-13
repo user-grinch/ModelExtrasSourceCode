@@ -46,7 +46,7 @@ void FeatureMgr::Initialize()
 {
 
     ModelInfoMgr::Initialize();
-    plugin::Events::initGameEvent.after += []()
+    Events::initGameEvent.after += []()
     {
         DataMgr::Init();
         gbVehIKInstalled = GetModuleHandle("VehIK.asi") != NULL;
@@ -62,7 +62,7 @@ void FeatureMgr::Initialize()
         Events::processScriptsEvent += []()
         {
             CVehicle *pVeh = FindPlayerVehicle(-1, false);
-            if (pVeh && plugin::Command<TEST_CHEAT>("MERELOAD"))
+            if (pVeh && Command<TEST_CHEAT>("MERELOAD"))
             {
                 Reload(pVeh);
             }

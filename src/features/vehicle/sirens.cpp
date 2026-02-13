@@ -67,7 +67,7 @@ static CVehicle *pCurrentVeh = nullptr;
 void __fastcall hkVehiclePreRender(CVehicle *ptr)
 {
 	pCurrentVeh = ptr;
-	plugin::CallMethod<0x6D6480>(ptr);
+	CallMethod<0x6D6480>(ptr);
 }
 
 void Sirens::Reload(CVehicle *pVeh)
@@ -639,12 +639,12 @@ void Sirens::Initialize()
 			vehicleData[vehicle]->Dummies[id].push_back(new VehicleDummy(config));
 		} });
 
-	plugin::Events::vehicleCtorEvent += [](CVehicle *pVeh)
+	Events::vehicleCtorEvent += [](CVehicle *pVeh)
 	{
 		EventCtor(pVeh);
 	};
 
-	plugin::Events::vehicleDtorEvent += [](CVehicle *vehicle)
+	Events::vehicleDtorEvent += [](CVehicle *vehicle)
 	{
 		int model = vehicle->m_nModelIndex;
 
@@ -702,7 +702,7 @@ void Sirens::Initialize()
 				if (modelData[model]->States.size() == 0)
 					return;
 
-				int addition = (plugin::KeyPressed(0x10)) ? (-1) : (1);
+				int addition = (KeyPressed(0x10)) ? (-1) : (1);
 
 				vehicleData[vehicle]->State += addition;
 
@@ -714,7 +714,7 @@ void Sirens::Initialize()
 
 				while (modelData[model]->States[vehicleData[vehicle]->State]->Paintjob != -1 && modelData[model]->States[vehicleData[vehicle]->State]->Paintjob != vehicle->GetRemapIndex())
 				{
-					vehicleData[vehicle]->State += (plugin::KeyPressed(0x10)) ? (-1) : (1);
+					vehicleData[vehicle]->State += (KeyPressed(0x10)) ? (-1) : (1);
 
 					if (vehicleData[vehicle]->State == modelData[model]->States.size())
 					{

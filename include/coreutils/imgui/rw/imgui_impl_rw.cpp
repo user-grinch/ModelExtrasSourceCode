@@ -195,7 +195,7 @@ void ImGui_ImplRW_NewFrame()
     }
 
     ImGuiIO &io = ImGui::GetIO();
-    io.DisplaySize = ImVec2((float)plugin::screen::GetScreenWidth(), (float)plugin::screen::GetScreenHeight());
+    io.DisplaySize = ImVec2((float)screen::GetScreenWidth(), (float)screen::GetScreenHeight());
     io.DeltaTime = std::max(1 / 60.0f, CTimer::ms_fTimeStep / 1000.0f); // fallback to 60 FPS
 
     io.KeyCtrl = ImGui::IsKeyPressed(ImGuiKey_LeftCtrl) || ImGui::IsKeyPressed(ImGuiKey_RightCtrl);

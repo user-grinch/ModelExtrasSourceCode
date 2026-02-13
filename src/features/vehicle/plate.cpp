@@ -11,6 +11,8 @@
 #include "texmgr.h"
 #include <utility>
 
+using namespace plugin;
+
 static CVehicle *pCurrentVeh = nullptr;
 extern RwSurfaceProperties &gLightSurfProps;
 extern RwSurfaceProperties gLightSurfPropsOff;
@@ -19,10 +21,10 @@ void LicensePlate::Initialize()
 {
     m_bEnabled = true;
     // RpMaterial *__cdecl CCustomCarPlateMgr::SetupMaterialPlatebackTexture(RpMaterial *material, char plateType)
-    plugin::patch::PutRetn(0x6FDE50);
-    plugin::patch::ReplaceFunction(0x6FD500, (void *)CCustomCarPlateMgr_Initialise);
-    plugin::patch::ReplaceFunction(0x6FD720, (void *)CCustomCarPlateMgr_Shudown);
-    plugin::patch::ReplaceFunction(0x6FDEA0, (void *)CCustomCarPlateMgr_CreatePlateTexture);
+    patch::PutRetn(0x6FDE50);
+    patch::ReplaceFunction(0x6FD500, (void *)CCustomCarPlateMgr_Initialise);
+    patch::ReplaceFunction(0x6FD720, (void *)CCustomCarPlateMgr_Shudown);
+    patch::ReplaceFunction(0x6FDEA0, (void *)CCustomCarPlateMgr_CreatePlateTexture);
 }
 
 void LicensePlate::ProcessTextures(CVehicle *pVeh, RpMaterial *pMat)

@@ -6,6 +6,8 @@
 #include "imgui_impl_rw.h"
 #include "renderhook.h"
 
+using namespace plugin;
+
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 bool RenderHook::IsCursorVisible()
@@ -24,7 +26,7 @@ LRESULT RenderHook::WndProcHook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 
     if (ImGui::GetIO().WantTextInput)
     {
-        plugin::Call<0x53F1E0>();
+        Call<0x53F1E0>();
         return 1;
     }
     return CallWindowProc(ogWndProc, hWnd, uMsg, wParam, lParam);
@@ -32,7 +34,7 @@ LRESULT RenderHook::WndProcHook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 
 float UpdateScaling(HWND hwnd)
 {
-    float scale = std::min(plugin::screen::GetScreenHeight() / 1080, plugin::screen::GetScreenWidth() / 1920);
+    float scale = std::min(screen::GetScreenHeight() / 1080, screen::GetScreenWidth() / 1920);
     ImGui::GetStyle().ScaleAllSizes(std::ceil(scale));
     return scale * 20.0f;
 }
@@ -92,7 +94,7 @@ void RenderHook::InitImGui()
     io.IniFilename = NULL;
     io.LogFilename = NULL;
     // io.FontDefault = io.Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\segoeui.ttf", 20.0f);
-    plugin::patch::Nop(0x00531155, 5); // shift trigger fix
+    patch::Nop(0x00531155, 5); // shift trigger fix
 }
 
 void RenderHook::ShutdownImGui()
@@ -111,7 +113,7 @@ void RenderHook::ProcessMouse()
 {
     static bool lastMouseState = false;
 
-    bool isController = plugin::patch::Get<BYTE>(0xBA6818);
+    bool isController = patch::Get<BYTE>(0xBA6818);
     if (/*gEditorVisible && */ isController && bMouseVisible)
     {
         if (CPlayerPed *player = FindPlayerPed())
@@ -130,17 +132,17 @@ void RenderHook::ProcessMouse()
 
     if (bMouseVisible)
     {
-        plugin::patch::SetUChar(0x6194A0, 0xC3); // psSetMousePos
-        plugin::patch::Nop(0x541DD7, 5);         // disable UpdateMouse
-        plugin::patch::SetUChar(0x4EB731, 0xEB); // skip mouse checks
-        plugin::patch::SetUChar(0x4EB75A, 0xEB);
+        patch::SetUChar(0x6194A0, 0xC3); // psSetMousePos
+        patch::Nop(0x541DD7, 5);         // disable UpdateMouse
+        patch::SetUChar(0x4EB731, 0xEB); // skip mouse checks
+        patch::SetUChar(0x4EB75A, 0xEB);
     }
     else
     {
-        plugin::patch::SetUChar(0x6194A0, 0xE9);
-        plugin::patch::SetRaw(0x541DD7, (void *)"\xE8\xE4\xD5\xFF\xFF", 5);
-        plugin::patch::SetUChar(0x4EB731, 0x74); // restore jz
-        plugin::patch::SetUChar(0x4EB75A, 0x74);
+        patch::SetUChar(0x6194A0, 0xE9);
+        patch::SetRaw(0x541DD7, (void *)"\xE8\xE4\xD5\xFF\xFF", 5);
+        patch::SetUChar(0x4EB731, 0x74); // restore jz
+        patch::SetUChar(0x4EB75A, 0x74);
     }
 
     CPad::UpdatePads();
@@ -164,12 +166,12 @@ void RenderHook::Init(std::function<void()> callback)
         return;
     }
 
-    static plugin::CdeclEvent<plugin::AddressList<0x53EB12, plugin::H_CALL>, plugin::PRIORITY_AFTER,
-                              plugin::ArgPickNone, void()>
+    static CdeclEvent<AddressList<0x53EB12, H_CALL>, PRIORITY_AFTER,
+                              ArgPickNone, void()>
         draw2dStuffEvent;
     draw2dStuffEvent += []() { RenderImGui(); };
 
-    plugin::Events::drawMenuBackgroundEvent += []() { RenderImGui(); };
+    Events::drawMenuBackgroundEvent += []() { RenderImGui(); };
 
     renderFn = std::move(callback);
     ogWndProc = reinterpret_cast<WNDPROC>(

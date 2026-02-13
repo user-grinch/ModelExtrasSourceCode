@@ -4,6 +4,8 @@
 #include <extensions/ScriptCommands.h>
 #include <CAudioEngine.h>
 
+using namespace plugin;
+
 #define LOAD_AUDIO_STREAM 0x0AAC
 #define LOAD_3D_AUDIO_STREAM 0x0AC1
 #define SET_PLAY_3D_AUDIO_STREAM_AT_COORDS 0x0AC2
@@ -17,7 +19,7 @@
 
 void AudioMgr::Initialize()
 {
-    plugin::Events::reInitGameEvent += []
+    Events::reInitGameEvent += []
     {
         m_NeedToFree.clear();
 
@@ -27,7 +29,7 @@ void AudioMgr::Initialize()
         }
     };
 
-    plugin::Events::processScriptsEvent += []
+    Events::processScriptsEvent += []
     {
         static size_t prev = 0;
         size_t cur = CTimer::m_snTimeInMilliseconds;
@@ -42,10 +44,10 @@ void AudioMgr::Initialize()
                 }
 
                 int state = eAudioStreamState::Stopped;
-                plugin::Command<GET_AUDIO_STREAM_STATE>(*it, &state);
+                Command<GET_AUDIO_STREAM_STATE>(*it, &state);
                 if (state == eAudioStreamState::Stopped || state == eAudioStreamState::Paused)
                 {
-                    plugin::Command<REMOVE_AUDIO_STREAM>(*it);
+                    Command<REMOVE_AUDIO_STREAM>(*it);
                     *it = NULL;
                     it = m_NeedToFree.erase(it);
                 }
@@ -91,7 +93,7 @@ StreamHandle AudioMgr::Load(const std::string &path)
     StreamHandle handle = NULL;
     if (!is3DSupported.contains(path) || is3DSupported[path])
     {
-        plugin::Command<LOAD_3D_AUDIO_STREAM>(path.c_str(), &handle);
+        Command<LOAD_3D_AUDIO_STREAM>(path.c_str(), &handle);
     }
 
     if (handle)
@@ -100,7 +102,7 @@ StreamHandle AudioMgr::Load(const std::string &path)
     }
     else
     {
-        plugin::Command<LOAD_AUDIO_STREAM>(path.c_str(), &handle);
+        Command<LOAD_AUDIO_STREAM>(path.c_str(), &handle);
         if (handle)
         {
             is3DSupported[path] = false;
@@ -159,7 +161,7 @@ void AudioMgr::PlayFileSound(const std::string &path, CEntity *pEntity, float vo
     }
 
     int state = eAudioStreamState::Stopped;
-    plugin::Command<GET_AUDIO_STREAM_STATE>(handle, &state);
+    Command<GET_AUDIO_STREAM_STATE>(handle, &state);
 
     if (state != eAudioStreamState::Playing)
     {
@@ -174,7 +176,7 @@ void AudioMgr::PlayFileSound(const std::string &path, CEntity *pEntity, float vo
             int hEntity = CPools::GetVehicleRef(static_cast<CVehicle *>(pEntity));
             if (hEntity)
             {
-                plugin::Command<SET_PLAY_3D_AUDIO_STREAM_AT_CAR>(handle, hEntity);
+                Command<SET_PLAY_3D_AUDIO_STREAM_AT_CAR>(handle, hEntity);
             }
         }
         else if (pEntity->m_nType == ENTITY_TYPE_PED)
@@ -182,7 +184,7 @@ void AudioMgr::PlayFileSound(const std::string &path, CEntity *pEntity, float vo
             int hEntity = CPools::GetPedRef(static_cast<CPed *>(pEntity));
             if (hEntity)
             {
-                plugin::Command<SET_PLAY_3D_AUDIO_STREAM_AT_CHAR>(handle, hEntity);
+                Command<SET_PLAY_3D_AUDIO_STREAM_AT_CHAR>(handle, hEntity);
             }
         }
         else if (pEntity->m_nType == ENTITY_TYPE_OBJECT)
@@ -190,15 +192,15 @@ void AudioMgr::PlayFileSound(const std::string &path, CEntity *pEntity, float vo
             int hEntity = CPools::GetObjectRef(static_cast<CObject *>(pEntity));
             if (hEntity)
             {
-                plugin::Command<SET_PLAY_3D_AUDIO_STREAM_AT_OBJECT>(handle, hEntity);
+                Command<SET_PLAY_3D_AUDIO_STREAM_AT_OBJECT>(handle, hEntity);
             }
         }
         else
         {
             CVector pos = pEntity->GetPosition();
-            plugin::Command<SET_PLAY_3D_AUDIO_STREAM_AT_COORDS>(handle, pos.x, pos.y, pos.z);
+            Command<SET_PLAY_3D_AUDIO_STREAM_AT_COORDS>(handle, pos.x, pos.y, pos.z);
         }
-        plugin::Command<SET_AUDIO_STREAM_STATE>(handle, static_cast<int>(eAudioStreamState::Playing));
+        Command<SET_AUDIO_STREAM_STATE>(handle, static_cast<int>(eAudioStreamState::Playing));
     }
 }
 
@@ -207,6 +209,6 @@ void AudioMgr::SetVolume(StreamHandle handle, float volume)
     if (handle)
     {
         static float mult = gConfig.ReadFloat("TWEAKS", "SoundMult", 1.0f);
-        plugin::Command<SET_AUDIO_STREAM_VOLUME>(handle, *(BYTE *)0xBA6797 / 64.0f * volume * mult);
+        Command<SET_AUDIO_STREAM_VOLUME>(handle, *(BYTE *)0xBA6797 / 64.0f * volume * mult);
     }
 }

@@ -3,9 +3,11 @@
 #include "texmgr.h"
 #include <CPedModelInfo.h>
 
+using namespace plugin;
+
 void GangHands::Initialize() {
     static bool alreadyLoaded = false;
-    plugin::Events::initGameEvent += []
+    Events::initGameEvent += []
     {
         if (!alreadyLoaded) {
             alreadyLoaded = true;

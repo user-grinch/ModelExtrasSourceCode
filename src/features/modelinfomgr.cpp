@@ -14,6 +14,8 @@
 #include "vehicle/dirtfx.h"
 #include "vehicle/plate.h"
 
+using namespace plugin;
+
 extern int GetSirenIndex(CVehicle *pVeh, RpMaterial *pMat);
 extern int GetStrobeIndex(CVehicle *pVeh, RpMaterial *pMat);
 
@@ -24,8 +26,8 @@ RwSurfaceProperties gLightSurfPropsOff = {0.45, 0.0, 0.0};
 void ModelInfoMgr::Initialize()
 {
 	// Nop frame collasping
-	plugin::patch::Nop(0x4C8E53, 5);
-	plugin::patch::Nop(0x4C8F6E, 5);
+	patch::Nop(0x4C8E53, 5);
+	patch::Nop(0x4C8F6E, 5);
 
 	patch::ReplaceFunctionCall(0x5532A9, (void *)ModelInfoMgr::SetupRender);
 	patch::ReplaceFunction(0x4C8220, (void *)ModelInfoMgr::SetEditableMaterialsCB);

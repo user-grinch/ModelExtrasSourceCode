@@ -28,8 +28,7 @@ enum class eModelEntityType
 
 extern CIniReader gConfig;
 
-#define LOG_NO_LEVEL(x)       \
-  LOG(INFO) << x;
+#define LOG_NO_LEVEL(x) LOG(INFO) << x;
 
 extern bool gVerboseLogging;
 
@@ -76,4 +75,4 @@ struct RwFrameExtension
 
 extern bool gbVehIKInstalled;
 
-static inline CBaseModelInfo **CModelInfo__ms_modelInfoPtrs = reinterpret_cast<CBaseModelInfo **>(plugin::patch::GetPointer(0x403DA7));
+static inline CBaseModelInfo **CModelInfo__ms_modelInfoPtrs = reinterpret_cast<CBaseModelInfo **>(patch::GetPointer(0x403DA7));

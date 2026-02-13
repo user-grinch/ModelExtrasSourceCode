@@ -7,6 +7,8 @@ struct RpAtomic;
 struct RpClump;
 struct RpMaterial;
 
+using namespace plugin;
+
 struct PedData {
 	bool m_bUsingPedCols = false;
 	bool m_bInitialized = false;
@@ -19,7 +21,7 @@ struct PedData {
 
 struct PedColors {
 private:
-	static inline plugin::PedExtendedData<PedData> m_PedData;
+	static inline PedExtendedData<PedData> m_PedData;
 	static inline CPed *m_pCurrentPed;
 
 	static void SetEditableMaterials(RpClump *pClump);

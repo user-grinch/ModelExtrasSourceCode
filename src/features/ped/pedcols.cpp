@@ -6,6 +6,7 @@
 #include <rw/rwplcore.h>
 #include "datamgr.h"
 
+using namespace plugin;
 
 #define RwRGBAGetRGB(a) (*(DWORD *)&(a) & 0xFFFFFF)
 std::unordered_map<CPed*, std::vector<std::pair<void *, int>>> store;
@@ -61,7 +62,7 @@ void PedData::Init(CPed *pPed) {
 			const auto& variations = pedCols["variations"];
 
 			if (!variations.empty()) {
-				size_t varIdx = plugin::RandomNumberInRange<size_t>(0, variations.size() - 1);
+				size_t varIdx = RandomNumberInRange<size_t>(0, variations.size() - 1);
 				const auto& selectedVar = variations[varIdx];
 
 				const std::vector<std::string> keys = { "primary", "secondary", "tertiary", "quaternary" };
@@ -88,7 +89,7 @@ void PedData::Init(CPed *pPed) {
 }
 
 void PedColors::Initialize() {
-	plugin::Events::pedSetModelEvent.after += [](CPed *pPed, int model) {
+	Events::pedSetModelEvent.after += [](CPed *pPed, int model) {
 		auto &data = m_PedData.Get(pPed);
 		if (!data.m_bInitialized) {
 			data.Init(pPed);
@@ -96,7 +97,7 @@ void PedColors::Initialize() {
 		}
 	};
 
-	plugin::Events::pedRenderEvent.before += [](CPed *pPed) {
+	Events::pedRenderEvent.before += [](CPed *pPed) {
 		auto &data = m_PedData.Get(pPed);
 		if (data.m_bUsingPedCols) {
 			m_pCurrentPed = pPed;
@@ -104,7 +105,7 @@ void PedColors::Initialize() {
 		}
 	};
 
-	plugin::Events::pedRenderEvent.after += [](CPed *pPed) {
+	Events::pedRenderEvent.after += [](CPed *pPed) {
 		for (auto &e : store[pPed]) {
 			*static_cast<int *>(e.first) = e.second;
 		}
