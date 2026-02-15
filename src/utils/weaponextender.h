@@ -1,38 +1,46 @@
 #pragma once
 #include <vector>
-#include <map>
+#include <algorithm>
 #include <plugin.h>
+#include "utils/meevents.h"
 
-static ThiscallEvent <AddressList<0x5E6342, H_CALL>, PRIORITY_BEFORE, ArgPickN<CWeapon*, 0>, void(CWeapon*)>  weaponDtorEvent;
 
 template <class T>
 class WeaponExtender {
-  private:
-    inline static std::vector<std::pair<CWeapon*, T>> data{};
+private:
+    struct Entry {
+        CWeapon* pWeapon;
+        T data;
+    };
+    
+    static inline std::vector<Entry> data{};
 
-  public:
+public:
     WeaponExtender(const WeaponExtender&) = delete;
 
-    // Handle Jetpack unload
     WeaponExtender() {
-        weaponDtorEvent.before += [](CWeapon *pWeapon) {
-            for (auto it = data.begin(); it != data.end(); it++) {
-                if (it->first == pWeapon) {
-                    data.erase(it);
-                    break;
+        data.reserve(32); 
+
+        MEEvents::weaponDtorEvent.before += [](CWeapon* pWeapon) {
+            auto it = std::find_if(data.begin(), data.end(), 
+                [pWeapon](const Entry& e) { return e.pWeapon == pWeapon; });
+            
+            if (it != data.end()) {
+                if (it != data.end() - 1) {
+                    *it = std::move(data.back());
                 }
+                data.pop_back();
             }
         };
     }
 
     T& Get(CWeapon* pWeapon) {
-        for (auto it = data.begin(); it < data.end(); ++it) {
-            if (it->first == pWeapon) {
-                return it->second;
+        for (auto& entry : data) {
+            if (entry.pWeapon == pWeapon) {
+                return entry.data;
             }
         }
 
-        data.push_back({ pWeapon, T(pWeapon) });
-        return data.back().second;
+        return data.emplace_back(pWeapon, T(pWeapon)).data;
     }
 };

@@ -23,7 +23,7 @@
 #include "vehicle/spoiler.h"
 #include "vehicle/dirtfx.h"
 #include "vehicle/backfire.h"
-#include "meevents.h"
+#include "utils/meevents.h"
 #include <extensions/ScriptCommands.h>
 #include <CHud.h>
 #include <CMessages.h>
@@ -38,18 +38,22 @@
 #include "vehicle/wheel.h"
 #include "vehicle/rollbackbed.h"
 
+
+#include "utils/frameextention.h"
+
 void InitLogFile();
 
-#define TEST_CHEAT 0x0ADC
+constexpr uint32_t TEST_CHEAT = 0x0ADC;
 
 void FeatureMgr::Initialize()
 {
-
     ModelInfoMgr::Initialize();
+    RwFrameExtension::Initialize();
+
     Events::initGameEvent.after += []()
     {
         DataMgr::Init();
-        gbVehIKInstalled = GetModuleHandle("VehIK.asi") != NULL;
+        gbVehIKInstalled = GetModuleHandle("VehIK.asi") != nullptr;
 
         if (gbVehIKInstalled)
         {
@@ -69,18 +73,12 @@ void FeatureMgr::Initialize()
         };
     }
 
-    Events::attachRwPluginsEvent += []()
-    {
-        FramePluginOffset = RwFrameRegisterPlugin(sizeof(RwFrameExtension), PLUGIN_ID_STR, (RwPluginObjectConstructor)RwFrameExtension::Initialize, (RwPluginObjectDestructor)RwFrameExtension::Shutdown, (RwPluginObjectCopy)RwFrameExtension::Clone);
-    };
-
     MEEvents::vehRenderEvent.before += [](CVehicle *pVeh)
     {
-        static bool spInstalled = GetModuleHandle("SilentPatchSA.asi");
-        if (!spInstalled)
+        if (GetModuleHandle("SilentPatchSA.asi") == nullptr)
         {
             static std::string text = "ModelExtras requires SilentPatchSA installed!";
-            CMessages::AddMessageWithString((char *)text.c_str(), 5000, false, NULL, true);
+            CMessages::AddMessageWithString((char *)text.c_str(), 5000, false, nullptr, true);
             LOG(WARNING) << text;
         }
     };
@@ -106,7 +104,7 @@ void FeatureMgr::Initialize()
             CWeaponInfo *pWeaponInfo = CWeaponInfo::GetWeaponInfo(weaponType, pPed->GetWeaponSkill(weaponType));
             if (pWeaponInfo && pWeaponInfo->m_nModelId > 0)
             {
-                CWeaponModelInfo *pWeaponModelInfo = static_cast<CWeaponModelInfo *>(CModelInfo::GetModelInfo(pWeaponInfo->m_nModelId));
+                auto *pWeaponModelInfo = dynamic_cast<CWeaponModelInfo *>(CModelInfo::GetModelInfo(pWeaponInfo->m_nModelId));
                 if (pWeaponModelInfo && pWeaponModelInfo->m_pRwClump)
                 {
                     Add(static_cast<void *>(&pPed->m_aWeapons[pPed->m_nSelectedWepSlot]),
@@ -150,15 +148,13 @@ void FeatureMgr::Initialize()
                 {
                     static std::string text;
                     text = std::format("Model {} requires ModelExtras v{} but v{} is installed.", model, ver, MOD_VERSION_NUMBER);
-                    CMessages::AddMessageWithString((char *)text.c_str(), 5000, false, NULL, true);
+                    CMessages::AddMessageWithString(std::remove_const_t<char*>(text.c_str()), 5000, false, nullptr, true);
                     LOG(WARNING) << text;
                 }
             }
         };
     }
-
-    ExtraWheel::Initialize();
-
+    
     // Common Section
     if (gConfig.ReadBoolean("COMMON_FEATURES", "TextureRemaper", false))
     {
@@ -298,22 +294,22 @@ void FeatureMgr::Initialize()
         m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::ExhaustFx)));
     }
 
+    if (gConfig.ReadBoolean("VEHICLE_FEATURES", "ExtraWheels", false))
+    {
+        ExtraWheel::Initialize();
+        m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::ExtraWheels)));
+    }
+
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "HDLicensePlate", false))
     {
         LicensePlate::Initialize();
         m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::HDLicensePlate)));
     }
 
-    if (gConfig.ReadBoolean("VEHICLE_FEATURES", "IVFCarcols", false))
+    if (gConfig.ReadBoolean("VEHICLE_FEATURES", "IVFCarcols", false) && GetModuleHandle("SAMP.asi") == nullptr)
     {
-        if (GetModuleHandle("SAMP.dll") || GetModuleHandle("SAMP.asi"))
-        {
-        }
-        else
-        {
-            IVFCarcols::Initialize();
-            m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::IVFCarcols)));
-        }
+        IVFCarcols::Initialize();
+        m_bEnabledFeatures.set(static_cast<int>((eFeatureMatrix::IVFCarcols)));
     }
 
     if (gConfig.ReadBoolean("VEHICLE_FEATURES", "RollbackBed", false))
@@ -377,7 +373,7 @@ void FeatureMgr::Reload(CVehicle *pVeh)
 
 void FeatureMgr::FindNodes(void *ptr, RwFrame *frame, eModelEntityType type)
 {
-    if (frame)
+    if (frame != nullptr)
     {
         const std::string name = GetFrameNodeName(frame);
         for (auto e : m_FunctionTable)
@@ -398,12 +394,11 @@ void FeatureMgr::FindNodes(void *ptr, RwFrame *frame, eModelEntityType type)
             FindNodes(ptr, newFrame, type);
         }
     }
-    return;
 }
 
 void FeatureMgr::Add(void *ptr, RwFrame *frame, eModelEntityType type)
 {
-    if (m_EntityTable[type].find(ptr) == m_EntityTable[type].end())
+    if (!m_EntityTable[type].contains(ptr))
     {
         FindNodes(ptr, frame, type);
     }
@@ -416,11 +411,11 @@ void FeatureMgr::Remove(void *ptr, eModelEntityType type)
 
 void FeatureMgr::Process(void *ptr, eModelEntityType type)
 {
-    for (auto e : m_EntityTable[type][ptr])
+    for (const auto& pEnt : m_EntityTable[type][ptr])
     {
-        if (m_FunctionTable[e.id])
+        if (m_FunctionTable[pEnt.id])
         {
-            m_FunctionTable[e.id](ptr, e.m_pFrame, type);
+            m_FunctionTable[pEnt.id](ptr, pEnt.m_pFrame, type);
         }
     }
 }

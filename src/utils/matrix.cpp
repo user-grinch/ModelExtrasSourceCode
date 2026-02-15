@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "matrix.h"
+#include "utils/frameextention.h"
 
 bool MatrixUtil::CreateBackup(RwFrame *frame)
 {
@@ -7,7 +8,7 @@ bool MatrixUtil::CreateBackup(RwFrame *frame)
     if (!backup)
     {
         LOG(ERROR) << "Failed to create matrix backup";
-        FRAME_EXTENSION(frame)->pOrigMatrix = nullptr;
+        RwFrameExtension::Get(frame)->pOrigMatrix = nullptr;
         return false;
     }
 
@@ -17,7 +18,7 @@ bool MatrixUtil::CreateBackup(RwFrame *frame)
     backup->right = origin->right;
     backup->up = origin->up;
 
-    FRAME_EXTENSION(frame)->pOrigMatrix = backup;
+    RwFrameExtension::Get(frame)->pOrigMatrix = backup;
     return true;
 }
 

@@ -6,34 +6,36 @@
 using namespace plugin;
 
 void GangHands::Initialize() {
-    static bool alreadyLoaded = false;
+    static bool init = false;
+
+    if (init) {
+        return;
+    }
+
     Events::initGameEvent += []
     {
-        if (!alreadyLoaded) {
-            alreadyLoaded = true;
+        RwTexture *handsBlack = TextureMgr::Get("hands_black");
+        RwTexture *handsWhite = TextureMgr::Get("hands_white");
 
-            RwTexture *handsBlack = TextureMgr::Get("hands_black");
-            RwTexture *handsWhite = TextureMgr::Get("hands_white");
-
-            if (handsBlack && handsWhite)
+        if (handsBlack && handsWhite)
+        {
+            injector::MakeInline<0x59EF79, 0x59EF82>([&](injector::reg_pack& regs)
             {
-                injector::MakeInline<0x59EF79, 0x59EF82>([&](injector::reg_pack& regs)
-                {
-                    CPed* ped = *(CPed**)(regs.esp + 0x1C + 0x8);
-                    CPedModelInfo* pedModelInfo = (CPedModelInfo*)CModelInfo::GetModelInfo(ped->m_nModelIndex);
+                CPed* ped = *(CPed**)(regs.esp + 0x1C + 0x8);
+                auto* pedModelInfo = dynamic_cast<CPedModelInfo*>(CModelInfo::GetModelInfo(ped->m_nModelIndex));
 
-                    if (pedModelInfo->m_nPedType == ePedType::PED_TYPE_GANG1 || pedModelInfo->m_nPedType == ePedType::PED_TYPE_GANG2)
-                    {
-                        // normally black people
-                        regs.eax = (uint32_t)handsBlack;
-                    }
-                    else
-                    {
-                        //normally white people
-                        regs.eax = (uint32_t)handsWhite;
-                    }
-                });
-            }
+                if (pedModelInfo->m_nPedType == ePedType::PED_TYPE_GANG1 || pedModelInfo->m_nPedType == ePedType::PED_TYPE_GANG2)
+                {
+                    // normally black people
+                    regs.eax = reinterpret_cast<uint32_t>(handsBlack);
+                }
+                else
+                {
+                    //normally white people
+                    regs.eax = reinterpret_cast<uint32_t>(handsWhite);
+                }
+            });
         }
     };
+    init = true;
 }

@@ -27,4 +27,6 @@ namespace MEEvents
         weaponRemoveEvent;
     static inline CdeclEvent<AddressList<0x5E7859, H_CALL>, PRIORITY_BEFORE, ArgPickN<CPed *, 0>, void(CPed *)> weaponRenderEvent;
     static inline ThiscallEvent<AddressList<0x5E6192, H_CALL>, PRIORITY_BEFORE, ArgPick4N<CWeapon *, 0, int, 1, int, 2, CPed *, 3>, void(CWeapon *, int, int, CPed *)> weaponInitEvent;
+    
+    static inline ThiscallEvent <AddressList<0x5E6342, H_CALL>, PRIORITY_BEFORE, ArgPickN<CWeapon*, 0>, void(CWeapon*)>  weaponDtorEvent;
 }

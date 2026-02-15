@@ -1,5 +1,4 @@
 #pragma once
-#define FMT_UNICODE 0
 #include <CTimer.h>
 #include <NodeName.h>
 #include <CModelInfo.h>
@@ -27,11 +26,10 @@ enum class eModelEntityType
 };
 
 extern CIniReader gConfig;
+extern bool gVerboseLogging;
+extern bool gbVehIKInstalled;
 
 #define LOG_NO_LEVEL(x) LOG(INFO) << x;
-
-extern bool gVerboseLogging;
-
 #define LOG_VERBOSE(fmt, ...)             \
   do                                      \
   {                                       \
@@ -41,38 +39,5 @@ extern bool gVerboseLogging;
     }                                     \
   } while (0)
 
-extern unsigned int FramePluginOffset;
-#define PLUGIN_ID_STR 'MEX'
-#define PLUGIN_ID_NUM 0x42945628
-#define FRAME_EXTENSION(frame) ((RwFrameExtension *)((unsigned int)frame + FramePluginOffset))
-
-struct RwFrameExtension
-{
-  CVehicle *pOwner;
-  RwMatrix *pOrigMatrix;
-
-  static RwFrame *Initialize(RwFrame *pFrame)
-  {
-    FRAME_EXTENSION(pFrame)->pOwner = nullptr;
-    FRAME_EXTENSION(pFrame)->pOrigMatrix = nullptr;
-    return pFrame;
-  }
-
-  static RwFrame *Shutdown(RwFrame *pFrame)
-  {
-    if (FRAME_EXTENSION(pFrame)->pOrigMatrix)
-    {
-      delete FRAME_EXTENSION(pFrame)->pOrigMatrix;
-    }
-    return pFrame;
-  }
-
-  static RwFrame *Clone(RwFrame *pCopy, RwFrame *pFrame)
-  {
-    return pCopy;
-  }
-};
-
-extern bool gbVehIKInstalled;
 
 static inline CBaseModelInfo **CModelInfo__ms_modelInfoPtrs = reinterpret_cast<CBaseModelInfo **>(patch::GetPointer(0x403DA7));

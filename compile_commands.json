@@ -26,6 +26,11 @@
 },
 {
   "directory": "/mnt/p2/Code/ModelExtrasSourceCode",
+  "arguments": ["/usr/bin/clang++", "-c", "-Qunused-arguments", "--target=i686-w64-windows-gnu", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-std=c++23", "-include", "src/pch.h", "-Iinclude", "-Iinclude/imgui", "-Iinclude/coreutils", "-I/mnt/p2/Code/plugin-sdk-mingw64", "-I/mnt/p2/Code/plugin-sdk-mingw64/plugin_sa", "-I/mnt/p2/Code/plugin-sdk-mingw64/plugin_sa/game_sa", "-I/mnt/p2/Code/plugin-sdk-mingw64/plugin_sa/game_sa/rw", "-I/mnt/p2/Code/plugin-sdk-mingw64/shared", "-I/mnt/p2/Code/plugin-sdk-mingw64/shared/game", "-I/mnt/p2/Code/plugin-sdk-mingw64/injector", "-I/mnt/p2/Code/plugin-sdk-mingw64/safetyhook", "-Isrc", "-Isrc/features", "-DPLUGIN_SGV_10US", "-DMODELEXTRAS_DEV", "-DGTASA", "-DRW", "--target=i686-w64-mingw32", "-fpermissive", "-fcommon", "-fms-extensions", "-Wno-microsoft-include", "-DNDEBUG", "-o", "build/.objs/ModelExtras/mingw/x86/release/src/utils/frameextension.cpp.obj", "src/utils/frameextension.cpp"],
+  "file": "src/utils/frameextension.cpp"
+},
+{
+  "directory": "/mnt/p2/Code/ModelExtrasSourceCode",
   "arguments": ["/usr/bin/clang++", "-c", "-Qunused-arguments", "--target=i686-w64-windows-gnu", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-std=c++23", "-include", "src/pch.h", "-Iinclude", "-Iinclude/imgui", "-Iinclude/coreutils", "-I/mnt/p2/Code/plugin-sdk-mingw64", "-I/mnt/p2/Code/plugin-sdk-mingw64/plugin_sa", "-I/mnt/p2/Code/plugin-sdk-mingw64/plugin_sa/game_sa", "-I/mnt/p2/Code/plugin-sdk-mingw64/plugin_sa/game_sa/rw", "-I/mnt/p2/Code/plugin-sdk-mingw64/shared", "-I/mnt/p2/Code/plugin-sdk-mingw64/shared/game", "-I/mnt/p2/Code/plugin-sdk-mingw64/injector", "-I/mnt/p2/Code/plugin-sdk-mingw64/safetyhook", "-Isrc", "-Isrc/features", "-DPLUGIN_SGV_10US", "-DMODELEXTRAS_DEV", "-DGTASA", "-DRW", "--target=i686-w64-mingw32", "-fpermissive", "-fcommon", "-fms-extensions", "-Wno-microsoft-include", "-DNDEBUG", "-o", "build/.objs/ModelExtras/mingw/x86/release/src/utils/matrix.cpp.obj", "src/utils/matrix.cpp"],
   "file": "src/utils/matrix.cpp"
 },

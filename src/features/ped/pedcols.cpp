@@ -16,7 +16,7 @@ void PedColors::SetEditableMaterials(RpClump *pClump) {
 		if (rwObjectGetFlags(pAtomic) & rpATOMICRENDER) {
 			RpGeometryForAllMaterials(pAtomic->geometry, [](RpMaterial *pMaterial, void* data) {
 				if (m_pCurrentPed) {
-					int idx;
+					int idx = 0;
 					auto &data = m_PedData.Get(m_pCurrentPed);
 					switch (RwRGBAGetRGB(pMaterial->color))
 					{
@@ -42,12 +42,12 @@ void PedColors::SetEditableMaterials(RpClump *pClump) {
 				}
 
 				return pMaterial;
-			}, NULL);
+			}, nullptr);
 
 			pAtomic->geometry->flags |= rpGEOMETRYMODULATEMATERIALCOLOR;
 		}
 		return pAtomic;
-	}, NULL);
+	}, nullptr);
 }
 
 void PedData::Init(CPed *pPed) {

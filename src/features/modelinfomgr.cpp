@@ -7,10 +7,9 @@
 #include <rwplcore.h>
 #include <rpworld.h>
 #include "texmgr.h"
-#include "vehicle/core/colors.h"
 #include <NodeName.h>
 #include "vehicle/carcols.h"
-#include "meevents.h"
+#include "utils/meevents.h"
 #include "vehicle/dirtfx.h"
 #include "vehicle/plate.h"
 

@@ -2,8 +2,7 @@
 #include <rwcore.h>
 #include <vector>
 
-typedef class CVehicle CVehicle;
-typedef enum class eModelEntityType eModelEntityType;
+using eModelEntityType = enum class eModelEntityType;
 
 enum eVisibilityStatus {
     Ok = 1,

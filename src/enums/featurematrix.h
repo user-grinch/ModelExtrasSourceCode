@@ -46,6 +46,7 @@ enum class eFeatureMatrix
     DashboardLED,
     RollbackBed,
     Clock,
+    ExtraWheels,
 
     FeatureCount
 };
