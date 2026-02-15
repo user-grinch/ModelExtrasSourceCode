@@ -1,31 +1,34 @@
 #include "pch.h"
 #include "audiomgr.h"
 #include "defines.h"
+#include <cstdint>
 #include <extensions/ScriptCommands.h>
 #include <CAudioEngine.h>
 
 using namespace plugin;
 
-#define LOAD_AUDIO_STREAM 0x0AAC
-#define LOAD_3D_AUDIO_STREAM 0x0AC1
-#define SET_PLAY_3D_AUDIO_STREAM_AT_COORDS 0x0AC2
-#define SET_PLAY_3D_AUDIO_STREAM_AT_OBJECT 0x0AC3
-#define SET_PLAY_3D_AUDIO_STREAM_AT_CHAR 0x0AC4
-#define SET_PLAY_3D_AUDIO_STREAM_AT_CAR 0x0AC5
-#define SET_AUDIO_STREAM_STATE 0x0AAD
-#define GET_AUDIO_STREAM_STATE 0x0AB9
-#define REMOVE_AUDIO_STREAM 0x0AAE
-#define SET_AUDIO_STREAM_VOLUME 0x0ABC
+enum : uint16_t {
+    LOAD_AUDIO_STREAM = 0x0AAC,
+    LOAD_3D_AUDIO_STREAM = 0x0AC1,
+    SET_PLAY_3D_AUDIO_STREAM_AT_COORDS = 0x0AC2,
+    SET_PLAY_3D_AUDIO_STREAM_AT_OBJECT = 0x0AC3,
+    SET_PLAY_3D_AUDIO_STREAM_AT_CHAR = 0x0AC4,
+    SET_PLAY_3D_AUDIO_STREAM_AT_CAR = 0x0AC5,
+    SET_AUDIO_STREAM_STATE = 0x0AAD,
+    GET_AUDIO_STREAM_STATE = 0x0AB9,
+    REMOVE_AUDIO_STREAM = 0x0AAE,
+    SET_AUDIO_STREAM_VOLUME = 0x0ABC
+};
 
 void AudioMgr::Initialize()
 {
     Events::reInitGameEvent += []
     {
-        m_NeedToFree.clear();
+        needToFree.clear();
 
-        for (auto &e : m_Cache)
+        for (auto &pEnt : cache)
         {
-            e.second = Load(e.first);
+            pEnt.second = Load(pEnt.first);
         }
     };
 
@@ -36,7 +39,7 @@ void AudioMgr::Initialize()
 
         if (cur - prev > 5000)
         {
-            for (auto it = m_NeedToFree.begin(); it != m_NeedToFree.end();)
+            for (auto it = needToFree.begin(); it != needToFree.end();)
             {
                 if (!*it)
                 {
@@ -49,7 +52,7 @@ void AudioMgr::Initialize()
                 {
                     Command<REMOVE_AUDIO_STREAM>(*it);
                     *it = NULL;
-                    it = m_NeedToFree.erase(it);
+                    it = needToFree.erase(it);
                 }
                 else
                 {
@@ -87,7 +90,7 @@ StreamHandle AudioMgr::Load(const std::string &path)
 {
     if (path.empty())
     {
-        return false;
+        return NULL;
     }
 
     StreamHandle handle = NULL;
@@ -96,21 +99,20 @@ StreamHandle AudioMgr::Load(const std::string &path)
         Command<LOAD_3D_AUDIO_STREAM>(path.c_str(), &handle);
     }
 
-    if (handle)
+    if (handle != NULL)
     {
         is3DSupported[path] = true;
     }
     else
     {
         Command<LOAD_AUDIO_STREAM>(path.c_str(), &handle);
-        if (handle)
+        if (handle == NULL)
         {
-            is3DSupported[path] = false;
+            LOG_VERBOSE("Failed to load sound '{}'", path);
         }
         else
         {
-            LOG_VERBOSE("Failed to load sound '{}'", path);
-            return NULL;
+            is3DSupported[path] = false;
         }
     }
     return handle;
@@ -132,30 +134,27 @@ void AudioMgr::PlayFileSound(const std::string &path, CEntity *pEntity, float vo
 
     if (cached)
     {
-        if (!m_Cache.contains(path))
+        if (!cache.contains(path))
         {
             StreamHandle temp = Load(path);
-            if (temp)
-            {
-                m_Cache[path] = temp;
-            }
-            else
+            if (temp == NULL)
             {
                 return;
             }
+            cache[path] = temp;
         }
-        handle = m_Cache[path];
+        handle = cache[path];
     }
     else
     {
         handle = Load(path);
-        if (handle)
+        if (handle != NULL)
         {
-            m_NeedToFree.push_back(handle);
+            needToFree.push_back(handle);
         }
     }
 
-    if (!handle)
+    if (handle == NULL)
     {
         return;
     }
@@ -166,15 +165,16 @@ void AudioMgr::PlayFileSound(const std::string &path, CEntity *pEntity, float vo
     if (state != eAudioStreamState::Playing)
     {
         SetVolume(handle, volume);
-        if (!pEntity)
+        if (pEntity == nullptr)
         {
             pEntity = FindPlayerPed();
         }
 
+        // We're verifying the type so static_cast should be fine 
         if (pEntity->m_nType == ENTITY_TYPE_VEHICLE)
         {
             int hEntity = CPools::GetVehicleRef(static_cast<CVehicle *>(pEntity));
-            if (hEntity)
+            if (hEntity != NULL)
             {
                 Command<SET_PLAY_3D_AUDIO_STREAM_AT_CAR>(handle, hEntity);
             }
@@ -182,7 +182,7 @@ void AudioMgr::PlayFileSound(const std::string &path, CEntity *pEntity, float vo
         else if (pEntity->m_nType == ENTITY_TYPE_PED)
         {
             int hEntity = CPools::GetPedRef(static_cast<CPed *>(pEntity));
-            if (hEntity)
+            if (hEntity != NULL)
             {
                 Command<SET_PLAY_3D_AUDIO_STREAM_AT_CHAR>(handle, hEntity);
             }
@@ -190,14 +190,14 @@ void AudioMgr::PlayFileSound(const std::string &path, CEntity *pEntity, float vo
         else if (pEntity->m_nType == ENTITY_TYPE_OBJECT)
         {
             int hEntity = CPools::GetObjectRef(static_cast<CObject *>(pEntity));
-            if (hEntity)
+            if (hEntity != NULL)
             {
                 Command<SET_PLAY_3D_AUDIO_STREAM_AT_OBJECT>(handle, hEntity);
             }
         }
         else
         {
-            CVector pos = pEntity->GetPosition();
+            const CVector &pos = pEntity->GetPosition();
             Command<SET_PLAY_3D_AUDIO_STREAM_AT_COORDS>(handle, pos.x, pos.y, pos.z);
         }
         Command<SET_AUDIO_STREAM_STATE>(handle, static_cast<int>(eAudioStreamState::Playing));
@@ -206,7 +206,7 @@ void AudioMgr::PlayFileSound(const std::string &path, CEntity *pEntity, float vo
 
 void AudioMgr::SetVolume(StreamHandle handle, float volume)
 {
-    if (handle)
+    if (handle != NULL)
     {
         static float mult = gConfig.ReadFloat("TWEAKS", "SoundMult", 1.0f);
         Command<SET_AUDIO_STREAM_VOLUME>(handle, *(BYTE *)0xBA6797 / 64.0f * volume * mult);

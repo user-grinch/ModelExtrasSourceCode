@@ -15,8 +15,8 @@ enum eAudioStreamState
 class AudioMgr
 {
 private:
-    static inline std::deque<StreamHandle> m_NeedToFree;
-    static inline std::unordered_map<std::string, StreamHandle> m_Cache;
+    static inline std::deque<StreamHandle> needToFree;
+    static inline std::unordered_map<std::string, StreamHandle> cache;
 
     static StreamHandle Load(const std::string &path);
     static void SetVolume(StreamHandle handle, float volume);
