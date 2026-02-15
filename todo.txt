@@ -1,0 +1,10 @@
+1. Refactor the codebase [Specially lights & sirens] (Huge time requried probably sometime in late ramadan)
+2. Implement Damage part support for SlideDoor & RotateDoor
+3. Clean up the Wiki documentation
+4. Implement support for Fastman92 Limit Adjuster
+5. Implement addition wheels support for Automobiles
+6. Fix crash with HD Gang Hands
+7. Fix shadow fliker during enter/exit vehicles
+8. Fix occasional rotation of map objects
+9. Fix turbo gauge needles shaking
+10. Investigate & Fix SAMP related bugs
