@@ -64,10 +64,10 @@ target("ModelExtras")
         "-fcommon", 
         "-fms-extensions", 
         "-Wno-microsoft-include",
-        "-gdwarf-4",            -- Ensure compiler uses v4
-        "-gstrict-dwarf",       -- Keep it standard for dbghelp
+        "-gdwarf-4",            
+        "-gstrict-dwarf",       
         "-gcodeview",
-        "-fdebug-macro"         -- Optional: helps with some macro debugging
+        "-fdebug-macro"        
     )
     
     add_shflags(

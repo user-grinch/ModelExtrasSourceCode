@@ -1,3 +1,5 @@
+/archive/
+/archive_staging/
 /build/
 /.xmake/
 /.vscode/.cache/
