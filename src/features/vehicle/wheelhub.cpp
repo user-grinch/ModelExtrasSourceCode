@@ -46,24 +46,13 @@ void WheelHub::Initialize()
 
         auto updateRotation = [&](RwFrame* ori, RwFrame* tar, bool isLeft) 
         {
-            if (ori && tar) 
+            if (ori && tar)
             {
-                // Get the wheel's steering angle (Z-Rotation)
-                double rot = MatrixUtil::GetRotationZ(&ori->modelling);
-
-                // FIX: Invert the angle for left-side wheels to correct the "Wrong Way" rotation
-                if (isLeft) {
-                    rot = -rot;
-                }
-
-                // Apply the fixed rotation directly to the hub
-                MatrixUtil::SetRotationZAbsolute(&tar->modelling, rot);
-
-                // Sync Position: Ensure the hub follows the wheel's suspension movement (Z)
-                // You might want to sync X and Y too if the wheel moves laterally
-                tar->modelling.pos = ori->modelling.pos; 
-
-                modified = true;
+                double oriRot = MatrixUtil::GetRotationZ(&ori->modelling);
+                double tarRot = MatrixUtil::GetRotationZ(&tar->modelling);
+                MatrixUtil::SetRotationZAbsolute(&tar->modelling, (oriRot - tarRot));
+                tar->modelling.pos.z = ori->modelling.pos.z;
+                pVeh->UpdateRwFrame();
             }
         };
 

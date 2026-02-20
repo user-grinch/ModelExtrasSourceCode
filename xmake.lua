@@ -58,7 +58,17 @@ target("ModelExtras")
         "include/imgui/**.cpp"
     )
 
-    add_cxflags("--target=i686-w64-mingw32", "-fpermissive", "-fcommon", "-fms-extensions", "-Wno-microsoft-include")
+    add_cxflags(
+        "--target=i686-w64-mingw32", 
+        "-fpermissive", 
+        "-fcommon", 
+        "-fms-extensions", 
+        "-Wno-microsoft-include",
+        "-gdwarf-4",            -- Ensure compiler uses v4
+        "-gstrict-dwarf",       -- Keep it standard for dbghelp
+        "-gcodeview",
+        "-fdebug-macro"         -- Optional: helps with some macro debugging
+    )
     
     add_shflags(
         "-static", 
@@ -69,6 +79,7 @@ target("ModelExtras")
         "-lpthread", 
         "-Wl,-Bdynamic", 
         "-Wl,--allow-multiple-definition",
+        "-Wl,--build-id",
         {force = true}
     )
     

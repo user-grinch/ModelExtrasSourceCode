@@ -104,7 +104,7 @@ void FeatureMgr::Initialize()
             CWeaponInfo *pWeaponInfo = CWeaponInfo::GetWeaponInfo(weaponType, pPed->GetWeaponSkill(weaponType));
             if (pWeaponInfo && pWeaponInfo->m_nModelId > 0)
             {
-                auto *pWeaponModelInfo = dynamic_cast<CWeaponModelInfo *>(CModelInfo::GetModelInfo(pWeaponInfo->m_nModelId));
+                auto *pWeaponModelInfo = reinterpret_cast<CWeaponModelInfo *>(CModelInfo::GetModelInfo(pWeaponInfo->m_nModelId));
                 if (pWeaponModelInfo && pWeaponModelInfo->m_pRwClump)
                 {
                     Add(static_cast<void *>(&pPed->m_aWeapons[pPed->m_nSelectedWepSlot]),
