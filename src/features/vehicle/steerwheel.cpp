@@ -12,13 +12,13 @@ void SteerWheel::Initialize()
 
         // VehFuncs
         std::string name = GetFrameNodeName(pFrame);
-        if (name.starts_with("f_steer")) {
+        if (Hash::StartsWith(name, "f_steer")) {
             if (name.length() >= 7 && isdigit(name[7]))
             {
                 data.factor = (float)std::stoi(&name[7]) / 2;
             }
             data.pFrame = pFrame;
-        } else if (name.starts_with("movsteer") || name.starts_with("steering_dummy") || name.starts_with("ik_steer")) {
+        } else if (Hash::StartsWith(name, "movsteer") || Hash::StartsWith(name, "steering_dummy") || Hash::StartsWith(name, "ik_steer")) {
             data.pFrame = pFrame;
         } 
     });

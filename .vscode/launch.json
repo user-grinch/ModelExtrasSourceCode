@@ -1,0 +1,23 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Attach to Wine Process",
+            "type": "cppdbg",
+            "request": "attach",
+            "program": "${workspaceFolder}/myprogram.exe", // Path to your compiled .exe
+            "MIMode": "gdb",
+            "miDebuggerPath": "/usr/bin/x86_64-w64-mingw32-gdb", // Path to your cross-debugger
+            "customLaunchSetupCommands": [
+                {
+                    "text": "target extended-remote localhost:12345",
+                    "description": "Connect to gdbserver",
+                    "ignoreFailures": false
+                }
+            ],
+            "processId": "${command:pickProcess}", // Can use this or the custom setup commands
+            "targetArchitecture": "x86_64",
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}

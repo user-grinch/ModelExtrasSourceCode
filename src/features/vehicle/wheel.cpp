@@ -15,47 +15,60 @@ void UpdateWheelRotation(CVehicle *pVeh, RwFrame *ori, RwFrame *tar)
 
 void ExtraWheel::Initialize()
 {
-    ModelInfoMgr::RegisterDummy([](CVehicle *pVeh, RwFrame *pFrame)
-                                {
+    ModelInfoMgr::RegisterDummy([](CVehicle* pVeh, RwFrame* pFrame) {
         VehData& data = xData.Get(pVeh);
-        std::string name = GetFrameNodeName(pFrame);
+        std::string_view name = GetFrameNodeName(pFrame);
+        Hash::Value nameHash = Hash::Get(name);
 
-        if (name == "wheel_rf_dummy") {
-            data.pOriginals[static_cast<int>(eWheelPos::RightFront)].push_back(pFrame);
+        switch (nameHash) {
+            case "wheel_rf_dummy"_h:
+                data.pOriginals[static_cast<int>(eWheelPos::RightFront)].push_back(pFrame);
+                break;
+            case "wheel_rm_dummy"_h:
+                data.pOriginals[static_cast<int>(eWheelPos::RightMiddle)].push_back(pFrame);
+                break;
+            case "wheel_rr_dummy"_h:
+            case "wheel_rb_dummy"_h:
+                data.pOriginals[static_cast<int>(eWheelPos::RightRear)].push_back(pFrame);
+                break;
+            case "wheel_lf_dummy"_h:
+                data.pOriginals[static_cast<int>(eWheelPos::LeftFront)].push_back(pFrame);
+                break;
+            case "wheel_lm_dummy"_h:
+                data.pOriginals[static_cast<int>(eWheelPos::LeftMiddle)].push_back(pFrame);
+                break;
+            case "wheel_lr_dummy"_h:
+            case "wheel_lb_dummy"_h:
+                data.pOriginals[static_cast<int>(eWheelPos::LeftRear)].push_back(pFrame);
+                break;
         }
-        else if (name == "wheel_rm_dummy") {
-            data.pOriginals[static_cast<int>(eWheelPos::RightMiddle)].push_back(pFrame);
-        }
-        else if (name == "wheel_rr_dummy" || name == "wheel_rb_dummy") {
-            data.pOriginals[static_cast<int>(eWheelPos::RightRear)].push_back(pFrame);
-        }
-        else if (name == "wheel_lf_dummy") {
-            data.pOriginals[static_cast<int>(eWheelPos::LeftFront)].push_back(pFrame);
-        }
-        else if (name == "wheel_lm_dummy") {
-            data.pOriginals[static_cast<int>(eWheelPos::LeftMiddle)].push_back(pFrame);
-        }
-        else if (name == "wheel_lr_dummy" || name == "wheel_lb_dummy") {
-            data.pOriginals[static_cast<int>(eWheelPos::LeftRear)].push_back(pFrame);
-        }
-        
-        if (!name.starts_with("x_wheel") || name.length() < 8) {
+
+        if (!Hash::StartsWith(name, "x_wheel") || name.length() < 10) {
             return;
         }
 
-        if (name.starts_with("x_wheel_lf")) {
-            data.pExtras[static_cast<int>(eWheelPos::LeftFront)].push_back(pFrame);
-        }else   if (name.starts_with("x_wheel_lm")) {
-            data.pExtras[static_cast<int>(eWheelPos::LeftMiddle)].push_back(pFrame);
-        } else   if (name.starts_with("x_wheel_lr")) {
-            data.pExtras[static_cast<int>(eWheelPos::LeftRear)].push_back(pFrame);
-        } else   if (name.starts_with("x_wheel_rf")) {
-            data.pExtras[static_cast<int>(eWheelPos::RightFront)].push_back(pFrame);
-        } else   if (name.starts_with("x_wheel_rm")) {
-            data.pExtras[static_cast<int>(eWheelPos::RightMiddle)].push_back(pFrame);
-        } else   if (name.starts_with("x_wheel_rr")) {
-            data.pExtras[static_cast<int>(eWheelPos::RightRear)].push_back(pFrame);
-        } });
+        Hash::Value prefixHash = Hash::Get(name.substr(0, 10));
+        switch (prefixHash) {
+            case "x_wheel_lf"_h:
+                data.pExtras[static_cast<int>(eWheelPos::LeftFront)].push_back(pFrame);
+                break;
+            case "x_wheel_lm"_h:
+                data.pExtras[static_cast<int>(eWheelPos::LeftMiddle)].push_back(pFrame);
+                break;
+            case "x_wheel_lr"_h:
+                data.pExtras[static_cast<int>(eWheelPos::LeftRear)].push_back(pFrame);
+                break;
+            case "x_wheel_rf"_h:
+                data.pExtras[static_cast<int>(eWheelPos::RightFront)].push_back(pFrame);
+                break;
+            case "x_wheel_rm"_h:
+                data.pExtras[static_cast<int>(eWheelPos::RightMiddle)].push_back(pFrame);
+                break;
+            case "x_wheel_rr"_h:
+                data.pExtras[static_cast<int>(eWheelPos::RightRear)].push_back(pFrame);
+                break;
+        }
+    });
 
     ModelInfoMgr::RegisterRender([](CVehicle *pVeh)
                                  {

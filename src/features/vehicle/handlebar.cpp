@@ -1,8 +1,6 @@
 #include "pch.h"
 #include "handlebar.h"
 #include "modelinfomgr.h"
-#define TARGET_NODE "handlebars"
-#define SOURCE_NODE "forks_front"
 
 void HandleBar::Initialize()
 {
@@ -18,7 +16,6 @@ void HandleBar::Initialize()
         } else  if (name == "handlebars") {
             data.m_pTarget = pFrame;
         } 
-
     });
 
     ModelInfoMgr::RegisterRender([](CVehicle *pVeh)
